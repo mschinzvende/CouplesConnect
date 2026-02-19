@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Models;
+namespace CouplesConnect.Data.Models;
 
 [Index("CounselorId", Name = "IX_Bookings_Counselor")]
 [Index("UserId", Name = "IX_Bookings_User")]

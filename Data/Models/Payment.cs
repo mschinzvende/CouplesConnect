@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Models;
+namespace CouplesConnect.Data.Models;
 
 [Index("BookingId", Name = "IX_Payments_Booking")]
 public partial class Payment

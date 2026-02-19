@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CouplesConnect.Models;
+using CouplesConnect.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data;

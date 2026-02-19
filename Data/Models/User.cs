@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Models;
+namespace CouplesConnect.Data.Models;
 
 [Index("Phone", Name = "UQ__Users__5C7E359EAC1CF823", IsUnique = true)]
 [Index("Email", Name = "UQ__Users__A9D10534C3DCBD84", IsUnique = true)]
