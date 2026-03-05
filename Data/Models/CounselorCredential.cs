@@ -22,6 +22,6 @@ public partial class CounselorCredential
     public DateTime? UploadedAt { get; set; }
 
     [ForeignKey("CounselorId")]
-    [InverseProperty("CounselorCredentials")]
+    
     public virtual Counselor Counselor { get; set; } = null!;
 }

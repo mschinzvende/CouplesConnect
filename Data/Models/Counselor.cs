@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CouplesConnect.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
@@ -41,6 +42,6 @@ public partial class Counselor
     public virtual ICollection<SessionNote> SessionNotes { get; set; } = new List<SessionNote>();
 
     [ForeignKey("UserId")]
-    [InverseProperty("Counselors")]
-    public virtual User User { get; set; } = null!;
+    
+    public ApplicationUser User { get; set; }
 }

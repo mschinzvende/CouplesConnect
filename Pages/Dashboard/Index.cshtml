@@ -1,0 +1,261 @@
+﻿@page "/dashboard"
+@model CouplesConnect.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+
+    Layout = "_Layout";
+}
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="mb-4">
+
+        <h2 class="fw-bold">Welcome Back</h2>
+
+        <p class="text-muted">
+            Here is a quick overview of your relationship journey.
+        </p>
+
+    </div>
+
+
+    <!-- STAT CARDS -->
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted small">
+                        Upcoming Sessions
+                    </div>
+
+                    <div class="display-6 fw-bold mt-2">
+                        @Model.UpcomingSessions
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted small">
+                        Total Bookings
+                    </div>
+
+                    <div class="display-6 fw-bold mt-2">
+                        @Model.TotalBookings
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted small">
+                        Trial Sessions Remaining
+                    </div>
+
+                    <div class="display-6 fw-bold mt-2">
+                        @Model.TrialRemaining
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted small">
+                        Open Inquiries
+                    </div>
+
+                    <div class="display-6 fw-bold mt-2">
+                        @Model.OpenInquiries
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN DASHBOARD AREA -->
+
+    <div class="row g-4">
+
+        <!-- UPCOMING SESSIONS -->
+
+        <div class="col-md-8">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white border-0">
+
+                    <h5 class="mb-0 fw-bold">
+                        Upcoming Sessions
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    @if (Model.UpcomingSessionsList.Any())
+                    {
+
+                        <table class="table align-middle">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Service</th>
+                                    <th>Counselor</th>
+                                    <th>Status</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            @foreach (var s in Model.UpcomingSessionsList)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @s.ScheduledStart.ToString()
+                                    </td>
+
+                                    <td>
+                                        @s.Service.Name
+                                    </td>
+
+                                    <td>
+                                        @s.Counselor.User.FullName
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            @s.BookingStatus
+                                        </span>
+                                    </td>
+
+                                </tr>
+                            }
+
+                            </tbody>
+
+                        </table>
+
+                    }
+                    else
+                    {
+
+                        <p class="text-muted">
+                            You have no upcoming sessions.
+                        </p>
+
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="col-md-4">
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white border-0">
+
+                    <h5 class="fw-bold mb-0">
+                        Quick Actions
+                    </h5>
+
+                </div>
+
+                <div class="card-body d-grid gap-2">
+
+                    <a href="/services" class="btn btn-primary">
+                        Book New Session
+                    </a>
+
+                    <a href="/bookings" class="btn btn-outline-primary">
+                        View My Bookings
+                    </a>
+
+                    <a href="/resources" class="btn btn-outline-secondary">
+                        Explore Resources
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- RELATIONSHIP TIP -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-header bg-white border-0">
+
+                    <h6 class="fw-bold mb-0">
+                        Relationship Tip
+                    </h6>
+
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted mb-0">
+
+                        Consistent communication is key.
+                        Take a few minutes each day to ask your partner
+                        how they are feeling.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

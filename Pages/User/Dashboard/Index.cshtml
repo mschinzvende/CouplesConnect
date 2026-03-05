@@ -1,0 +1,158 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.User.Dashboard.IndexModel
+@attribute [Authorize(Roles = "User")]
+
+<h3 class="mb-4">Relationship Dashboard</h3>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <div class="text-muted small">Upcoming Sessions</div>
+                        <h3 class="fw-bold">@Model.UpcomingSessions</h3>
+                    </div>
+
+                    <i class="bi bi-calendar-check fs-2 text-primary"></i>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <div class="text-muted small">Total Bookings</div>
+                        <h3 class="fw-bold">@Model.TotalBookings</h3>
+                    </div>
+
+                    <i class="bi bi-journal-check fs-2 text-success"></i>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <div class="text-muted small">Sessions Completed</div>
+                        <h3 class="fw-bold">@Model.CompletedSessions</h3>
+                    </div>
+
+                    <i class="bi bi-heart fs-2 text-danger"></i>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <div class="text-muted small">Resources Viewed</div>
+                        <h3 class="fw-bold">@Model.ResourcesViewed</h3>
+                    </div>
+
+                    <i class="bi bi-book fs-2 text-warning"></i>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row g-4">
+
+    <div class="col-md-8">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-white">
+                Session Activity
+            </div>
+
+            <div class="card-body">
+                <canvas id="sessionChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="col-md-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-white">
+                Quick Actions
+            </div>
+
+            <div class="card-body d-grid gap-2">
+
+                <a href="/services" class="btn btn-primary">
+                    Book Session
+                </a>
+
+                <a href="/User/Bookings" class="btn btn-outline-primary">
+                    My Bookings
+                </a>
+
+                <a href="/User/Resources" class="btn btn-outline-secondary">
+                    Resources
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        var ctx = document.getElementById('sessionChart');
+
+        new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: @Html.Raw(Model.ChartLabels),
+        datasets: [{
+        label: 'Sessions',
+        data: @Html.Raw(Model.ChartData),
+        borderWidth: 2
+        }]
+        }
+        });
+
+    </script>
+
+}

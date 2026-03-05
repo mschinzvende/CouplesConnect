@@ -1,0 +1,81 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Admin.Dashboard.IndexModel
+@attribute [Authorize(Roles = "Admin")]
+
+<h3 class="mb-4">Platform Analytics</h3>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Users</div>
+                <h3>@Model.TotalUsers</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Counselors</div>
+                <h3>@Model.TotalCounselors</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Sessions</div>
+                <h3>@Model.TotalSessions</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="text-muted small">Revenue</div>
+                <h3>$@Model.TotalRevenue</h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white">
+        Platform Growth
+    </div>
+
+    <div class="card-body">
+
+        <canvas id="growthChart"></canvas>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        var ctx = document.getElementById('growthChart');
+
+        new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: @Html.Raw(Model.ChartLabels),
+        datasets: [{
+        label: 'New Users',
+        data: @Html.Raw(Model.ChartData)
+        }]
+        }
+        });
+
+    </script>
+
+}

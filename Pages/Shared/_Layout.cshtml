@@ -1,51 +1,171 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using CouplesConnect.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CouplesConnect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"] - Couples Connect</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CouplesConnect.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">CouplesConnect</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+
+        <div class="sidebar">
+
+            <div class="brand">
+
+                Couples Connect
+
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+            <nav class="menu">
+
+                @if (User.IsInRole("User"))
+                {
+                    <a href="/User/Dashboard" class="menu-item">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+
+                    <a href="/User/Bookings" class="menu-item">
+                        <i class="bi bi-calendar-check"></i> My Bookings
+                    </a>
+
+                    <a href="/User/Resources" class="menu-item">
+                        <i class="bi bi-journal-text"></i> Resources
+                    </a>
+                }
+
+                @if (User.IsInRole("Counselor"))
+                {
+                    <a href="/Counselor/Dashboard" class="menu-item">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+
+                    <a href="/Counselor/Sessions" class="menu-item">
+                        <i class="bi bi-camera-video"></i> Sessions
+                    </a>
+
+                    <a href="/Counselor/Availability" class="menu-item">
+                        <i class="bi bi-clock"></i> Availability
+                    </a>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="/Admin/Dashboard" class="menu-item">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+
+                    <a href="/Admin/Users" class="menu-item">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+
+                    <a href="/Admin/Counselors" class="menu-item">
+                        <i class="bi bi-person-badge"></i> Counselors
+                    </a>
+
+                    <a href="/Admin/Services" class="menu-item">
+                        <i class="bi bi-gear"></i> Services
+                    </a>
+                }
+
+            </nav>
+
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <div class="sidebar-footer">
+
+                    <div class="small text-muted mb-2">
+                        @UserManager.GetUserAsync(User).Result.FullName
+                    </div>
+
+                    <form method="post" asp-page="/Account/Logout">
+                        <button class="btn btn-outline-danger btn-sm w-100">
+                            Logout
+                        </button>
+                    </form>
+
+                </div>
+            }
+
+        </div>
+
+
+
+        <!-- MAIN CONTENT -->
+
+        <div class="main">
+
+            <header class="topbar">
+
+                <button id="toggleMenu" class="btn btn-light">
+
+                    <i class="bi bi-list"></i>
+
+                </button>
+
+            </header>
+
+            <div class="page">
+
+                @RenderBody()
+
+            </div>
+
+            <footer class="footer">
+
+                © @DateTime.Now.Year Couples Connect
+
+            </footer>
+
+        </div>
+
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CouplesConnect - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const toggleButton = document.getElementById("toggleMenu");
+            const sidebar = document.querySelector(".sidebar");
+
+            if (toggleButton && sidebar) {
+
+                toggleButton.addEventListener("click", function () {
+
+                    sidebar.classList.toggle("show");
+
+                });
+
+            }
+
+        });
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
 </body>
 </html>

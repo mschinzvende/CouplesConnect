@@ -23,6 +23,6 @@ public partial class CounselorAvailability
     public bool? IsAvailable { get; set; }
 
     [ForeignKey("CounselorId")]
-    [InverseProperty("CounselorAvailabilities")]
+   
     public virtual Counselor Counselor { get; set; } = null!;
 }

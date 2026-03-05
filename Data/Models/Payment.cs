@@ -31,6 +31,6 @@ public partial class Payment
     public DateTime? CreatedAt { get; set; }
 
     [ForeignKey("BookingId")]
-    [InverseProperty("Payments")]
+    
     public virtual Booking Booking { get; set; } = null!;
 }

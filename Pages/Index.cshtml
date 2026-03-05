@@ -1,10 +1,242 @@
 ﻿@page
-@model IndexModel
+@model CouplesConnect.Pages.IndexModel
+
 @{
-    ViewData["Title"] = "Home page";
+Layout = "_AuthLayout";
+ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+
+<!-- HERO -->
+
+<section class="hero text-center py-5">
+
+<h1 class="display-5 fw-bold">
+
+Stronger Relationships Start Here
+
+</h1>
+
+<p class="lead text-muted mt-3">
+
+Couples Connect helps partners communicate better,
+resolve challenges, and grow together through guided conversations
+and professional counseling.
+
+</p>
+
+<div class="mt-4">
+
+<a href="/signup" class="btn btn-primary btn-lg me-2">
+
+Get Started
+
+</a>
+
+<a href="/signin" class="btn btn-outline-primary btn-lg">
+
+Sign In
+
+</a>
+
+</div>
+
+</section>
+
+
+
+<!-- FEATURES -->
+
+<section class="py-5">
+
+<div class="row text-center">
+
+<div class="col-md-4">
+
+<div class="feature-card">
+
+<i class="bi bi-chat-heart feature-icon"></i>
+
+<h5 class="fw-bold mt-3">
+
+Guided Conversations
+
+</h5>
+
+<p class="text-muted">
+
+Structured conversation tools that help couples
+communicate openly and understand each other better.
+
+</p>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<div class="feature-card">
+
+<i class="bi bi-person-hearts feature-icon"></i>
+
+<h5 class="fw-bold mt-3">
+
+Professional Counseling
+
+</h5>
+
+<p class="text-muted">
+
+Connect with certified counselors who can help
+navigate relationship challenges.
+
+</p>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-4">
+
+<div class="feature-card">
+
+<i class="bi bi-journal-heart feature-icon"></i>
+
+<h5 class="fw-bold mt-3">
+
+Reflection Tools
+
+</h5>
+
+<p class="text-muted">
+
+Private spaces where partners can reflect
+on emotions, thoughts, and relationship progress.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- HOW IT WORKS -->
+
+<section class="py-5 bg-light rounded">
+
+<div class="text-center mb-5">
+
+<h3 class="fw-bold">
+
+How Couples Connect Works
+
+</h3>
+
+</div>
+
+<div class="row text-center">
+
+<div class="col-md-4">
+
+<h5>1. Create Your Account</h5>
+
+<p class="text-muted">
+
+Sign up and set your relationship preferences.
+
+</p>
+
+</div>
+
+<div class="col-md-4">
+
+<h5>2. Choose a Service</h5>
+
+<p class="text-muted">
+
+Select counseling sessions or guided conversations.
+
+</p>
+
+</div>
+
+<div class="col-md-4">
+
+<h5>3. Grow Together</h5>
+
+<p class="text-muted">
+
+Track progress and strengthen communication.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- COUNSELOR CTA -->
+
+<section class="py-5 text-center">
+
+<h4 class="fw-bold">
+
+Are you a professional relationship counselor?
+
+</h4>
+
+<p class="text-muted mt-2">
+
+Join Couples Connect and help couples build stronger relationships.
+
+</p>
+
+<a href="/register-counselor" class="btn btn-outline-primary mt-3">
+
+Apply as Counselor
+
+</a>
+
+</section>
+
+
+
+<!-- FINAL CTA -->
+
+<section class="py-5 text-center">
+
+<h3 class="fw-bold">
+
+Start Strengthening Your Relationship Today
+
+</h3>
+
+<p class="text-muted">
+
+Take the first step toward healthier communication and deeper connection.
+
+</p>
+
+<a href="/signup" class="btn btn-primary btn-lg mt-3">
+
+Create Your Account
+
+</a>
+
+</section>
+
 </div>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CouplesConnect.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
@@ -27,6 +28,6 @@ public partial class Message
     public virtual Booking Booking { get; set; } = null!;
 
     [ForeignKey("SenderId")]
-    [InverseProperty("Messages")]
-    public virtual User Sender { get; set; } = null!;
+
+    public ApplicationUser User { get; set; }
 }

@@ -29,12 +29,12 @@ public partial class Session
     public DateTime? CreatedAt { get; set; }
 
     [ForeignKey("BookingId")]
-    [InverseProperty("Sessions")]
+    
     public virtual Booking Booking { get; set; } = null!;
 
-    [InverseProperty("Session")]
+   
     public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-    [InverseProperty("Session")]
+    
     public virtual ICollection<SessionNote> SessionNotes { get; set; } = new List<SessionNote>();
 }

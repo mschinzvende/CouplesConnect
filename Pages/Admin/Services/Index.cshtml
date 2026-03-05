@@ -1,0 +1,90 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Admin.Services.IndexModel
+@attribute [Authorize(Roles="Admin")]
+
+@{
+ViewData["Title"] = "Service Management";
+}
+
+<h3 class="mb-4">Services</h3>
+
+<div class="card shadow-sm">
+
+<div class="card-header bg-white d-flex justify-content-between">
+
+<h5 class="mb-0">Available Services</h5>
+
+<a class="btn btn-primary" asp-page="Create">
+
+Add Service
+
+</a>
+
+</div>
+
+<div class="card-body">
+
+<table class="table table-hover">
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Duration</th>
+<th>Price</th>
+<th>Status</th>
+<th></th>
+</tr>
+
+</thead>
+
+<tbody>
+
+@foreach(var service in Model.Services)
+{
+
+<tr>
+
+<td>@service.Name</td>
+
+<td>@service.DurationMinutes minutes</td>
+
+<td>$@service.BasePrice</td>
+
+<td>
+
+@if(service.IsActive)
+{
+<span class="badge bg-success">Active</span>
+}
+else
+{
+<span class="badge bg-secondary">Inactive</span>
+}
+
+</td>
+
+<td>
+
+<a asp-page="Edit"
+asp-route-id="@service.ServiceId"
+class="btn btn-sm btn-outline-primary">
+
+Edit
+
+</a>
+
+</td>
+
+</tr>
+
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>

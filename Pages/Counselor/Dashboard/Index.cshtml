@@ -1,0 +1,90 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Counselor.Dashboard.IndexModel
+@attribute [Authorize(Roles = "Counselor")]
+
+<h3 class="mb-4">Counselor Analytics</h3>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="text-muted small">Today's Sessions</div>
+                <h3>@Model.TodaySessions</h3>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="text-muted small">Total Sessions</div>
+                <h3>@Model.TotalSessions</h3>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="text-muted small">Rating</div>
+                <h3>@Model.AverageRating</h3>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <div class="text-muted small">Monthly Earnings</div>
+                <h3>$@Model.MonthlyIncome</h3>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white">
+        Session Trends
+    </div>
+
+    <div class="card-body">
+
+        <canvas id="incomeChart"></canvas>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        var ctx = document.getElementById('incomeChart');
+
+        new Chart(ctx, {
+        type: 'bar',
+        data: {
+        labels: @Html.Raw(Model.ChartLabels),
+        datasets: [{
+        label: 'Sessions',
+        data: @Html.Raw(Model.ChartData)
+        }]
+        }
+        });
+
+    </script>
+
+}

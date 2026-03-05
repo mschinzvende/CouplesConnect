@@ -20,10 +20,10 @@ public partial class SessionNote
     public DateTime? CreatedAt { get; set; }
 
     [ForeignKey("CounselorId")]
-    [InverseProperty("SessionNotes")]
+    
     public virtual Counselor Counselor { get; set; } = null!;
 
     [ForeignKey("SessionId")]
-    [InverseProperty("SessionNotes")]
+   
     public virtual Session Session { get; set; } = null!;
 }

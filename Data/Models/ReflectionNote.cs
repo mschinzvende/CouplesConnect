@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using CouplesConnect.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
@@ -18,6 +19,6 @@ public partial class ReflectionNote
     public DateTime? CreatedAt { get; set; }
 
     [ForeignKey("UserId")]
-    [InverseProperty("ReflectionNotes")]
-    public virtual User User { get; set; } = null!;
+   
+    public ApplicationUser User { get; set; }
 }
