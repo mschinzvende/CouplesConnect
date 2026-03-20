@@ -29,19 +29,4 @@ public partial class Counselor
 
     public DateTime? CreatedAt { get; set; }
 
-    [InverseProperty("Counselor")]
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
-    [InverseProperty("Counselor")]
-    public virtual ICollection<CounselorAvailability> CounselorAvailabilities { get; set; } = new List<CounselorAvailability>();
-
-    [InverseProperty("Counselor")]
-    public virtual ICollection<CounselorCredential> CounselorCredentials { get; set; } = new List<CounselorCredential>();
-
-    [InverseProperty("Counselor")]
-    public virtual ICollection<SessionNote> SessionNotes { get; set; } = new List<SessionNote>();
-
-    [ForeignKey("UserId")]
-    
-    public ApplicationUser User { get; set; }
 }

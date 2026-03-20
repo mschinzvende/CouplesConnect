@@ -24,6 +24,7 @@ namespace CouplesConnect.Pages.User.Dashboard
         }
 
         public int UpcomingSessions { get; set; }
+        public int SessionsRemaining { get; set; }
         public int TotalBookings { get; set; }
         public int CompletedSessions { get; set; }
         public int ResourcesViewed { get; set; }
@@ -47,6 +48,16 @@ namespace CouplesConnect.Pages.User.Dashboard
             CompletedSessions = await _context.Bookings
             .Where(x => x.UserId == user.Id && x.BookingStatus == "Completed")
             .CountAsync();
+
+            var sub = await _context.UserSubscriptions
+            .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
+
+            SessionsRemaining = sub?.SessionsRemaining ?? 0;
+
+            if (SessionsRemaining == 0)
+            {
+                TempData["Error"] = "Your trial has ended. Please upgrade your plan.";
+            }
 
             ResourcesViewed = 12;
 

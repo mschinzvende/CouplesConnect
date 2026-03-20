@@ -1,90 +1,202 @@
 ﻿@page
 @using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.Admin.Services.IndexModel
-@attribute [Authorize(Roles="Admin")]
-
-@{
-ViewData["Title"] = "Service Management";
-}
+@attribute [Authorize(Roles = "Admin")]
 
 <h3 class="mb-4">Services</h3>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div class="card shadow-sm">
 
-<div class="card-header bg-white d-flex justify-content-between">
+    <div class="card-header bg-white d-flex justify-content-between">
+        <h5>Services</h5>
 
-<h5 class="mb-0">Available Services</h5>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            Add Service
+        </button>
+    </div>
 
-<a class="btn btn-primary" asp-page="Create">
+    <div class="card-body">
 
-Add Service
+        <table class="table table-hover">
 
-</a>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Service Type</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var s in Model.Services)
+                {
+                    <tr>
+
+                        <td>@s.Name</td>
+                        <td>@s.ServiceType?.Name</td>
+
+                        <td>
+                            @if (s.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+
+                        <td>
+
+                            <button class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editModal-@s.ServiceId">
+                                Edit
+                            </button>
+
+                            <form method="post"
+                                  asp-page-handler="Delete"
+                                  asp-route-id="@s.ServiceId"
+                                  style="display:inline">
+
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Delete this service?')">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- EDIT MODAL -->
+
+                    <div class="modal fade" id="editModal-@s.ServiceId">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <form method="post" asp-page-handler="Edit">
+
+                                    <div class="modal-header">
+                                        <h5>Edit Service</h5>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden" name="ServiceId" value="@s.ServiceId" />
+
+                                        <div class="mb-2">
+                                            <label>Name</label>
+                                            <input name="Name" value="@s.Name" class="form-control" />
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label>Service Type</label>
+                                            <select name="ServiceTypeId" class="form-control">
+
+                                                @foreach (var st in Model.ServiceTypes)
+                                                {
+                                                    <option value="@st.ServiceTypeId"
+                                                            selected="@(st.ServiceTypeId == s.ServiceTypeId)">
+                                                        @st.Name
+                                                    </option>
+                                                }
+
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label>Description</label>
+                                            <textarea name="Description" class="form-control">@s.Description</textarea>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-primary">Update</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
-<div class="card-body">
 
-<table class="table table-hover">
+<!-- CREATE MODAL -->
 
-<thead>
+<div class="modal fade" id="createModal">
 
-<tr>
-<th>Name</th>
-<th>Duration</th>
-<th>Price</th>
-<th>Status</th>
-<th></th>
-</tr>
+    <div class="modal-dialog">
 
-</thead>
+        <div class="modal-content">
 
-<tbody>
+            <form method="post" asp-page-handler="Create">
 
-@foreach(var service in Model.Services)
-{
+                <div class="modal-header">
+                    <h5>Add Service</h5>
+                </div>
 
-<tr>
+                <div class="modal-body">
 
-<td>@service.Name</td>
+                    <div class="mb-2">
+                        <label>Name</label>
+                        <input name="Name" class="form-control" />
+                    </div>
 
-<td>@service.DurationMinutes minutes</td>
+                    <div class="mb-2">
+                        <label>Service Type</label>
+                        <select name="ServiceTypeId" class="form-control">
 
-<td>$@service.BasePrice</td>
+                            @foreach (var st in Model.ServiceTypes)
+                            {
+                                <option value="@st.ServiceTypeId">@st.Name</option>
+                            }
 
-<td>
+                        </select>
+                    </div>
 
-@if(service.IsActive)
-{
-<span class="badge bg-success">Active</span>
-}
-else
-{
-<span class="badge bg-secondary">Inactive</span>
-}
+                    <div>
+                        <label>Description</label>
+                        <textarea name="Description" class="form-control"></textarea>
+                    </div>
 
-</td>
+                </div>
 
-<td>
+                <div class="modal-footer">
+                    <button class="btn btn-primary">Save</button>
+                </div>
 
-<a asp-page="Edit"
-asp-route-id="@service.ServiceId"
-class="btn btn-sm btn-outline-primary">
+            </form>
 
-Edit
+        </div>
 
-</a>
-
-</td>
-
-</tr>
-
-}
-
-</tbody>
-
-</table>
-
-</div>
+    </div>
 
 </div>

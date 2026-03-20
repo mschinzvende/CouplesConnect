@@ -42,7 +42,7 @@ namespace CouplesConnect.Pages.Dashboard
             UpcomingSessionsList = await _context.Bookings
                 .Include(x => x.Service)
                 .Include(x => x.Counselor)
-                .ThenInclude(x => x.User)
+                
                 .Where(x => x.UserId == user.Id && x.BookingStatus == "Scheduled")
                 .OrderBy(x => x.ScheduledStart)
                 .Take(5)
@@ -53,7 +53,7 @@ namespace CouplesConnect.Pages.Dashboard
             var subscription = await _context.UserSubscriptions
                 .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
 
-            TrialRemaining = subscription?.FreeSessionsRemaining ?? 0;
+            TrialRemaining = subscription?.SessionsRemaining ?? 0;
 
             OpenInquiries = 0;
 

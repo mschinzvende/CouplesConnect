@@ -49,6 +49,18 @@
                     <a href="/User/Resources" class="menu-item">
                         <i class="bi bi-journal-text"></i> Resources
                     </a>
+
+                    <a href="/Account/RegisterCounselor" class="menu-item">
+                        Become a Counselor
+                    </a>
+
+                    <a href="/User/Packages" class="menu-item">
+                        Upgrade Plan
+                    </a>
+
+                    <a href="/User/Subscription" class="menu-item">
+                        My Plan
+                    </a>
                 }
 
                 @if (User.IsInRole("Counselor"))
@@ -68,20 +80,26 @@
 
                 @if (User.IsInRole("Admin"))
                 {
+                    <div class="menu-section">Management</div>
+
                     <a href="/Admin/Dashboard" class="menu-item">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
 
-                    <a href="/Admin/Users" class="menu-item">
-                        <i class="bi bi-people"></i> Users
-                    </a>
-
-                    <a href="/Admin/Counselors" class="menu-item">
-                        <i class="bi bi-person-badge"></i> Counselors
-                    </a>
-
                     <a href="/Admin/Services" class="menu-item">
                         <i class="bi bi-gear"></i> Services
+                    </a>
+
+                    <a href="/Admin/Packages" class="menu-item">
+                        <i class="bi bi-box"></i> Packages
+                    </a>
+                    <a href="/Admin/Counselors" class="menu-item">
+                        <i class="bi bi-box"></i>Counselors
+                    </a>
+                    <div class="menu-section mt-3">Configuration</div>
+
+                    <a href="/Admin/ServiceTypes" class="menu-item">
+                        <i class="bi bi-list"></i> Service Types
                     </a>
                 }
 

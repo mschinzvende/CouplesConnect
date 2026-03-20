@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
 
-[Index("BookingId", Name = "IX_Messages_Booking")]
 public partial class Message
 {
     [Key]
@@ -23,11 +22,7 @@ public partial class Message
 
     public DateTime? SentAt { get; set; }
 
-    [ForeignKey("BookingId")]
-    [InverseProperty("Messages")]
-    public virtual Booking Booking { get; set; } = null!;
-
-    [ForeignKey("SenderId")]
+      [ForeignKey("SenderId")]
 
     public ApplicationUser User { get; set; }
 }

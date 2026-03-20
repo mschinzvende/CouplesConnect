@@ -18,12 +18,4 @@ public partial class SessionNote
     public string? Notes { get; set; }
 
     public DateTime? CreatedAt { get; set; }
-
-    [ForeignKey("CounselorId")]
-    
-    public virtual Counselor Counselor { get; set; } = null!;
-
-    [ForeignKey("SessionId")]
-   
-    public virtual Session Session { get; set; } = null!;
 }

@@ -1,0 +1,192 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Admin.ServiceTypes.IndexModel
+@attribute [Authorize(Roles = "Admin")]
+
+<h3 class="mb-4">Service Types</h3>
+
+<!-- ALERTS -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white d-flex justify-content-between">
+
+        <h5 class="mb-0">Service Types</h5>
+
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            Add Service
+        </button>
+
+    </div>
+
+    <div class="card-body">
+
+        <table class="table table-hover">
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var s in Model.ServiceTypes)
+                {
+                    <tr>
+
+                        <td>@s.Name</td>
+                        <td>@s.Description</td>
+
+                        <td>
+                            @if (s.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </td>
+
+                        <td>
+
+                            <!-- EDIT BUTTON -->
+                            <button class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editModal-@s.ServiceTypeId">
+                                Edit
+                            </button>
+
+                            <!-- DELETE FORM -->
+                            <form method="post"
+                                  asp-page-handler="Delete"
+                                  asp-route-id="@s.ServiceTypeId"
+                                  style="display:inline">
+
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Delete this service?')">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+                    <!-- EDIT MODAL -->
+
+                    <div class="modal fade" id="editModal-@s.ServiceTypeId">
+
+                        <div class="modal-dialog">
+
+                            <div class="modal-content">
+
+                                <form method="post" asp-page-handler="Edit">
+
+                                    <div class="modal-header">
+                                        <h5>Edit Service</h5>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <input type="hidden" name="ServiceTypeId" value="@s.ServiceTypeId" />
+
+                                        <div class="mb-2">
+                                            <label>Name</label>
+                                            <input name="Name" value="@s.Name" class="form-control" />
+                                        </div>
+
+                                        <div>
+                                            <label>Description</label>
+                                            <textarea name="Description" class="form-control">@s.Description</textarea>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+
+                                        <button class="btn btn-primary">
+                                            Update
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- CREATE MODAL -->
+
+<div class="modal fade" id="createModal">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form method="post" asp-page-handler="Create">
+
+                <div class="modal-header">
+                    <h5>Add Service Type</h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-2">
+                        <label>Name</label>
+                        <input name="Name" class="form-control" />
+                    </div>
+
+                    <div>
+                        <label>Description</label>
+                        <textarea name="Description" class="form-control"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-primary">
+                        Save
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

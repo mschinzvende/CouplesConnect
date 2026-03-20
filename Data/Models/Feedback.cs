@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
 
-[Table("Feedback")]
 public partial class Feedback
 {
     [Key]
@@ -22,12 +21,4 @@ public partial class Feedback
     public string? Comments { get; set; }
 
     public DateTime? CreatedAt { get; set; }
-
-    [ForeignKey("SessionId")]
-    [InverseProperty("Feedbacks")]
-    public virtual Session Session { get; set; } = null!;
-
-    [ForeignKey("UserId")]
-   
-    public ApplicationUser User { get; set; }
 }

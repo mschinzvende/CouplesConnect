@@ -1,0 +1,110 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.User.Bookings.CreateModel
+@attribute [Authorize(Roles = "User")]
+
+<h3 class="mb-4">Book a Session</h3>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="get">
+
+    <div class="mb-2">
+        <label>Service</label>
+        <select name="ServiceId" class="form-control" onchange="this.form.submit()">
+            <option value="">Select Service</option>
+
+            @foreach (var s in Model.Services)
+            {
+                <option value="@s.ServiceId" selected="@(Model.ServiceId == s.ServiceId)">
+                    @s.Name
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-2">
+        <label>Counselor</label>
+        <select name="CounselorId" class="form-control" onchange="this.form.submit()">
+            <option value="">Select Counselor</option>
+
+            @foreach (var c in Model.Counselors)
+            {
+                <option value="@c.Id" selected="@(Model.CounselorId == c.Id)">
+                    @c.FullName
+                </option>
+            }
+        </select>
+    </div>
+
+</form>
+
+@if (Model.AvailableDates.Any())
+{
+    <hr />
+
+    <h5>Select Date</h5>
+
+    <form method="get">
+
+        <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
+        <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
+
+        <select name="SelectedDate" class="form-control mb-3" onchange="this.form.submit()">
+
+            <option value="">Select Date</option>
+
+            @foreach (var d in Model.AvailableDates)
+            {
+                <option value="@d.ToString("yyyy-MM-dd")"
+                        selected="@(Model.SelectedDate == d)">
+                    @d.ToString("dddd, dd MMM")
+                </option>
+            }
+
+        </select>
+
+    </form>
+}
+
+@if (Model.TimeSlots.Any())
+{
+    <hr />
+
+    <h5>Available Time Slots</h5>
+
+    <div class="row">
+
+        @foreach (var t in Model.TimeSlots)
+        {
+            <div class="col-md-3 mb-2">
+
+                <form method="post">
+
+                    <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
+                    <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
+                    <input type="hidden" name="ScheduledStart" value="@t.ToString("yyyy-MM-ddTHH:mm")" />
+
+                    <button class="btn btn-outline-primary w-100">
+                        @t.ToString("HH:mm")
+                    </button>
+
+                </form>
+
+            </div>
+        }
+
+    </div>
+}
+
+@if(!Model.AvailableDates.Any()){
+    <div class="alert alert-info">No Available time slots</div>
+}

@@ -1,6 +1,7 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Seed;
 using CouplesConnect.Models;
+using CouplesConnect.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,26 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
+builder.Services.AddScoped<SubscriptionService>();
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if (!context.PlatformSettings.Any())
+    {
+        context.PlatformSettings.Add(new PlatformSetting
+        {
+            TrialSessions = 2,
+            TrialDurationDays = 30,
+            CounselorCommissionPercent = 70
+        });
+
+        context.SaveChanges();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

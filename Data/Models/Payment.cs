@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
 
-[Index("BookingId", Name = "IX_Payments_Booking")]
+
 public partial class Payment
 {
     [Key]
@@ -30,7 +30,5 @@ public partial class Payment
 
     public DateTime? CreatedAt { get; set; }
 
-    [ForeignKey("BookingId")]
-    
-    public virtual Booking Booking { get; set; } = null!;
+   
 }

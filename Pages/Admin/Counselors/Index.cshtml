@@ -1,0 +1,60 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Admin.Counselors.IndexModel
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Counselor Applications</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table">
+
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Experience</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var c in Model.Counselors)
+        {
+            <tr>
+
+                <td>@c.FullName</td>
+                <td>@c.YearsOfExperience years</td>
+
+                <td>
+                    @if (c.IsApproved)
+                    {
+                        <span class="badge bg-success">Approved</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Pending</span>
+                    }
+                </td>
+
+                <td>
+
+                    @if (!c.IsApproved)
+                    {
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@c.UserId">
+                            <button class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    }
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

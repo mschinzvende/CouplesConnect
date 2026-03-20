@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Data.Models;
 
-[Index("BookingId", Name = "IX_Sessions_Booking")]
 public partial class Session
 {
     [Key]
@@ -28,13 +27,5 @@ public partial class Session
 
     public DateTime? CreatedAt { get; set; }
 
-    [ForeignKey("BookingId")]
-    
-    public virtual Booking Booking { get; set; } = null!;
-
    
-    public virtual ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
-
-    
-    public virtual ICollection<SessionNote> SessionNotes { get; set; } = new List<SessionNote>();
 }

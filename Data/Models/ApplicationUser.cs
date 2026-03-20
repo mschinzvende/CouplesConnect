@@ -15,6 +15,6 @@ namespace CouplesConnect.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public ICollection<Booking> Bookings { get; set; }
+        public CounselorProfile CounselorProfile { get; set; }
     }
 }

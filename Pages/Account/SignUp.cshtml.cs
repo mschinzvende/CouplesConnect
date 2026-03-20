@@ -1,7 +1,9 @@
+using CouplesConnect.Data;
 using CouplesConnect.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace CouplesConnect.Pages.Account
@@ -10,13 +12,16 @@ namespace CouplesConnect.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public SignupModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         [BindProperty]
@@ -84,6 +89,21 @@ namespace CouplesConnect.Pages.Account
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
+
+                var settings = await _context.PlatformSettings.FirstOrDefaultAsync();
+
+                var subscription = new UserSubscription
+                {
+                    UserId = user.Id,
+                    SessionsRemaining = settings.TrialSessions,
+                    IsTrial = true,
+                    IsActive = true,
+                    StartDate = DateTime.UtcNow,
+                    EndDate = DateTime.UtcNow.AddDays(settings.TrialDurationDays)
+                };
+
+                _context.UserSubscriptions.Add(subscription);
+                await _context.SaveChangesAsync();
 
                 await _signInManager.SignInAsync(user, false);
 

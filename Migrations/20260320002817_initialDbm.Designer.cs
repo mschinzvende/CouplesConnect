@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260305123751_MakeUserFieldsNullable")]
-    partial class MakeUserFieldsNullable
+    [Migration("20260320002817_initialDbm")]
+    partial class initialDbm
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,45 +32,36 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BookingStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("CoreTopic")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CounselorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool?>("IsTrial")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LocationMode")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("ScheduledEnd")
+                    b.Property<DateTime>("ScheduledStart")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ScheduledStart")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("ServiceId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int?>("SubscriptionId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("BookingId");
 
+                    b.HasIndex("CounselorId");
+
                     b.HasIndex("ServiceId");
 
-                    b.HasIndex(new[] { "CounselorId" }, "IX_Bookings_Counselor");
+                    b.HasIndex("SubscriptionId");
 
-                    b.HasIndex(new[] { "UserId" }, "IX_Bookings_User");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
@@ -105,37 +96,7 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("CounselorId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Counselors");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.CounselorAvailability", b =>
-                {
-                    b.Property<Guid>("AvailabilityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CounselorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeOnly?>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<bool?>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<TimeOnly?>("StartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("AvailabilityId");
-
-                    b.HasIndex("CounselorId");
-
-                    b.ToTable("CounselorAvailability");
                 });
 
             modelBuilder.Entity("CouplesConnect.Data.Models.CounselorCredential", b =>
@@ -188,10 +149,6 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("FeedbackId");
 
-                    b.HasIndex("SessionId");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("Feedback");
                 });
 
@@ -219,8 +176,6 @@ namespace CouplesConnect.Migrations
                     b.HasKey("MessageId");
 
                     b.HasIndex("SenderId");
-
-                    b.HasIndex(new[] { "BookingId" }, "IX_Messages_Booking");
 
                     b.ToTable("Messages");
                 });
@@ -257,8 +212,6 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("PaymentId");
 
-                    b.HasIndex(new[] { "BookingId" }, "IX_Payments_Booking");
-
                     b.ToTable("Payments");
                 });
 
@@ -278,8 +231,6 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ReflectionId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("ReflectionNotes");
                 });
@@ -310,33 +261,6 @@ namespace CouplesConnect.Migrations
                     b.HasKey("ResourceId");
 
                     b.ToTable("Resources");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.Service", b =>
-                {
-                    b.Property<Guid>("ServiceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("BasePrice")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("DurationMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
-
-                    b.HasKey("ServiceId");
-
-                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("CouplesConnect.Data.Models.Session", b =>
@@ -370,8 +294,6 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("SessionId");
 
-                    b.HasIndex(new[] { "BookingId" }, "IX_Sessions_Booking");
-
                     b.ToTable("Sessions");
                 });
 
@@ -394,10 +316,6 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("NoteId");
-
-                    b.HasIndex("CounselorId");
-
-                    b.HasIndex("SessionId");
 
                     b.ToTable("SessionNotes");
                 });
@@ -427,8 +345,6 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("TicketId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("SupportTickets");
                 });
 
@@ -453,44 +369,7 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("GoalId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("UserGoals");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.UserSubscription", b =>
-                {
-                    b.Property<Guid>("SubscriptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("FreeSessionsRemaining")
-                        .HasColumnType("int");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PlanName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("TrialEnd")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("TrialStart")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("SubscriptionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserSubscriptions");
                 });
 
             modelBuilder.Entity("CouplesConnect.Models.ApplicationUser", b =>
@@ -573,6 +452,221 @@ namespace CouplesConnect.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.CounselorAvailability", b =>
+                {
+                    b.Property<int>("AvailabilityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvailabilityId"));
+
+                    b.Property<Guid>("CounselorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("AvailabilityId");
+
+                    b.ToTable("CounselorAvailabilities");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.CounselorProfile", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Bio")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Qualifications")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Specializations")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("CounselorProfiles");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.Package", b =>
+                {
+                    b.Property<int>("PackageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PackageId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SessionsPerMonth")
+                        .HasColumnType("int");
+
+                    b.HasKey("PackageId");
+
+                    b.ToTable("Packages");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.PlatformSetting", b =>
+                {
+                    b.Property<int>("PlatformSettingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlatformSettingId"));
+
+                    b.Property<int>("CounselorCommissionPercent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrialDurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TrialSessions")
+                        .HasColumnType("int");
+
+                    b.HasKey("PlatformSettingId");
+
+                    b.ToTable("PlatformSettings");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.Service", b =>
+                {
+                    b.Property<int>("ServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ServiceTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceId");
+
+                    b.HasIndex("ServiceTypeId");
+
+                    b.ToTable("Services");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ServiceType", b =>
+                {
+                    b.Property<int>("ServiceTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceTypeId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ServiceTypeId");
+
+                    b.ToTable("ServiceTypes");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.UserSubscription", b =>
+                {
+                    b.Property<int>("SubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionId"));
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTrial")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SessionsRemaining")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SubscriptionId");
+
+                    b.HasIndex("PackageId");
+
+                    b.ToTable("UserSubscriptions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -708,57 +802,41 @@ namespace CouplesConnect.Migrations
 
             modelBuilder.Entity("CouplesConnect.Data.Models.Booking", b =>
                 {
-                    b.HasOne("CouplesConnect.Data.Models.Counselor", "Counselor")
-                        .WithMany("Bookings")
+                    b.HasOne("CouplesConnect.Models.ApplicationUser", "Counselor")
+                        .WithMany()
                         .HasForeignKey("CounselorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("CouplesConnect.Data.Models.Service", "Service")
-                        .WithMany("Bookings")
+                    b.HasOne("CouplesConnect.Models.Service", "Service")
+                        .WithMany()
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("CouplesConnect.Models.UserSubscription", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId");
 
                     b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
-                        .WithMany("Bookings")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Counselor");
 
                     b.Navigation("Service");
 
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.Counselor", b =>
-                {
-                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Subscription");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.CounselorAvailability", b =>
-                {
-                    b.HasOne("CouplesConnect.Data.Models.Counselor", "Counselor")
-                        .WithMany("CounselorAvailabilities")
-                        .HasForeignKey("CounselorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Counselor");
                 });
 
             modelBuilder.Entity("CouplesConnect.Data.Models.CounselorCredential", b =>
                 {
                     b.HasOne("CouplesConnect.Data.Models.Counselor", "Counselor")
-                        .WithMany("CounselorCredentials")
+                        .WithMany()
                         .HasForeignKey("CounselorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -766,127 +844,46 @@ namespace CouplesConnect.Migrations
                     b.Navigation("Counselor");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Feedback", b =>
-                {
-                    b.HasOne("CouplesConnect.Data.Models.Session", "Session")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Session");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CouplesConnect.Data.Models.Message", b =>
                 {
-                    b.HasOne("CouplesConnect.Data.Models.Booking", "Booking")
-                        .WithMany("Messages")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Booking");
-
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Payment", b =>
-                {
-                    b.HasOne("CouplesConnect.Data.Models.Booking", "Booking")
-                        .WithMany("Payments")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.ReflectionNote", b =>
+            modelBuilder.Entity("CouplesConnect.Models.CounselorProfile", b =>
                 {
                     b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("CounselorProfile")
+                        .HasForeignKey("CouplesConnect.Models.CounselorProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Session", b =>
+            modelBuilder.Entity("CouplesConnect.Models.Service", b =>
                 {
-                    b.HasOne("CouplesConnect.Data.Models.Booking", "Booking")
-                        .WithMany("Sessions")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.SessionNote", b =>
-                {
-                    b.HasOne("CouplesConnect.Data.Models.Counselor", "Counselor")
-                        .WithMany("SessionNotes")
-                        .HasForeignKey("CounselorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CouplesConnect.Data.Models.Session", "Session")
-                        .WithMany("SessionNotes")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Counselor");
-
-                    b.Navigation("Session");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.SupportTicket", b =>
-                {
-                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
+                    b.HasOne("CouplesConnect.Models.ServiceType", "ServiceType")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ServiceTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("ServiceType");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.UserGoal", b =>
+            modelBuilder.Entity("CouplesConnect.Models.UserSubscription", b =>
                 {
-                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
+                    b.HasOne("CouplesConnect.Models.Package", "Package")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PackageId");
 
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.UserSubscription", b =>
-                {
-                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                    b.Navigation("Package");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -940,41 +937,10 @@ namespace CouplesConnect.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Booking", b =>
-                {
-                    b.Navigation("Messages");
-
-                    b.Navigation("Payments");
-
-                    b.Navigation("Sessions");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.Counselor", b =>
-                {
-                    b.Navigation("Bookings");
-
-                    b.Navigation("CounselorAvailabilities");
-
-                    b.Navigation("CounselorCredentials");
-
-                    b.Navigation("SessionNotes");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.Service", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.Session", b =>
-                {
-                    b.Navigation("Feedbacks");
-
-                    b.Navigation("SessionNotes");
-                });
-
             modelBuilder.Entity("CouplesConnect.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.Navigation("CounselorProfile")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

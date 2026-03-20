@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CouplesConnect.Data.Models;
-
-[Table("CounselorAvailability")]
-public partial class CounselorAvailability
+namespace CouplesConnect.Models
 {
-    [Key]
-    public Guid AvailabilityId { get; set; }
+    public class CounselorAvailability
+    {
+        [Key]
+        public int AvailabilityId { get; set; }
 
-    public Guid CounselorId { get; set; }
+        [Required]
+        public Guid CounselorId { get; set; }
 
-    public int? DayOfWeek { get; set; }
+        
 
-    public TimeOnly? StartTime { get; set; }
+        [Required]
+        public DayOfWeek DayOfWeek { get; set; }
 
-    public TimeOnly? EndTime { get; set; }
+        [Required]
+        public TimeSpan StartTime { get; set; }
 
-    public bool? IsAvailable { get; set; }
+        [Required]
+        public TimeSpan EndTime { get; set; }
 
-    [ForeignKey("CounselorId")]
-   
-    public virtual Counselor Counselor { get; set; } = null!;
+        public bool IsActive { get; set; } = true;
+    }
 }

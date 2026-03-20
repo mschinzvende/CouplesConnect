@@ -18,7 +18,5 @@ public partial class ReflectionNote
 
     public DateTime? CreatedAt { get; set; }
 
-    [ForeignKey("UserId")]
-   
-    public ApplicationUser User { get; set; }
+    
 }

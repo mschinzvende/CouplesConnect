@@ -1,33 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using CouplesConnect.Models;
-using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Data.Models;
-
-public partial class UserSubscription
+namespace CouplesConnect.Models
 {
-    [Key]
-    public Guid SubscriptionId { get; set; }
+    public class UserSubscription
+    {
+        [Key]
+        public int SubscriptionId { get; set; }
 
-    public Guid UserId { get; set; }
+        public Guid UserId { get; set; }
 
-    [StringLength(100)]
-    public string? PlanName { get; set; }
+        public int? PackageId { get; set; }
 
-    public DateTime? TrialStart { get; set; }
+        public Package Package { get; set; }
 
-    public DateTime? TrialEnd { get; set; }
+        public int SessionsRemaining { get; set; }
 
-    public int? FreeSessionsRemaining { get; set; }
+        public bool IsTrial { get; set; }
 
-    public bool IsActive { get; set; }
+        public bool IsActive { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+        public DateTime StartDate { get; set; }
 
-    [ForeignKey("UserId")]
-    
-    public ApplicationUser User { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
 }

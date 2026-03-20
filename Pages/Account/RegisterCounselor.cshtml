@@ -1,0 +1,30 @@
+﻿@page
+@model CouplesConnect.Pages.Account.RegisterCounselorModel
+
+<h3 class="mb-4">Become a Counselor</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="post">
+
+    <input name="FullName" class="form-control mb-2" placeholder="Full Name" />
+
+    <textarea name="Bio" class="form-control mb-2" placeholder="Short Bio"></textarea>
+
+    <input name="Qualifications" class="form-control mb-2" placeholder="Qualifications" />
+
+    <input name="YearsOfExperience" type="number" class="form-control mb-2" placeholder="Years of Experience" />
+
+    <input name="Specializations" class="form-control mb-2" placeholder="Specializations" />
+
+    <button class="btn btn-primary">Submit Application</button>
+
+</form>

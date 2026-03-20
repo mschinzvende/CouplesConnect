@@ -5,55 +5,29 @@ using System.ComponentModel.DataAnnotations.Schema;
 using CouplesConnect.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Data.Models;
-
-[Index("CounselorId", Name = "IX_Bookings_Counselor")]
-[Index("UserId", Name = "IX_Bookings_User")]
-public partial class Booking
+namespace CouplesConnect.Data.Models
+{
+public class Booking
 {
     [Key]
     public Guid BookingId { get; set; }
 
     public Guid UserId { get; set; }
+    public ApplicationUser User { get; set; }
 
     public Guid CounselorId { get; set; }
+    public ApplicationUser Counselor { get; set; }
 
-    public Guid ServiceId { get; set; }
+    public int ServiceId { get; set; }
+    public Service Service { get; set; }
 
-    [StringLength(50)]
-    public string? BookingStatus { get; set; }
+    public int? SubscriptionId { get; set; }
+    public UserSubscription Subscription { get; set; }
 
-    public bool? IsTrial { get; set; }
+    public DateTime ScheduledStart { get; set; }
 
-    public DateTime? ScheduledStart { get; set; }
+    public string BookingStatus { get; set; } = "Scheduled";
 
-    public DateTime? ScheduledEnd { get; set; }
-
-    [StringLength(50)]
-    public string? LocationMode { get; set; }
-
-    [StringLength(150)]
-    public string? CoreTopic { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
-    [ForeignKey("CounselorId")]
-    [InverseProperty("Bookings")]
-    public virtual Counselor Counselor { get; set; } = null!;
-
-    [InverseProperty("Booking")]
-    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
-
-    [InverseProperty("Booking")]
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-
-    [ForeignKey("ServiceId")]
-    [InverseProperty("Bookings")]
-    public virtual Service Service { get; set; } = null!;
-
-    [InverseProperty("Booking")]
-    public virtual ICollection<Session> Sessions { get; set; } = new List<Session>();
-
-    [ForeignKey("UserId")]
-    public ApplicationUser User { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
 }

@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Data.Models;
-
-public partial class Service
+namespace CouplesConnect.Models
 {
-    [Key]
-    public Guid ServiceId { get; set; }
+    public class Service
+    {
+        [Key]
+        public int ServiceId { get; set; }
 
-    [StringLength(150)]
-    public string? Name { get; set; }
+        [Required]
+        public int ServiceTypeId { get; set; }
 
-    public string? Description { get; set; }
+        public ServiceType ServiceType { get; set; }
+        public string Name { get; set; }
 
-    public int? DurationMinutes { get; set; }
+        public string Description { get; set; }
 
-    [Column(TypeName = "decimal(18, 2)")]
-    public decimal? BasePrice { get; set; }
+        public bool IsActive { get; set; } = true;
 
-    public bool IsActive { get; set; }
-
-    
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
