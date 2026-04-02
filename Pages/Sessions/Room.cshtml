@@ -1,0 +1,59 @@
+﻿@page "{sessionId:int}"
+@model CouplesConnect.Pages.Sessions.RoomModel
+
+<h3>Session Room</h3>
+
+<div class="row">
+
+    <div class="col-md-6">
+        <video id="localVideo" autoplay muted class="w-100"></video>
+    </div>
+
+    <div class="col-md-6">
+        <video id="remoteVideo" autoplay class="w-100"></video>
+    </div>
+
+</div>
+
+<script>
+
+    let localStream;
+    let peerConnection;
+
+    const config = {
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" }
+        ]
+    };
+
+    async function start(){
+
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+
+        document.getElementById("localVideo").srcObject = localStream;
+
+        peerConnection = new RTCPeerConnection(config);
+
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+
+        peerConnection.ontrack = event => {
+            document.getElementById("remoteVideo").srcObject = event.streams[0];
+        };
+
+        // Create offer
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+
+        await fetch("/Sessions/Room?handler=Offer", {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(offer)
+        });
+
+    }
+
+    start();
+
+</script>

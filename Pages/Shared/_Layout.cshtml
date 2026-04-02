@@ -36,41 +36,47 @@
 
             <nav class="menu">
 
-                @if (User.IsInRole("User"))
+                @if (User.IsInRole("User") || User.IsInRole("Counselor"))
                 {
+                    <!-- DASHBOARD (ONE ONLY) -->
                     <a href="/User/Dashboard" class="menu-item">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
+                }
+
+
+                <!-- CLIENT FEATURES -->
+                @if (User.IsInRole("User"))
+                {
+                    
+
+                    <div class="menu-section">Client</div>
 
                     <a href="/User/Bookings" class="menu-item">
                         <i class="bi bi-calendar-check"></i> My Bookings
                     </a>
 
-                    <a href="/User/Resources" class="menu-item">
-                        <i class="bi bi-journal-text"></i> Resources
-                    </a>
-
-                    <a href="/Account/RegisterCounselor" class="menu-item">
-                        <i class="bi bi-journal-text"></i>Become a Counselor
+                    <a href="/User/Bookings/Create" class="menu-item">
+                        <i class="bi bi-plus-circle"></i> Book Session
                     </a>
 
                     <a href="/User/Packages" class="menu-item">
-                        <i class="bi bi-journal-text"></i>Upgrade Plan
+                        <i class="bi bi-box"></i> Upgrade Plan
                     </a>
 
                     <a href="/User/Subscription" class="menu-item">
-                        <i class="bi bi-journal-text"></i>My Plan
+                        <i class="bi bi-card-checklist"></i> My Plan
                     </a>
                 }
 
+                <!-- COUNSELOR FEATURES -->
                 @if (User.IsInRole("Counselor"))
                 {
-                    <a href="/Counselor/Dashboard" class="menu-item">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
+
+                    <div class="menu-section">Counselor</div>
 
                     <a href="/Counselor/Sessions" class="menu-item">
-                        <i class="bi bi-camera-video"></i> Sessions
+                        <i class="bi bi-camera-video"></i> My Sessions
                     </a>
 
                     <a href="/Counselor/Availability" class="menu-item">
@@ -78,12 +84,23 @@
                     </a>
                 }
 
+                
+
+                <!-- BECOME COUNSELOR -->
+                @if (User.IsInRole("User") && !User.IsInRole("Counselor"))
+                {
+                    <a href="/Account/RegisterCounselor" class="menu-item">
+                        <i class="bi bi-person-plus"></i> Become a Counselor
+                    </a>
+                }
+
+                <!-- ADMIN -->
                 @if (User.IsInRole("Admin"))
                 {
-                    <div class="menu-section">Management</div>
+                    <div class="menu-section">Admin</div>
 
                     <a href="/Admin/Dashboard" class="menu-item">
-                        <i class="bi bi-speedometer2"></i> Dashboard
+                        <i class="bi bi-speedometer2"></i> Admin Dashboard
                     </a>
 
                     <a href="/Admin/Services" class="menu-item">
@@ -93,15 +110,28 @@
                     <a href="/Admin/Packages" class="menu-item">
                         <i class="bi bi-box"></i> Packages
                     </a>
+
                     <a href="/Admin/Counselors" class="menu-item">
-                        <i class="bi bi-box"></i>Counselors
+                        <i class="bi bi-people"></i> Counselors
                     </a>
+
+                    <a href="/Admin/Reports" class="menu-item">
+                        <i class="bi bi-bar-chart"></i> Reports
+                    </a>
+
                     <div class="menu-section mt-3">Configuration</div>
 
                     <a href="/Admin/ServiceTypes" class="menu-item">
                         <i class="bi bi-list"></i> Service Types
                     </a>
                 }
+
+                <!-- SHARED -->
+                <div class="menu-section">Growth</div>
+
+                <a href="/User/Resources" class="menu-item">
+                    <i class="bi bi-journal-text"></i> Resources
+                </a>
 
             </nav>
 

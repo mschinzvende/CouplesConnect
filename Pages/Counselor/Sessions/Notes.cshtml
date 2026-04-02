@@ -1,0 +1,21 @@
+﻿@page "{sessionId:int}"
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Counselor.Sessions.NotesModel
+@attribute [Authorize(Roles = "Counselor")]
+
+<h3>Session Notes</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="post">
+
+    <textarea name="Notes" class="form-control mb-3"
+              rows="6"
+              placeholder="Write session notes...">@Model.ExistingNotes</textarea>
+
+    <button class="btn btn-primary">Save Notes</button>
+
+</form>

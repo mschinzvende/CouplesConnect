@@ -48,6 +48,10 @@ namespace CouplesConnect.Data
 
         public DbSet<Package> Packages { get; set; }
 
+     
+        public DbSet<SessionFeedback> SessionFeedbacks { get; set; }
+        public DbSet<CounselorEarning> CounselorEarnings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

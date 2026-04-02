@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CouplesConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class initialDbm : Migration
+    public partial class dbupdat : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -70,6 +70,22 @@ namespace CouplesConnect.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CounselorAvailabilities", x => x.AvailabilityId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CounselorEarnings",
+                columns: table => new
+                {
+                    CounselorEarningId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CounselorEarnings", x => x.CounselorEarningId);
                 });
 
             migrationBuilder.CreateTable(
@@ -201,39 +217,6 @@ namespace CouplesConnect.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceTypes", x => x.ServiceTypeId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SessionNotes",
-                columns: table => new
-                {
-                    NoteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SessionNotes", x => x.NoteId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Sessions",
-                columns: table => new
-                {
-                    SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MeetingLink = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DurationMinutes = table.Column<int>(type: "int", nullable: true),
-                    SessionStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Sessions", x => x.SessionId);
                 });
 
             migrationBuilder.CreateTable(
@@ -452,6 +435,7 @@ namespace CouplesConnect.Migrations
                     IsTrial = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AmountPaid = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
@@ -498,6 +482,8 @@ namespace CouplesConnect.Migrations
                     SubscriptionId = table.Column<int>(type: "int", nullable: true),
                     ScheduledStart = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BookingStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CancelledAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CancelReason = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -526,6 +512,75 @@ namespace CouplesConnect.Migrations
                         column: x => x.SubscriptionId,
                         principalTable: "UserSubscriptions",
                         principalColumn: "SubscriptionId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Sessions",
+                columns: table => new
+                {
+                    SessionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MeetingLink = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sessions", x => x.SessionId);
+                    table.ForeignKey(
+                        name: "FK_Sessions_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SessionFeedbacks",
+                columns: table => new
+                {
+                    SessionFeedbackId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionFeedbacks", x => x.SessionFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_SessionFeedbacks_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "SessionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SessionNotes",
+                columns: table => new
+                {
+                    SessionNoteId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionNotes", x => x.SessionNoteId);
+                    table.ForeignKey(
+                        name: "FK_SessionNotes_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "SessionId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -603,6 +658,22 @@ namespace CouplesConnect.Migrations
                 column: "ServiceTypeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SessionFeedbacks_SessionId",
+                table: "SessionFeedbacks",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SessionNotes_SessionId",
+                table: "SessionNotes",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sessions_BookingId",
+                table: "Sessions",
+                column: "BookingId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserSubscriptions_PackageId",
                 table: "UserSubscriptions",
                 column: "PackageId");
@@ -627,13 +698,13 @@ namespace CouplesConnect.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Bookings");
-
-            migrationBuilder.DropTable(
                 name: "CounselorAvailabilities");
 
             migrationBuilder.DropTable(
                 name: "CounselorCredentials");
+
+            migrationBuilder.DropTable(
+                name: "CounselorEarnings");
 
             migrationBuilder.DropTable(
                 name: "CounselorProfiles");
@@ -657,10 +728,10 @@ namespace CouplesConnect.Migrations
                 name: "Resources");
 
             migrationBuilder.DropTable(
-                name: "SessionNotes");
+                name: "SessionFeedbacks");
 
             migrationBuilder.DropTable(
-                name: "Sessions");
+                name: "SessionNotes");
 
             migrationBuilder.DropTable(
                 name: "SupportTickets");
@@ -672,16 +743,22 @@ namespace CouplesConnect.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Counselors");
+
+            migrationBuilder.DropTable(
+                name: "Sessions");
+
+            migrationBuilder.DropTable(
+                name: "Bookings");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "Services");
 
             migrationBuilder.DropTable(
                 name: "UserSubscriptions");
-
-            migrationBuilder.DropTable(
-                name: "Counselors");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "ServiceTypes");

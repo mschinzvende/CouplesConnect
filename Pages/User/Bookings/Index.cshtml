@@ -1,0 +1,163 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.User.Bookings.IndexModel
+@attribute [Authorize(Roles = "User")]
+
+<h3 class="mb-4">My Bookings</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-hover">
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Service</th>
+                    <th>Counselor</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var b in Model.Bookings)
+                {
+                    var state = Model.GetSessionState(b);
+
+                    <tr>
+
+                        <td>
+                            <div>
+                                <strong>@b.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
+                                <small class="text-muted">
+                                    @b.ScheduledStart.ToString("HH:mm")
+                                </small>
+                            </div>
+                        </td>
+
+                        <td>@b.Service?.Name</td>
+
+                        <td>@b.Counselor?.FullName</td>
+
+                        <td>
+
+                            @if (state == "Scheduled")
+                            {
+                                <span class="badge bg-primary">Scheduled</span>
+                            }
+                            else if (state == "Ready")
+                            {
+                                <span class="badge bg-warning text-dark">Ready</span>
+                            }
+                            else if (state == "Live")
+                            {
+                                <span class="badge bg-success">Live</span>
+                            }
+                            else if (state == "Completed")
+                            {
+                                <span class="badge bg-success">Completed</span>
+                            }
+                            else if (state == "Cancelled")
+                            {
+                                <span class="badge bg-secondary">Cancelled</span>
+                            }
+
+                        </td>
+
+                        <td>
+
+                            <!-- COUNTDOWN -->
+                            @if (state == "Scheduled")
+                            {
+                                <span class="text-muted small">
+                                    Starts in
+                                    <span class="countdown"
+                                          data-time="@b.ScheduledStart.ToString("o")">
+                                    </span>
+                                </span>
+                            }
+
+                            <!-- JOIN BUTTON -->
+                            @if ((state == "Ready" || state == "Live") && b.Session != null)
+                            {
+                                <a href="/Sessions/Room/@b.Session.SessionId"
+                                   target="_blank"
+                                   class="btn btn-success btn-sm ms-2">
+                                    Join
+                                </a>
+                            }
+
+                            <!-- CANCEL -->
+                            @if (state == "Scheduled")
+                            {
+                                <form method="post"
+                                      asp-page-handler="Cancel"
+                                      asp-route-id="@b.BookingId"
+                                      style="display:inline">
+
+                                    <button class="btn btn-danger btn-sm ms-1">
+                                        Cancel
+                                    </button>
+
+                                </form>
+                            }
+                            @if (b.BookingStatus == "Completed" && b.Session != null)
+                            {
+                                <a href="/User/Sessions/Feedback/@b.Session.SessionId"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Feedback
+                                </a>
+                            }
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    function updateCountdowns() {
+
+        document.querySelectorAll(".countdown").forEach(el => {
+
+            const target = new Date(el.dataset.time);
+            const now = new Date();
+
+            const diff = target - now;
+
+            if (diff <= 0) {
+                el.innerHTML = "Starting...";
+                return;
+            }
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+
+            el.innerHTML = minutes + "m " + seconds + "s";
+        });
+    }
+
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
+
+</script>

@@ -115,10 +115,25 @@ namespace CouplesConnect.Pages.User.Bookings
                     UserId = user.Id,
                     CounselorId = CounselorId,
                     ServiceId = ServiceId,
-                    ScheduledStart = ScheduledStart
+                    ScheduledStart = ScheduledStart,
+                    CancelReason = "N/A"
                 };
 
                 _context.Bookings.Add(booking);
+
+                 await _context.SaveChangesAsync();
+
+                // CREATE SESSION
+
+                var session = new Session
+                {
+                    BookingId = booking.BookingId,
+                    MeetingLink = "https://meet.jitsi/" + Guid.NewGuid().ToString()
+                };
+
+                _context.Sessions.Add(session);
+
+                await _context.SaveChangesAsync();
 
                 await _subscriptionService.ConsumeSession(user.Id);
 

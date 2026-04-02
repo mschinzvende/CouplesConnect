@@ -28,6 +28,11 @@ public class Booking
 
     public string BookingStatus { get; set; } = "Scheduled";
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CancelledAt { get; set; }
+        public string CancelReason { get; set; }
+
+        public Session Session { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 }

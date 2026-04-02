@@ -1,0 +1,49 @@
+﻿@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Counselor.Sessions.IndexModel
+@attribute [Authorize(Roles = "Counselor")]
+
+<h3>My Sessions</h3>
+
+<table class="table">
+
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var s in Model.Sessions)
+        {
+            <tr>
+
+                <td>@s.Booking.ScheduledStart</td>
+                <td>@s.Booking.User.FullName</td>
+                <td>@s.Status</td>
+
+                <td>
+
+                    <a href="/Sessions/Room/@s.SessionId" target="_blank" class="btn btn-success">
+                        Join Session
+                    </a>
+                    <a href="/Counselor/Sessions/Notes/@s.SessionId"
+                       class="btn btn-outline-secondary btn-sm">
+                        Notes
+                    </a>
+                    <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId" style="display:inline">
+                        <button class="btn btn-primary btn-sm">Complete</button>
+                    </form>
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>

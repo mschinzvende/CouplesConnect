@@ -25,7 +25,10 @@ namespace CouplesConnect.Pages
                 return Redirect("/Admin/Dashboard");
 
             if (await _userManager.IsInRoleAsync(user, "Counselor"))
-                return Redirect("/Counselor/Dashboard");
+                return Redirect("/User/Dashboard");
+
+            if (await _userManager.IsInRoleAsync(user, "User"))
+                return Redirect("/User/Dashboard");
 
             return Redirect("/User/Dashboard");
         }

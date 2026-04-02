@@ -1,31 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CouplesConnect.Data.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace CouplesConnect.Data.Models;
-
-public partial class Session
+namespace CouplesConnect.Models
 {
-    [Key]
-    public Guid SessionId { get; set; }
+    public class Session
+    {
+        [Key]
+        public int SessionId { get; set; }
 
-    public Guid BookingId { get; set; }
+        public Guid BookingId { get; set; }
+        public Booking Booking { get; set; }
 
-    [StringLength(500)]
-    public string? MeetingLink { get; set; }
+        public string MeetingLink { get; set; }
 
-    public DateTime? StartTime { get; set; }
+        public string Status { get; set; } = "Scheduled";
 
-    public DateTime? EndTime { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public int? DurationMinutes { get; set; }
-
-    [StringLength(50)]
-    public string? SessionStatus { get; set; }
-
-    public DateTime? CreatedAt { get; set; }
-
-   
+        public DateTime? StartedAt { get; set; }
+        public DateTime? EndedAt { get; set; }
+    }
 }

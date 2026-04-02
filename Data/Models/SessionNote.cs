@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CouplesConnect.Data.Models;
-
-public partial class SessionNote
+namespace CouplesConnect.Models
 {
-    [Key]
-    public Guid NoteId { get; set; }
+    public class SessionNote
+    {
+        [Key]
+        public int SessionNoteId { get; set; }
 
-    public Guid SessionId { get; set; }
+        public int SessionId { get; set; }
+        public Session Session { get; set; }
 
-    public Guid CounselorId { get; set; }
+        public Guid CounselorId { get; set; }
 
-    public string? Notes { get; set; }
+        public string Notes { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }

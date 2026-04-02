@@ -1,4 +1,5 @@
 using CouplesConnect.Data;
+using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -31,6 +32,10 @@ namespace CouplesConnect.Pages.User.Dashboard
 
         public string ChartLabels { get; set; }
         public string ChartData { get; set; }
+
+        public int CounselorSessions { get; set; }
+        public decimal TotalEarnings { get; set; }
+        public List<Booking> CounselorUpcoming { get; set; } = new();
 
         public async Task OnGetAsync()
         {
@@ -66,6 +71,25 @@ namespace CouplesConnect.Pages.User.Dashboard
 
             ChartLabels = JsonSerializer.Serialize(months);
             ChartData = JsonSerializer.Serialize(values);
+
+            if (User.IsInRole("Counselor"))
+            {
+                CounselorSessions = await _context.Bookings
+                    .CountAsync(x => x.CounselorId == user.Id);
+
+                TotalEarnings = await _context.CounselorEarnings
+                    .Where(x => x.CounselorId == user.Id)
+                    .SumAsync(x => x.Amount);
+
+                CounselorUpcoming = await _context.Bookings
+                    .Include(x => x.User)
+                    .Include(x => x.Session)
+                    .Where(x => x.CounselorId == user.Id &&
+                                x.BookingStatus == "Scheduled")
+                    .OrderBy(x => x.ScheduledStart)
+                    .Take(5)
+                    .ToListAsync();
+            }
 
         }
 

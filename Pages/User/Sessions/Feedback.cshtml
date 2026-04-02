@@ -1,0 +1,94 @@
+﻿@page "{sessionId:int}"
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.User.Sessions.FeedbackModel
+@attribute [Authorize(Roles = "User")]
+
+<h3 class="mb-4">Session Feedback</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <form method="post">
+
+            <!-- STAR RATING -->
+            <label class="mb-2">Rate your session</label>
+
+            <div id="starContainer" class="mb-3">
+
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="star"
+                          data-value="@i">&#9733;</span>
+                }
+
+            </div>
+
+            <input type="hidden" name="Rating" id="ratingInput" value="@Model.ExistingRating" />
+
+            <!-- COMMENT -->
+            <textarea name="Comment"
+                      class="form-control mb-3"
+                      rows="4"
+                      placeholder="Share your experience...">@Model.ExistingComment</textarea>
+
+            <button class="btn btn-primary w-100">
+                Submit Feedback
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<style>
+    .star {
+        font-size: 30px;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+        .star.active {
+            color: gold;
+        }
+</style>
+
+<script>
+
+    let stars = document.querySelectorAll(".star");
+    let ratingInput = document.getElementById("ratingInput");
+
+    // set initial state
+    let currentRating = parseInt(ratingInput.value || 0);
+    highlightStars(currentRating);
+
+    stars.forEach(star => {
+        star.addEventListener("click", function () {
+
+            let value = this.getAttribute("data-value");
+
+            ratingInput.value = value;
+            highlightStars(value);
+        });
+    });
+
+    function highlightStars(rating) {
+        stars.forEach(star => {
+            star.classList.remove("active");
+
+            if (star.getAttribute("data-value") <= rating) {
+                star.classList.add("active");
+            }
+        });
+    }
+
+</script>

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260320002817_initialDbm")]
-    partial class initialDbm
+    [Migration("20260402003053_dbupdat")]
+    partial class dbupdat
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,13 @@ namespace CouplesConnect.Migrations
                     b.Property<string>("BookingStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CancelReason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CounselorId")
                         .HasColumnType("uniqueidentifier");
@@ -263,63 +270,6 @@ namespace CouplesConnect.Migrations
                     b.ToTable("Resources");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Session", b =>
-                {
-                    b.Property<Guid>("SessionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BookingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("DurationMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MeetingLink")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("SessionStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SessionId");
-
-                    b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.SessionNote", b =>
-                {
-                    b.Property<Guid>("NoteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CounselorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("NoteId");
-
-                    b.ToTable("SessionNotes");
-                });
-
             modelBuilder.Entity("CouplesConnect.Data.Models.SupportTicket", b =>
                 {
                     b.Property<Guid>("TicketId")
@@ -482,6 +432,31 @@ namespace CouplesConnect.Migrations
                     b.ToTable("CounselorAvailabilities");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.CounselorEarning", b =>
+                {
+                    b.Property<int>("CounselorEarningId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CounselorEarningId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CounselorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CounselorEarningId");
+
+                    b.ToTable("CounselorEarnings");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.CounselorProfile", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -633,6 +608,101 @@ namespace CouplesConnect.Migrations
                     b.ToTable("ServiceTypes");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.Session", b =>
+                {
+                    b.Property<int>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"));
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MeetingLink")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.ToTable("Sessions");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.SessionFeedback", b =>
+                {
+                    b.Property<int>("SessionFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionFeedbackId"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SessionFeedbackId");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("SessionFeedbacks");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.SessionNote", b =>
+                {
+                    b.Property<int>("SessionNoteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionNoteId"));
+
+                    b.Property<Guid>("CounselorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SessionNoteId");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("SessionNotes");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.UserSubscription", b =>
                 {
                     b.Property<int>("SubscriptionId")
@@ -640,6 +710,9 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubscriptionId"));
+
+                    b.Property<decimal>("AmountPaid")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
@@ -877,6 +950,39 @@ namespace CouplesConnect.Migrations
                     b.Navigation("ServiceType");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.Session", b =>
+                {
+                    b.HasOne("CouplesConnect.Data.Models.Booking", "Booking")
+                        .WithOne("Session")
+                        .HasForeignKey("CouplesConnect.Models.Session", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.SessionFeedback", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.SessionNote", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.UserSubscription", b =>
                 {
                     b.HasOne("CouplesConnect.Models.Package", "Package")
@@ -934,6 +1040,12 @@ namespace CouplesConnect.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CouplesConnect.Data.Models.Booking", b =>
+                {
+                    b.Navigation("Session")
                         .IsRequired();
                 });
 

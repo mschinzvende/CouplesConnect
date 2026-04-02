@@ -22,6 +22,8 @@ namespace CouplesConnect.Models
 
         public DateTime StartDate { get; set; }
 
+        public decimal AmountPaid { get; set; }
+
         public DateTime? EndDate { get; set; }
     }
 }
