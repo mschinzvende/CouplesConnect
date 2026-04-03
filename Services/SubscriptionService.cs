@@ -24,17 +24,54 @@ namespace CouplesConnect.Services
 
         public async Task<bool> ConsumeSession(Guid userId)
         {
-            var sub = await _context.UserSubscriptions
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive);
+            try
+            {
+                var sub = await _context.UserSubscriptions
+                        .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive);
 
-            if (sub == null || sub.SessionsRemaining <= 0)
-                return false;
+                if (sub == null || sub.SessionsRemaining <= 0)
+                    return false;
 
-            sub.SessionsRemaining--;
+                sub.SessionsRemaining--;
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            return true;
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> RestoreSession(Guid userId, int? subscriptionId)
+        {
+
+            try
+            {
+                if (!subscriptionId.HasValue)
+                {
+                    return false;
+                }
+                var sub = await _context.UserSubscriptions
+                    .FirstOrDefaultAsync(x => x.UserId == userId && x.SubscriptionId == subscriptionId);
+
+                if (sub == null)
+                    return false;
+
+                sub.SessionsRemaining = sub.SessionsRemaining + 1;
+                sub.IsActive = true;
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

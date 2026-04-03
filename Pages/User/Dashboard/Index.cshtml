@@ -1,123 +1,133 @@
 ﻿@page
-@using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.User.Dashboard.IndexModel
-@attribute [Authorize]
 
-<h3 class="mb-4">Relationship Dashboard</h3>
+<h3 class="mb-4">Welcome back 👋</h3>
 
-<div class="row g-4 mb-4">
-
-    <!-- USER METRICS -->
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Sessions Remaining</div>
-                <h3 class="fw-bold">@Model.SessionsRemaining</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Upcoming Sessions</div>
-                <h3 class="fw-bold">@Model.UpcomingSessions</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Total Bookings</div>
-                <h3 class="fw-bold">@Model.TotalBookings</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Sessions Completed</div>
-                <h3 class="fw-bold">@Model.CompletedSessions</h3>
-            </div>
-        </div>
-    </div>
-
-    <!-- COUNSELOR METRICS -->
-    @if (User.IsInRole("Counselor"))
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+<!-- 🔥 SUBSCRIPTION ALERT -->
+@if (Model.SubscriptionEndDate != null)
+{
+    if (Model.IsTrial)
     {
-        <div class="col-md-3">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <div class="text-muted small">My Sessions</div>
-                    <h3 class="fw-bold">@Model.CounselorSessions</h3>
-                </div>
+        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Trial Active</strong><br />
+                @Model.DaysRemaining days remaining
             </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <div class="text-muted small">Earnings</div>
-                    <h3 class="fw-bold">$@Model.TotalEarnings</h3>
-                </div>
-            </div>
+            <a href="/User/Packages" class="btn btn-dark">Upgrade</a>
         </div>
     }
+    else if (Model.DaysRemaining <= 5)
+    {
+        <div class="alert alert-danger d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Expiring Soon</strong><br />
+                @Model.DaysRemaining days left
+            </div>
+            <a href="/User/Packages" class="btn btn-light">Renew</a>
+        </div>
+    }
+}
+
+<!-- 🔥 NEXT SESSION (FOCUS CARD) -->
+@if (Model.NextSession != null)
+{
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="text-muted small">Next Session</div>
+                <h5 class="mb-1">@Model.NextSession.ScheduledStart.ToString("dddd, HH:mm")</h5>
+
+                <div class="text-primary">
+                    <span class="countdown"
+                          data-time="@Model.NextSession.ScheduledStart.ToString("o")">
+                    </span>
+                </div>
+            </div>
+
+            <a id="joinBtn"
+               data-time="@Model.NextSession.ScheduledStart.ToString("o")"
+               href="/Sessions/Room/@Model.NextSession.Session.SessionId"
+               class="btn btn-primary disabled"
+               style="pointer-events:none">
+                Available 5 min before
+            </a>
+
+        </div>
+    </div>
+}
+
+<!-- 🔥 METRICS -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <div class="text-muted small">Sessions Left</div>
+                <h2 class="fw-bold text-primary">@Model.SessionsRemaining</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <div class="text-muted small">Upcoming</div>
+                <h2 class="fw-bold">@Model.UpcomingSessions</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <div class="text-muted small">Completed</div>
+                <h2 class="fw-bold text-success">@Model.CompletedSessions</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <div class="text-muted small">Total</div>
+                <h2 class="fw-bold">@Model.TotalBookings</h2>
+            </div>
+        </div>
+    </div>
 
 </div>
 
+<!-- 🔥 CONTENT -->
 <div class="row g-4">
 
     <!-- CHART -->
     <div class="col-md-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                Session Activity
-            </div>
+            <div class="card-header bg-white">Activity</div>
             <div class="card-body">
-                <canvas id="sessionChart"></canvas>
+                <canvas id="chart"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
+    <!-- ACTIONS -->
     <div class="col-md-4">
         <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                Quick Actions
-            </div>
-
+            <div class="card-header bg-white">Quick Actions</div>
             <div class="card-body d-grid gap-2">
 
-                <!-- USER ACTIONS -->
-                <a href="/User/Bookings/Create" class="btn btn-primary">
-                    Book Session
-                </a>
-
-                <a href="/User/Bookings" class="btn btn-outline-primary">
-                    My Bookings
-                </a>
-
-                <a href="/User/Packages" class="btn btn-outline-secondary">
-                    Upgrade Plan
-                </a>
-
-                <!-- COUNSELOR ACTIONS -->
-                @if (User.IsInRole("Counselor"))
-                {
-                    <hr />
-
-                    <a href="/Counselor/Sessions" class="btn btn-success">
-                        My Sessions
-                    </a>
-
-                    <a href="/Counselor/Availability" class="btn btn-outline-success">
-                        Set Availability
-                    </a>
-                }
+                <a href="/User/Bookings/Create" class="btn btn-primary">Book Session</a>
+                <a href="/User/Bookings" class="btn btn-outline-primary">My Bookings</a>
+                <a href="/User/Packages" class="btn btn-outline-secondary">Manage Plan</a>
 
             </div>
         </div>
@@ -125,59 +135,33 @@
 
 </div>
 
-<!-- UPCOMING SESSIONS (COUNSELOR VIEW) -->
-@if (User.IsInRole("Counselor"))
-{
-    <div class="card shadow-sm mt-4">
-
-        <div class="card-header bg-white">
-            Upcoming Counseling Sessions
-        </div>
-
-        <div class="card-body">
-
-            <table class="table">
-
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Client</th>
-                        <th></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    @foreach (var s in Model.CounselorUpcoming)
-                    {
-                        <tr>
-                            <td>@s.ScheduledStart</td>
-                            <td>@s.User?.FullName</td>
-
-                            <td>
-                                <a href="/Sessions/Room/@s.Session.SessionId"
-                                   class="btn btn-sm btn-success">
-                                    Start
-                                </a>
-                            </td>
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-}
-
 @section Scripts {
 
     <script>
-        var ctx = document.getElementById('sessionChart');
+        // Countdown
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown').forEach(el => {
+                const time = new Date(el.dataset.time);
+                const now = new Date();
+                let diff = time - now;
 
-        new Chart(ctx, {
+                if (diff <= 0) {
+                    el.innerText = "Starting now";
+                    return;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+                el.innerText = `${hours}h ${minutes}m`;
+            });
+        }
+
+        updateCountdowns();
+        setInterval(updateCountdowns, 60000);
+
+        // Chart
+        new Chart(document.getElementById('chart'), {
             type: 'line',
             data: {
                 labels: @Html.Raw(Model.ChartLabels),
@@ -188,6 +172,27 @@
                 }]
             }
         });
+    </script>
+
+    <script>
+        function updateJoinButton() {
+            const btn = document.getElementById("joinBtn");
+            if (!btn) return;
+
+            const start = new Date(btn.dataset.time);
+            const now = new Date();
+
+            const diffMinutes = (start - now) / (1000 * 60);
+
+            if (diffMinutes <= 5) {
+                btn.classList.remove("disabled");
+                btn.style.pointerEvents = "auto";
+                btn.innerText = "Join Session";
+            }
+        }
+
+        updateJoinButton();
+        setInterval(updateJoinButton, 30000);
     </script>
 
 }

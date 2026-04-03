@@ -23,11 +23,21 @@ namespace CouplesConnect.Pages.User.Packages
 
         public List<Package> Packages { get; set; }
 
+        public UserSubscription CurrentSubscription { get; set; }
+
         public async Task OnGetAsync()
         {
+            var user = await _userManager.GetUserAsync(User);
+
             Packages = await _context.Packages
                 .Where(x => x.IsActive)
                 .ToListAsync();
+
+            CurrentSubscription = await _context.UserSubscriptions
+                .Include(x => x.Package)
+                .Where(x => x.UserId == user.Id && x.IsActive)
+                .OrderByDescending(x => x.StartDate)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IActionResult> OnPostPurchaseAsync(int PackageId)

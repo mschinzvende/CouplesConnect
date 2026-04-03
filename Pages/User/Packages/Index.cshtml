@@ -19,9 +19,18 @@
 
     @foreach (var p in Model.Packages)
     {
+        var isCurrent = Model.CurrentSubscription != null
+        && Model.CurrentSubscription.PackageId == p.PackageId;
+
+        var totalSessions = p.SessionsPerMonth;
+        var remaining = isCurrent ? Model.CurrentSubscription.SessionsRemaining : 0;
+        var used = totalSessions - remaining;
+        var percentUsed = totalSessions == 0 ? 0 : (used * 100 / totalSessions);
+
         <div class="col-md-4 mb-4">
 
-            <div class="card shadow-sm h-100">
+            <div class="card shadow-sm h-100 @(isCurrent ? "border-success" : "")"
+                 style="@(isCurrent ? "background: linear-gradient(135deg,#e6fffa,#f0fff4);" : "")">
 
                 <div class="card-body text-center">
 
@@ -33,15 +42,67 @@
 
                     <p>@p.Description</p>
 
-                    <form method="post" asp-page-handler="Purchase">
+                    @if (isCurrent)
+                    {
+                        <!-- ACTIVE PLAN HEADER -->
+                        <div class="mb-2">
+                            <span class="badge bg-success px-3 py-2">
+                                Active Plan
+                            </span>
+                        </div>
 
-                        <input type="hidden" name="PackageId" value="@p.PackageId" />
+                        <!-- SESSIONS -->
+                        <div class="mb-2">
+                            <strong>@remaining</strong> / @totalSessions sessions left
+                        </div>
 
-                        <button class="btn btn-primary w-100">
-                            Select Plan
+                        <!-- PROGRESS BAR -->
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar bg-success"
+                                 style="width:@percentUsed%">
+                            </div>
+                        </div>
+
+                        <!-- DAYS REMAINING -->
+                        {
+                            
+                            DateTime? endDate = @Model.CurrentSubscription.EndDate;
+
+                        }
+
+                        <div class="mb-2 text-muted">
+                            @if (Model.CurrentSubscription?.EndDate != null)
+                            {
+                                <span class="countdown"
+                                      data-time="@Model.CurrentSubscription.EndDate.Value.ToString("o")">
+                                </span>
+                            }
+                        </div>
+
+                        <button class="btn btn-success w-100" disabled>
+                            Current Plan
                         </button>
-
-                    </form>
+                    }
+                    else if (Model.CurrentSubscription != null)
+                    {
+                        <!-- UPGRADE -->
+                        <form method="post" asp-page-handler="Purchase">
+                            <input type="hidden" name="PackageId" value="@p.PackageId" />
+                            <button class="btn btn-warning w-100">
+                                Upgrade
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <!-- NEW USER -->
+                        <form method="post" asp-page-handler="Purchase">
+                            <input type="hidden" name="PackageId" value="@p.PackageId" />
+                            <button class="btn btn-primary w-100">
+                                Select Plan
+                            </button>
+                        </form>
+                    }
 
                 </div>
 
@@ -51,3 +112,34 @@
     }
 
 </div>
+
+<script>
+    function updateCountdowns() {
+        document.querySelectorAll('.countdown').forEach(el => {
+
+            const end = new Date(el.dataset.time);
+            const now = new Date();
+
+            let diff = end - now;
+
+            if (diff <= 0) {
+                el.innerText = "Expired";
+                el.classList.add("text-danger");
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+
+            if (days > 0) {
+                el.innerText = `${days} days ${hours} hrs left`;
+            } else {
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                el.innerText = `${hours} hrs ${minutes} min left`;
+            }
+        });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 60000);
+</script>

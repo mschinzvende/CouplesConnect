@@ -1,5 +1,6 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Seed;
+using CouplesConnect.Hubs;
 using CouplesConnect.Models;
 using CouplesConnect.Services;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000); // HTTP
+    options.ListenAnyIP(5001, listenOptions =>
+    {
+        listenOptions.UseHttps();
+    });
+});
+
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -19,6 +30,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddDefaultUI();
 
 builder.Services.AddScoped<SubscriptionService>();
+
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -58,6 +71,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+app.MapHub<SessionHub>("/sessionHub");
 
 
 using (var scope = app.Services.CreateScope())

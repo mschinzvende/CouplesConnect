@@ -523,6 +523,8 @@ namespace CouplesConnect.Migrations
                     BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MeetingLink = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsStarted = table.Column<bool>(type: "bit", nullable: false),
+                    IsEnded = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EndedAt = table.Column<DateTime>(type: "datetime2", nullable: true)

@@ -1,41 +1,131 @@
+using CouplesConnect.Data;
+using CouplesConnect.Data.Models;
+using CouplesConnect.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Pages.Sessions
 {
+    [Authorize]
     public class RoomModel : PageModel
     {
-        private static string _offer;
-        private static string _answer;
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public void OnGet(int sessionId)
+
+        public RoomModel(ApplicationDbContext context , UserManager<ApplicationUser> userManager)
         {
+            _context = context;
+            _userManager = userManager;
         }
 
-        public async Task<IActionResult> OnPostOfferAsync()
-        {
-            using var reader = new StreamReader(Request.Body);
-            _offer = await reader.ReadToEndAsync();
+        public int SessionId { get; set; }
+        public bool IsCounselor { get; set; }
+        public string ExistingNotes { get; set; }
 
-            return new JsonResult(true);
+        public List<Booking> UpcomingSessions { get; set; } = new();
+        public DateTime? NextSessionTime { get; set; }
+        public async Task<IActionResult> OnGetAsync(int sessionId)
+        {
+            SessionId = sessionId;
+
+            var user = await _userManager.GetUserAsync(User);
+
+            // ?? Get booking tied to session
+            var booking = await _context.Bookings
+                .Include(b => b.Session)
+                .FirstOrDefaultAsync(b => b.Session.SessionId == sessionId);
+
+            if (booking == null)
+                return NotFound();
+
+            var isOwner = booking.UserId == user.Id;
+            var isCounselor = booking.CounselorId == user.Id;
+
+            // ?? Access control
+            if (!isOwner && !isCounselor)
+                return Forbid();
+
+            IsCounselor = isCounselor;
+
+            // ?? Apply 5-min rule ONLY to users
+            if (!isCounselor)
+            {
+                var minutesToStart = (booking.ScheduledStart - DateTime.UtcNow).TotalMinutes;
+
+                if (minutesToStart > 5)
+                {
+                    TempData["Error"] = "Session can only be joined 5 minutes before start time.";
+                    return Redirect("/User/Dashboard");
+                }
+            }
+
+            // ? Counselor logic (unchanged)
+            if (IsCounselor)
+            {
+                var note = await _context.SessionNotes
+                    .FirstOrDefaultAsync(x => x.SessionId == sessionId);
+
+                ExistingNotes = note?.Notes;
+
+                UpcomingSessions = await _context.Bookings
+                    .Include(x => x.User)
+                    .Include(x => x.Session)
+                    .Where(x => x.CounselorId == user.Id &&
+                                x.BookingStatus == "Scheduled" &&
+                                x.ScheduledStart > DateTime.UtcNow)
+                    .OrderBy(x => x.ScheduledStart)
+                    .Take(5)
+                    .ToListAsync();
+
+                NextSessionTime = UpcomingSessions.FirstOrDefault()?.ScheduledStart;
+            }
+
+            return Page();
         }
 
-        public IActionResult OnGetGetOffer()
+
+        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] SaveNotesDto dto)
         {
-            return new JsonResult(_offer);
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var userId = user.Id;
+
+                var existing = await _context.SessionNotes
+                    .FirstOrDefaultAsync(x => x.SessionId == dto.SessionId);
+
+                if (existing == null)
+                {
+                    _context.SessionNotes.Add(new SessionNote
+                    {
+                        SessionId = dto.SessionId,
+                        CounselorId = userId,
+                        Notes = dto.Notes
+                    });
+                }
+                else
+                {
+                    existing.Notes = dto.Notes;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return new JsonResult(new { success = true });
+            }
+            catch
+            {
+                return new JsonResult(new { success = false });
+            }
         }
 
-        public async Task<IActionResult> OnPostAnswerAsync()
+        public class SaveNotesDto
         {
-            using var reader = new StreamReader(Request.Body);
-            _answer = await reader.ReadToEndAsync();
-
-            return new JsonResult(true);
-        }
-
-        public IActionResult OnGetGetAnswer()
-        {
-            return new JsonResult(_answer);
+            public int SessionId { get; set; }
+            public string Notes { get; set; }
         }
     }
 }

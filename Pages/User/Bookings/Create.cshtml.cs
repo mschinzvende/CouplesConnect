@@ -57,11 +57,52 @@ namespace CouplesConnect.Pages.User.Bookings
                     .ToListAsync();
 
                 // Next 7 days
+                var now = DateTime.Now;
+
+                // Next 7 days
                 for (int i = 0; i < 7; i++)
                 {
                     var date = DateTime.Today.AddDays(i);
 
-                    if (availability.Any(a => a.DayOfWeek == date.DayOfWeek))
+                    var daySlots = availability
+                        .Where(a => a.DayOfWeek == date.DayOfWeek)
+                        .ToList();
+
+                    if (!daySlots.Any())
+                        continue;
+
+                    var potentialSlots = new List<DateTime>();
+
+                    foreach (var slot in daySlots)
+                    {
+                        var start = date.Date.Add(slot.StartTime);
+                        var end = date.Date.Add(slot.EndTime);
+
+                        while (start < end)
+                        {
+                            // only future slots
+                            if (start > now)
+                            {
+                                potentialSlots.Add(start);
+                            }
+
+                            start = start.AddMinutes(60);
+                        }
+                    }
+
+                    // remove already booked
+                    var booked = await _context.Bookings
+                        .Where(b => b.CounselorId == CounselorId &&
+                                    b.ScheduledStart.Date == date.Date && b.BookingStatus != "Cancelled")
+                        .Select(b => b.ScheduledStart)
+                        .ToListAsync();
+
+                    var availableSlots = potentialSlots
+                        .Where(t => !booked.Contains(t))
+                        .ToList();
+
+                    // ? ONLY add date if it still has free slots
+                    if (availableSlots.Any())
                     {
                         AvailableDates.Add(date);
                     }
@@ -77,9 +118,15 @@ namespace CouplesConnect.Pages.User.Bookings
                         var start = SelectedDate.Value.Date.Add(slot.StartTime);
                         var end = SelectedDate.Value.Date.Add(slot.EndTime);
 
+                        
+
                         while (start < end)
                         {
-                            TimeSlots.Add(start);
+                            if (start > now) // only future slots
+                            {
+                                TimeSlots.Add(start);
+                            }
+
                             start = start.AddMinutes(60); // 1-hour slots
                         }
                     }
@@ -87,7 +134,7 @@ namespace CouplesConnect.Pages.User.Bookings
                     // Remove already booked slots
                     var booked = await _context.Bookings
                         .Where(b => b.CounselorId == CounselorId &&
-                                    b.ScheduledStart.Date == SelectedDate.Value.Date)
+                                    b.ScheduledStart.Date == SelectedDate.Value.Date && b.BookingStatus != "Cancelled")
                         .Select(b => b.ScheduledStart)
                         .ToListAsync();
 
@@ -110,13 +157,18 @@ namespace CouplesConnect.Pages.User.Bookings
                     return Redirect("/User/Packages");
                 }
 
+                var sub = await _context.UserSubscriptions
+                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
+
                 var booking = new Booking
                 {
                     UserId = user.Id,
                     CounselorId = CounselorId,
                     ServiceId = ServiceId,
+                    SubscriptionId = sub.SubscriptionId,
                     ScheduledStart = ScheduledStart,
-                    CancelReason = "N/A"
+                    CancelReason = "N/A",
+                    CreatedAt = DateTime.Now
                 };
 
                 _context.Bookings.Add(booking);
@@ -140,6 +192,8 @@ namespace CouplesConnect.Pages.User.Bookings
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "Session booked successfully";
+
+                return Redirect("/User/Bookings");
             }
             catch
             {

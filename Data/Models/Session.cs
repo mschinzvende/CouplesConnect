@@ -15,6 +15,9 @@ namespace CouplesConnect.Models
 
         public string Status { get; set; } = "Scheduled";
 
+        public bool IsStarted { get; set; } = false;
+        public bool IsEnded { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? StartedAt { get; set; }

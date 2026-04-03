@@ -622,6 +622,12 @@ namespace CouplesConnect.Migrations
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsEnded")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsStarted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MeetingLink")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

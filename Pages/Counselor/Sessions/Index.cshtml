@@ -1,49 +1,193 @@
 ﻿@page
-@using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.Counselor.Sessions.IndexModel
-@attribute [Authorize(Roles = "Counselor")]
 
-<h3>My Sessions</h3>
+<h3 class="fw-bold mb-3">My Sessions</h3>
 
-<table class="table">
+<!-- SEARCH + FILTER -->
+<form method="get" class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" name="Search" value="@Model.Search"
+               class="form-control"
+               placeholder="Search client..." />
+    </div>
 
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Client</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
+    <div class="col-md-3">
+        <select name="StatusFilter" class="form-select">
+            <option value="all">All</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="Ready">Ready</option>
+            <option value="Live">Live</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
 
-    <tbody>
+    <div class="col-md-3">
+        <button class="btn btn-primary w-100">Apply</button>
+    </div>
+</form>
 
-        @foreach (var s in Model.Sessions)
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row g-3">
+
+    @foreach (var s in Model.Sessions)
+    {
+        var state = Model.GetSessionState(s);
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 session-card">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>@s.Booking.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
+                            <small>@s.Booking.ScheduledStart.ToString("HH:mm")</small>
+                        </div>
+
+                        <span class="badge
+                        @(state == "Live" ? "bg-success" :
+                          state == "Ready" ? "bg-warning text-dark" :
+                          state == "Completed" ? "bg-success" :
+                          state == "Cancelled" ? "bg-secondary" :
+                          "bg-primary")">
+                            @state
+                        </span>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-2">
+                        <div><strong>Client:</strong> @s.Booking.User.FullName</div>
+                    </div>
+
+                    @if (state == "Upcoming" || state == "Ready")
+                    {
+                        <div class="text-muted small mb-2">
+                            Starts in
+                            <span class="countdown"
+                                  data-time="@s.Booking.ScheduledStart.ToString("o")">
+                            </span>
+                        </div>
+                    }
+
+                    <div class="d-flex flex-column gap-2 mt-2">
+
+                        @if (state != "Cancelled" && state != "Completed")
+                        {
+                            @if (!s.IsStarted)
+                            {
+                                <form method="post" asp-page-handler="Start" asp-route-id="@s.SessionId">
+                                    <button class="btn btn-success btn-sm w-100">
+                                        Start Session
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a href="/Sessions/PreJoin/@s.SessionId"
+                                   class="btn btn-primary btn-sm">
+                                    Enter Room
+                                </a>
+                            }
+                        }
+
+                        <a href="/Counselor/Sessions/Notes/@s.SessionId"
+                           class="btn btn-outline-secondary btn-sm">
+                            Notes
+                        </a>
+
+                        @if (state != "Cancelled" && state != "Completed")
+                        {
+                            <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    Complete Session
+                                </button>
+                            </form>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+</div>
+
+<!-- PAGINATION -->
+<div class="mt-4 d-flex justify-content-center">
+    <ul class="pagination">
+
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+            <a class="page-link"
+               asp-route-pageNumber="@(Model.PageNumber - 1)"
+               asp-route-Search="@Model.Search"
+               asp-route-StatusFilter="@Model.StatusFilter">Prev</a>
+        </li>
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
         {
-            <tr>
-
-                <td>@s.Booking.ScheduledStart</td>
-                <td>@s.Booking.User.FullName</td>
-                <td>@s.Status</td>
-
-                <td>
-
-                    <a href="/Sessions/Room/@s.SessionId" target="_blank" class="btn btn-success">
-                        Join Session
-                    </a>
-                    <a href="/Counselor/Sessions/Notes/@s.SessionId"
-                       class="btn btn-outline-secondary btn-sm">
-                        Notes
-                    </a>
-                    <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId" style="display:inline">
-                        <button class="btn btn-primary btn-sm">Complete</button>
-                    </form>
-
-                </td>
-
-            </tr>
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                <a class="page-link"
+                   asp-route-pageNumber="@i"
+                   asp-route-Search="@Model.Search"
+                   asp-route-StatusFilter="@Model.StatusFilter">@i</a>
+            </li>
         }
 
-    </tbody>
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+            <a class="page-link"
+               asp-route-pageNumber="@(Model.PageNumber + 1)"
+               asp-route-Search="@Model.Search"
+               asp-route-StatusFilter="@Model.StatusFilter">Next</a>
+        </li>
 
-</table>
+    </ul>
+</div>
+
+<style>
+    .session-card {
+        border-radius: 12px;
+        transition: 0.2s ease;
+    }
+
+        .session-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+</style>
+
+<script>
+    function updateCountdowns() {
+        document.querySelectorAll('.countdown').forEach(el => {
+            const time = new Date(el.dataset.time);
+            const now = new Date();
+
+            let diff = time - now;
+
+            if (diff <= 0) {
+                el.innerText = "Starting...";
+                return;
+            }
+
+            const seconds = Math.floor(diff / 1000) % 60;
+            const minutes = Math.floor(diff / (1000 * 60)) % 60;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+
+            el.innerText = `${hours}h ${minutes}m ${seconds}s`;
+        });
+    }
+
+    setInterval(updateCountdowns, 1000);
+    updateCountdowns();
+</script>

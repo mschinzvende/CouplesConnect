@@ -1,9 +1,31 @@
 ﻿@page
-@using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.User.Bookings.IndexModel
-@attribute [Authorize(Roles = "User")]
 
-<h3 class="mb-4">My Bookings</h3>
+<h3 class="fw-bold mb-3">My Bookings</h3>
+
+<!-- SEARCH -->
+<form method="get" class="row mb-3">
+    <div class="col-md-6">
+        <input type="text" name="Search" value="@Model.Search"
+               class="form-control"
+               placeholder="Search by service or counselor..." />
+    </div>
+
+    <div class="col-md-3">
+        <select name="StatusFilter" class="form-select">
+            <option value="all">All</option>
+            <option value="Scheduled">Upcoming</option>
+            <option value="Ready">Ready</option>
+            <option value="Live">Live</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-primary w-100">Apply</button>
+    </div>
+</form>
 
 @if (TempData["Success"] != null)
 {
@@ -15,148 +37,170 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<div class="card shadow-sm">
+<div class="row g-3">
 
-    <div class="card-body">
+    @foreach (var b in Model.Bookings)
+    {
+        var state = Model.GetSessionState(b);
 
-        <table class="table table-hover">
+        <div class="col-md-6 col-lg-4">
 
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Service</th>
-                    <th>Counselor</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
+            <div class="card shadow-sm border-0 h-100 booking-card">
 
-            <tbody>
+                <div class="card-body">
 
-                @foreach (var b in Model.Bookings)
-                {
-                    var state = Model.GetSessionState(b);
+                    <!-- HEADER -->
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>@b.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
+                            <small class="text-muted">@b.ScheduledStart.ToString("HH:mm")</small>
+                        </div>
 
-                    <tr>
+                        <span class="badge
+                        @(state == "Live" ? "bg-success" :
+                          state == "Ready" ? "bg-warning text-dark" :
+                          state == "Completed" ? "bg-success" :
+                          state == "Cancelled" ? "bg-secondary" :
+                          "bg-primary")">
+                            @state
+                        </span>
+                    </div>
 
-                        <td>
-                            <div>
-                                <strong>@b.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
-                                <small class="text-muted">
-                                    @b.ScheduledStart.ToString("HH:mm")
-                                </small>
-                            </div>
-                        </td>
+                    <hr />
 
-                        <td>@b.Service?.Name</td>
+                    <!-- DETAILS -->
+                    <div class="mb-2">
+                        <div><strong>Service:</strong> @b.Service?.Name</div>
+                        <div><strong>Counselor:</strong> @b.Counselor?.FullName</div>
+                    </div>
 
-                        <td>@b.Counselor?.FullName</td>
+                    <!-- COUNTDOWN -->
+                    @if (state == "Scheduled" || state == "Ready")
+                    {
+                        <div class="text-muted small mb-2">
+                            Starts in
+                            <span class="countdown"
+                                  data-time="@b.ScheduledStart.ToString("o")">
+                            </span>
+                        </div>
+                    }
 
-                        <td>
+                    <!-- ACTIONS -->
+                    <div class="d-flex flex-column gap-2 mt-2">
 
-                            @if (state == "Scheduled")
-                            {
-                                <span class="badge bg-primary">Scheduled</span>
-                            }
-                            else if (state == "Ready")
-                            {
-                                <span class="badge bg-warning text-dark">Ready</span>
-                            }
-                            else if (state == "Live")
-                            {
-                                <span class="badge bg-success">Live</span>
-                            }
-                            else if (state == "Completed")
-                            {
-                                <span class="badge bg-success">Completed</span>
-                            }
-                            else if (state == "Cancelled")
-                            {
-                                <span class="badge bg-secondary">Cancelled</span>
-                            }
+                        @if (b.Session != null && b.Session.IsStarted && !b.Session.IsEnded)
+                        {
+                            <a href="/Sessions/PreJoin/@b.Session.SessionId"
+                               class="btn btn-success btn-sm">
+                                Join Session
+                            </a>
+                        }
 
-                        </td>
+                        @if (state == "Scheduled")
+                        {
+                            <form method="post"
+                                  asp-page-handler="Cancel"
+                                  asp-route-id="@b.BookingId">
 
-                        <td>
+                                <button class="btn btn-outline-danger btn-sm w-100">
+                                    Cancel Booking
+                                </button>
+                            </form>
+                        }
 
-                            <!-- COUNTDOWN -->
-                            @if (state == "Scheduled")
-                            {
-                                <span class="text-muted small">
-                                    Starts in
-                                    <span class="countdown"
-                                          data-time="@b.ScheduledStart.ToString("o")">
-                                    </span>
-                                </span>
-                            }
+                        @if (b.BookingStatus == "Completed" && b.Session != null)
+                        {
+                            <a href="/User/Sessions/Feedback/@b.Session.SessionId"
+                               class="btn btn-outline-primary btn-sm">
+                                Leave Feedback
+                            </a>
+                        }
 
-                            <!-- JOIN BUTTON -->
-                            @if ((state == "Ready" || state == "Live") && b.Session != null)
-                            {
-                                <a href="/Sessions/Room/@b.Session.SessionId"
-                                   target="_blank"
-                                   class="btn btn-success btn-sm ms-2">
-                                    Join
-                                </a>
-                            }
+                    </div>
 
-                            <!-- CANCEL -->
-                            @if (state == "Scheduled")
-                            {
-                                <form method="post"
-                                      asp-page-handler="Cancel"
-                                      asp-route-id="@b.BookingId"
-                                      style="display:inline">
+                </div>
 
-                                    <button class="btn btn-danger btn-sm ms-1">
-                                        Cancel
-                                    </button>
+            </div>
 
-                                </form>
-                            }
-                            @if (b.BookingStatus == "Completed" && b.Session != null)
-                            {
-                                <a href="/User/Sessions/Feedback/@b.Session.SessionId"
-                                   class="btn btn-outline-primary btn-sm">
-                                    Feedback
-                                </a>
-                            }
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
-    </div>
+        </div>
+    }
 
 </div>
+
+<!-- PAGINATION -->
+<div class="mt-4 d-flex justify-content-center">
+    <nav>
+        <ul class="pagination">
+
+            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                   asp-route-Search="@Model.Search"
+                   asp-route-StatusFilter="@Model.StatusFilter">
+                    Prev
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link"
+                       asp-route-pageNumber="@i"
+                       asp-route-Search="@Model.Search"
+                       asp-route-StatusFilter="@Model.StatusFilter">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-route-pageNumber="@(Model.PageNumber + 1)"
+                   asp-route-Search="@Model.Search"
+                   asp-route-StatusFilter="@Model.StatusFilter">
+                    Next
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+</div>
+
+<style>
+    .booking-card {
+        border-radius: 12px;
+        transition: 0.2s ease;
+    }
+
+        .booking-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+</style>
 
 <script>
 
     function updateCountdowns() {
-
-        document.querySelectorAll(".countdown").forEach(el => {
-
-            const target = new Date(el.dataset.time);
+        document.querySelectorAll('.countdown').forEach(el => {
+            const time = new Date(el.dataset.time);
             const now = new Date();
 
-            const diff = target - now;
+            let diff = time - now;
 
             if (diff <= 0) {
-                el.innerHTML = "Starting...";
+                el.innerText = "Starting...";
                 return;
             }
 
-            const minutes = Math.floor(diff / 60000);
-            const seconds = Math.floor((diff % 60000) / 1000);
+            const seconds = Math.floor(diff / 1000) % 60;
+            const minutes = Math.floor(diff / (1000 * 60)) % 60;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
 
-            el.innerHTML = minutes + "m " + seconds + "s";
+            el.innerText = `${hours}h ${minutes}m ${seconds}s`;
         });
     }
 
+    // smoother ticking
     setInterval(updateCountdowns, 1000);
     updateCountdowns();
 

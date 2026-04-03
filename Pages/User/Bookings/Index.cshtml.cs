@@ -1,6 +1,7 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
+using CouplesConnect.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,28 +15,99 @@ namespace CouplesConnect.Pages.User.Bookings
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SubscriptionService _subscriptionService;
 
         public IndexModel(ApplicationDbContext context,
-                          UserManager<ApplicationUser> userManager)
+                          UserManager<ApplicationUser> userManager,
+                          SubscriptionService subscriptionService)
         {
             _context = context;
             _userManager = userManager;
+            _subscriptionService = subscriptionService;
         }
 
         public List<Booking> Bookings { get; set; } = new();
 
-        public async Task OnGetAsync()
+        // FILTERS
+        [BindProperty(SupportsGet = true)]
+        public string StatusFilter { get; set; } = "all";
+
+        [BindProperty(SupportsGet = true)]
+        public string Search { get; set; }
+
+        // PAGINATION
+        public int PageNumber { get; set; } = 1;
+        public int TotalPages { get; set; }
+
+        private const int PageSize = 6;
+
+        public async Task OnGetAsync(int pageNumber = 1)
         {
             try
             {
-                var user = await _userManager.GetUserAsync(User);
+                PageNumber = pageNumber;
 
-                Bookings = await _context.Bookings
+                var user = await _userManager.GetUserAsync(User);
+                var now = DateTime.UtcNow;
+
+                var query = _context.Bookings
                     .Include(b => b.Service)
                     .Include(b => b.Counselor)
-                    .Include(b => b.Session) // ?? critical
+                    .Include(b => b.Session)
                     .Where(b => b.UserId == user.Id)
-                    .OrderByDescending(b => b.ScheduledStart)
+                    .AsQueryable();
+
+                // ?? SEARCH
+                if (!string.IsNullOrWhiteSpace(Search))
+                {
+                    query = query.Where(b =>
+                        b.Service.Name.Contains(Search) ||
+                        b.Counselor.FullName.Contains(Search));
+                }
+
+                // ?? FILTER (EF-TRANSLATABLE)
+                if (StatusFilter == "Scheduled")
+                {
+                    query = query.Where(b =>
+                        b.BookingStatus == "Scheduled" &&
+                        b.ScheduledStart > now.AddMinutes(10));
+                }
+                else if (StatusFilter == "Ready")
+                {
+                    query = query.Where(b =>
+                        b.BookingStatus == "Scheduled" &&
+                        b.ScheduledStart <= now.AddMinutes(10) &&
+                        b.ScheduledStart > now);
+                }
+                else if (StatusFilter == "Live")
+                {
+                    query = query.Where(b =>
+                        b.BookingStatus == "Scheduled" &&
+                        b.ScheduledStart <= now &&
+                        b.ScheduledStart >= now.AddMinutes(-60));
+                }
+                else if (StatusFilter == "Completed")
+                {
+                    query = query.Where(b => b.BookingStatus == "Completed");
+                }
+                else if (StatusFilter == "Cancelled")
+                {
+                    query = query.Where(b => b.BookingStatus == "Cancelled");
+                }
+
+                // ?? ORDERING (BEST UX)
+                query = query
+                    .OrderBy(b => b.BookingStatus == "Cancelled") // push cancelled down
+                    .ThenBy(b => b.ScheduledStart < now) // upcoming first
+                    .ThenBy(b => b.ScheduledStart); // nearest first
+
+                var totalCount = await query.CountAsync();
+
+                TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+
+                Bookings = await query
+                    .Skip((PageNumber - 1) * PageSize)
+                    .Take(PageSize)
                     .ToListAsync();
             }
             catch (Exception)
@@ -44,10 +116,13 @@ namespace CouplesConnect.Pages.User.Bookings
             }
         }
 
+        // ? CANCEL BOOKING
         public async Task<IActionResult> OnPostCancelAsync(Guid id)
         {
             try
             {
+                var user = await _userManager.GetUserAsync(User);
+
                 var booking = await _context.Bookings
                     .Include(b => b.Session)
                     .FirstOrDefaultAsync(b => b.BookingId == id);
@@ -65,15 +140,17 @@ namespace CouplesConnect.Pages.User.Bookings
                 }
 
                 booking.BookingStatus = "Cancelled";
-                booking.CancelledAt = DateTime.UtcNow;
+                booking.CancelledAt = DateTime.Now;
 
-                // ALSO UPDATE SESSION
+                // ?? SYNC SESSION
                 if (booking.Session != null)
                 {
                     booking.Session.Status = "Cancelled";
                 }
 
                 await _context.SaveChangesAsync();
+
+                await _subscriptionService.RestoreSession(user.Id, booking.SubscriptionId);
 
                 TempData["Success"] = "Booking cancelled successfully";
             }
@@ -85,7 +162,7 @@ namespace CouplesConnect.Pages.User.Bookings
             return RedirectToPage();
         }
 
-
+        // ?? UI STATE LOGIC (SAFE TO KEEP HERE)
         public string GetSessionState(Booking b)
         {
             var now = DateTime.UtcNow;

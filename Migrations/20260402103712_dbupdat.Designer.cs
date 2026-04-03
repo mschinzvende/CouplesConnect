@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260402003053_dbupdat")]
+    [Migration("20260402103712_dbupdat")]
     partial class dbupdat
     {
         /// <inheritdoc />
@@ -624,6 +624,12 @@ namespace CouplesConnect.Migrations
 
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsEnded")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsStarted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("MeetingLink")
                         .IsRequired()

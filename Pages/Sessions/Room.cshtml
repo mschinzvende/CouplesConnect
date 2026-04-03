@@ -1,59 +1,391 @@
 ﻿@page "{sessionId:int}"
 @model CouplesConnect.Pages.Sessions.RoomModel
 
-<h3>Session Room</h3>
+<h4 class="mb-3">Live Session</h4>
+
+<div id="connectionStatus" class="alert alert-warning text-center">
+    Connecting...
+</div>
 
 <div class="row">
 
-    <div class="col-md-6">
-        <video id="localVideo" autoplay muted class="w-100"></video>
+    <!-- ===================== LEFT SIDE ===================== -->
+    <div class="@(Model.IsCounselor ? "col-md-7" : "col-md-12")">
+
+        <!-- TIMER -->
+        <div class="alert alert-primary text-center">
+            <strong id="timer">00:00</strong>
+        </div>
+
+        <!-- NEXT SESSION (COUNSELOR ONLY) -->
+        @if (Model.IsCounselor && Model.NextSessionTime != null)
+        {
+            <div class="alert alert-warning text-center">
+                Next session in:
+                <strong id="nextSessionCountdown"
+                        data-time="@Model.NextSessionTime.Value.ToString("o")">
+                </strong>
+            </div>
+        }
+
+        <!-- VIDEO SECTION -->
+        @if (!Model.IsCounselor)
+        {
+            <!-- USER VIEW -->
+            <div class="row mb-3">
+
+                <div class="col-md-6 mb-3">
+                    <video id="remoteVideo" autoplay class="w-100 border rounded" style="height:220px;"></video>
+                    <div class="text-center small">Counselor</div>
+                </div>
+
+                <div class="col-md-6">
+                    <video id="localVideo" autoplay muted class="w-100 border rounded" style="height:220px;"></video>
+                    <div class="text-center small">You</div>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <!-- COUNSELOR VIEW -->
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+                    <video id="localVideo" autoplay muted class="w-100 border rounded"></video>
+                    <div class="text-center small">You</div>
+                </div>
+
+                <div class="col-md-6">
+                    <video id="remoteVideo" autoplay class="w-100 border rounded"></video>
+                    <div class="text-center small">Client</div>
+                </div>
+
+            </div>
+        }
+
+        <!-- CONTROLS -->
+        <div class="text-center mb-3">
+
+            <button onclick="toggleMute()" class="btn btn-outline-primary">🎤</button>
+            <button onclick="toggleVideo()" class="btn btn-outline-secondary">📷</button>
+            <button onclick="shareScreen()" class="btn btn-outline-info">🖥</button>
+
+            @if (Model.IsCounselor)
+            {
+                <button class="btn btn-outline-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#upcomingModal">
+                    Upcoming
+                </button>
+            }
+
+            <button onclick="leaveSession()" class="btn btn-danger">End</button>
+
+        </div>
+
     </div>
 
-    <div class="col-md-6">
-        <video id="remoteVideo" autoplay class="w-100"></video>
-    </div>
+
+    <!-- ===================== RIGHT SIDE (NOTES) ===================== -->
+    @if (Model.IsCounselor)
+    {
+        <div class="col-md-5">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-header">
+                    Session Notes
+                </div>
+
+                <div class="card-body d-flex flex-column">
+
+                    <textarea id="notesBox"
+                              class="form-control flex-grow-1 mb-2"
+                              rows="10">@Model.ExistingNotes</textarea>
+
+                    <button onclick="saveNotes()" class="btn btn-primary">
+                        Save Notes
+                    </button>
+
+                    <div id="saveStatus" class="alert alert-success mt-2 d-none">
+                        Notes saved ✓
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
 
 </div>
 
+
+<!-- ===================== UPCOMING MODAL ===================== -->
+<div class="modal fade" id="upcomingModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>Upcoming Sessions</h5>
+            </div>
+
+            <div class="modal-body">
+
+                @if (Model.UpcomingSessions.Any())
+                {
+                    <ul class="list-group">
+
+                        @foreach (var s in Model.UpcomingSessions)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+
+                                <div>
+                                    <strong>@s.ScheduledStart.ToString("HH:mm")</strong><br />
+                                    <small>@s.User?.FullName</small>
+                                </div>
+
+                                <span class="badge bg-primary">
+                                    @((s.ScheduledStart - DateTime.UtcNow).TotalMinutes.ToString("0")) min
+                                </span>
+
+                            </li>
+                        }
+
+                    </ul>
+                }
+                else
+                {
+                    <div class="alert alert-info text-center">
+                        No upcoming sessions found
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
 <script>
 
+    const sessionId = "@Model.SessionId";
+
+    let connection;
     let localStream;
     let peerConnection;
 
+    let isMuted = false;
+    let isVideoOff = false;
+
     const config = {
-        iceServers: [
-            { urls: "stun:stun.l.google.com:19302" }
-        ]
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
     };
 
-    async function start(){
+    async function init() {
 
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        try {
 
-        document.getElementById("localVideo").srcObject = localStream;
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/sessionHub")
+                .withAutomaticReconnect()
+                .build();
 
-        peerConnection = new RTCPeerConnection(config);
+            registerSignalREvents();
 
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
-        });
+            await connection.start();
 
-        peerConnection.ontrack = event => {
-            document.getElementById("remoteVideo").srcObject = event.streams[0];
-        };
+            updateStatus("Connected");
 
-        // Create offer
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
+            await connection.invoke("JoinSession", sessionId);
 
-        await fetch("/Sessions/Room?handler=Offer", {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(offer)
-        });
+                const camId = localStorage.getItem("cameraId");
+    const micId = localStorage.getItem("micId");
 
+    localStream = await navigator.mediaDevices.getUserMedia({
+        video: camId ? { deviceId: camId } : true,
+        audio: micId ? { deviceId: micId } : true
+    });
+
+            document.getElementById("localVideo").srcObject = localStream;
+
+            peerConnection = new RTCPeerConnection(config);
+
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+
+            peerConnection.ontrack = e => {
+                document.getElementById("remoteVideo").srcObject = e.streams[0];
+            };
+
+            peerConnection.onicecandidate = e => {
+                if (e.candidate) {
+                    connection.invoke("SendIceCandidate", sessionId, JSON.stringify(e.candidate));
+                }
+            };
+
+            await connection.invoke("NotifyJoin", sessionId);
+
+        } catch (err) {
+            console.error(err);
+            updateStatus("Error connecting");
+        }
     }
 
-    start();
+    // SIGNALR EVENTS
+    function registerSignalREvents() {
+
+        connection.on("UserJoined", async () => {
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            await connection.invoke("SendOffer", sessionId, JSON.stringify(offer));
+        });
+
+        connection.on("ReceiveOffer", async (offer) => {
+
+            await peerConnection.setRemoteDescription(JSON.parse(offer));
+
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+
+            await connection.invoke("SendAnswer", sessionId, JSON.stringify(answer));
+        });
+
+        connection.on("ReceiveAnswer", async (answer) => {
+            await peerConnection.setRemoteDescription(JSON.parse(answer));
+        });
+
+        connection.on("ReceiveIceCandidate", async (candidate) => {
+            try {
+                await peerConnection.addIceCandidate(JSON.parse(candidate));
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        connection.onclose(() => updateStatus("Disconnected"));
+        connection.onreconnected(() => updateStatus("Reconnected"));
+    }
+
+    // STATUS
+    function updateStatus(text) {
+        const el = document.getElementById("connectionStatus");
+        if (el) el.innerText = text;
+    }
+
+    // MUTE
+    function toggleMute() {
+        if (!localStream) return;
+
+        isMuted = !isMuted;
+        localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+    }
+
+    // VIDEO
+    function toggleVideo() {
+        if (!localStream) return;
+
+        isVideoOff = !isVideoOff;
+        localStream.getVideoTracks().forEach(t => t.enabled = !isVideoOff);
+    }
+
+    // SCREEN SHARE
+    async function shareScreen() {
+        try {
+            const screen = await navigator.mediaDevices.getDisplayMedia({ video: true });
+
+            const sender = peerConnection.getSenders().find(s => s.track.kind === "video");
+
+            if (sender) sender.replaceTrack(screen.getVideoTracks()[0]);
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // LEAVE
+    function leaveSession() {
+        window.location.href = "/User/Bookings";
+    }
+
+    // SAVE NOTES
+    async function saveNotes() {
+
+        const notesBox = document.getElementById("notesBox");
+        const status = document.getElementById("saveStatus");
+
+        if (!notesBox) return;
+
+        const res = await fetch("/Sessions/Room?handler=SaveNotes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                notes: notesBox.value
+            })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+            status.classList.remove("d-none");
+            status.innerText = "Notes saved ✓";
+
+            setTimeout(() => status.classList.add("d-none"), 2000);
+        } else {
+            status.classList.remove("d-none");
+            status.classList.replace("alert-success", "alert-danger");
+            status.innerText = "Error saving notes";
+        }
+    }
+
+    // TIMER
+    let seconds = 0;
+    setInterval(() => {
+        seconds++;
+
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+
+        document.getElementById("timer").innerText =
+            m.toString().padStart(2, '0') + ":" +
+            s.toString().padStart(2, '0');
+
+    }, 1000);
+
+    // NEXT SESSION COUNTDOWN
+    function updateNextSession() {
+
+        const el = document.getElementById("nextSessionCountdown");
+        if (!el) return;
+
+        const target = new Date(el.dataset.time);
+        const now = new Date();
+
+        let diff = target - now;
+
+        if (diff <= 0) {
+            el.innerText = "Now";
+            return;
+        }
+
+        let mins = Math.floor(diff / 60000);
+        let secs = Math.floor((diff % 60000) / 1000);
+
+        el.innerText = mins + "m " + secs + "s";
+    }
+
+    setInterval(updateNextSession, 1000);
+
+    // START
+    init();
 
 </script>
