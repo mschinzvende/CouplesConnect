@@ -3,7 +3,6 @@
 
 <h3 class="fw-bold mb-3">My Bookings</h3>
 
-<!-- SEARCH -->
 <form method="get" class="row mb-3">
     <div class="col-md-6">
         <input type="text" name="Search" value="@Model.Search"
@@ -31,7 +30,6 @@
 {
     <div class="alert alert-success">@TempData["Success"]</div>
 }
-
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
@@ -44,7 +42,6 @@
         var state = Model.GetSessionState(b);
 
         <div class="col-md-6 col-lg-4">
-
             <div class="card shadow-sm border-0 h-100 booking-card">
 
                 <div class="card-body">
@@ -53,7 +50,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <strong>@b.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
-                            <small class="text-muted">@b.ScheduledStart.ToString("HH:mm")</small>
+                            <small>@b.ScheduledStart.ToString("HH:mm")</small>
                         </div>
 
                         <span class="badge
@@ -72,6 +69,16 @@
                     <div class="mb-2">
                         <div><strong>Service:</strong> @b.Service?.Name</div>
                         <div><strong>Counselor:</strong> @b.Counselor?.FullName</div>
+
+                        @if (b.IsGroup)
+                        {
+                            <span class="badge bg-info mt-1">Group Session</span>
+
+                            <div class="small text-muted mt-1">
+                                Participants:
+                                @b.Participants.Count(p => p.Status == "Accepted")
+                            </div>
+                        }
                     </div>
 
                     <!-- COUNTDOWN -->
@@ -108,20 +115,11 @@
                             </form>
                         }
 
-                        @if (b.BookingStatus == "Completed" && b.Session != null)
-                        {
-                            <a href="/User/Sessions/Feedback/@b.Session.SessionId"
-                               class="btn btn-outline-primary btn-sm">
-                                Leave Feedback
-                            </a>
-                        }
-
                     </div>
 
                 </div>
 
             </div>
-
         </div>
     }
 
@@ -129,41 +127,33 @@
 
 <!-- PAGINATION -->
 <div class="mt-4 d-flex justify-content-center">
-    <nav>
-        <ul class="pagination">
+    <ul class="pagination">
 
-            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+            <a class="page-link"
+               asp-route-pageNumber="@(Model.PageNumber - 1)"
+               asp-route-Search="@Model.Search"
+               asp-route-StatusFilter="@Model.StatusFilter">Prev</a>
+        </li>
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
                 <a class="page-link"
-                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                   asp-route-pageNumber="@i"
                    asp-route-Search="@Model.Search"
-                   asp-route-StatusFilter="@Model.StatusFilter">
-                    Prev
-                </a>
+                   asp-route-StatusFilter="@Model.StatusFilter">@i</a>
             </li>
+        }
 
-            @for (int i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                    <a class="page-link"
-                       asp-route-pageNumber="@i"
-                       asp-route-Search="@Model.Search"
-                       asp-route-StatusFilter="@Model.StatusFilter">
-                        @i
-                    </a>
-                </li>
-            }
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+            <a class="page-link"
+               asp-route-pageNumber="@(Model.PageNumber + 1)"
+               asp-route-Search="@Model.Search"
+               asp-route-StatusFilter="@Model.StatusFilter">Next</a>
+        </li>
 
-            <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-                <a class="page-link"
-                   asp-route-pageNumber="@(Model.PageNumber + 1)"
-                   asp-route-Search="@Model.Search"
-                   asp-route-StatusFilter="@Model.StatusFilter">
-                    Next
-                </a>
-            </li>
-
-        </ul>
-    </nav>
+    </ul>
 </div>
 
 <style>
@@ -182,6 +172,7 @@
 
     function updateCountdowns() {
         document.querySelectorAll('.countdown').forEach(el => {
+
             const time = new Date(el.dataset.time);
             const now = new Date();
 
@@ -200,7 +191,6 @@
         });
     }
 
-    // smoother ticking
     setInterval(updateCountdowns, 1000);
     updateCountdowns();
 

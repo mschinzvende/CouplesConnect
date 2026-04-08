@@ -1,7 +1,6 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
-using CouplesConnect.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,27 +14,22 @@ namespace CouplesConnect.Pages.User.Bookings
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SubscriptionService _subscriptionService;
 
         public IndexModel(ApplicationDbContext context,
-                          UserManager<ApplicationUser> userManager,
-                          SubscriptionService subscriptionService)
+                          UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _subscriptionService = subscriptionService;
         }
 
         public List<Booking> Bookings { get; set; } = new();
 
-        // FILTERS
         [BindProperty(SupportsGet = true)]
         public string StatusFilter { get; set; } = "all";
 
         [BindProperty(SupportsGet = true)]
         public string Search { get; set; }
 
-        // PAGINATION
         public int PageNumber { get; set; } = 1;
         public int TotalPages { get; set; }
 
@@ -54,10 +48,14 @@ namespace CouplesConnect.Pages.User.Bookings
                     .Include(b => b.Service)
                     .Include(b => b.Counselor)
                     .Include(b => b.Session)
-                    .Where(b => b.UserId == user.Id)
+                    .Include(b => b.Participants)
+                    .Where(b =>
+                        b.UserId == user.Id ||
+                        b.Participants.Any(p => p.UserId == user.Id && p.Status == "Accepted")
+                    )
                     .AsQueryable();
 
-                // ?? SEARCH
+                // SEARCH
                 if (!string.IsNullOrWhiteSpace(Search))
                 {
                     query = query.Where(b =>
@@ -65,7 +63,7 @@ namespace CouplesConnect.Pages.User.Bookings
                         b.Counselor.FullName.Contains(Search));
                 }
 
-                // ?? FILTER (EF-TRANSLATABLE)
+                // FILTER
                 if (StatusFilter == "Scheduled")
                 {
                     query = query.Where(b =>
@@ -95,11 +93,11 @@ namespace CouplesConnect.Pages.User.Bookings
                     query = query.Where(b => b.BookingStatus == "Cancelled");
                 }
 
-                // ?? ORDERING (BEST UX)
+                // ORDER
                 query = query
-                    .OrderBy(b => b.BookingStatus == "Cancelled") // push cancelled down
-                    .ThenBy(b => b.ScheduledStart < now) // upcoming first
-                    .ThenBy(b => b.ScheduledStart); // nearest first
+                    .OrderBy(b => b.BookingStatus == "Cancelled")
+                    .ThenBy(b => b.ScheduledStart < now)
+                    .ThenBy(b => b.ScheduledStart);
 
                 var totalCount = await query.CountAsync();
 
@@ -110,59 +108,36 @@ namespace CouplesConnect.Pages.User.Bookings
                     .Take(PageSize)
                     .ToListAsync();
             }
-            catch (Exception)
+            catch
             {
                 TempData["Error"] = "Error loading bookings";
             }
         }
 
-        // ? CANCEL BOOKING
         public async Task<IActionResult> OnPostCancelAsync(Guid id)
         {
-            try
+            var booking = await _context.Bookings
+                .Include(b => b.Session)
+                .FirstOrDefaultAsync(b => b.BookingId == id);
+
+            if (booking == null)
             {
-                var user = await _userManager.GetUserAsync(User);
-
-                var booking = await _context.Bookings
-                    .Include(b => b.Session)
-                    .FirstOrDefaultAsync(b => b.BookingId == id);
-
-                if (booking == null)
-                {
-                    TempData["Error"] = "Booking not found";
-                    return RedirectToPage();
-                }
-
-                if (booking.BookingStatus != "Scheduled")
-                {
-                    TempData["Error"] = "Only scheduled bookings can be cancelled";
-                    return RedirectToPage();
-                }
-
-                booking.BookingStatus = "Cancelled";
-                booking.CancelledAt = DateTime.Now;
-
-                // ?? SYNC SESSION
-                if (booking.Session != null)
-                {
-                    booking.Session.Status = "Cancelled";
-                }
-
-                await _context.SaveChangesAsync();
-
-                await _subscriptionService.RestoreSession(user.Id, booking.SubscriptionId);
-
-                TempData["Success"] = "Booking cancelled successfully";
+                TempData["Error"] = "Booking not found";
+                return RedirectToPage();
             }
-            catch (Exception)
-            {
-                TempData["Error"] = "Error cancelling booking";
-            }
+
+            booking.BookingStatus = "Cancelled";
+
+            if (booking.Session != null)
+                booking.Session.IsEnded = true;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Booking cancelled";
 
             return RedirectToPage();
         }
 
-        // ?? UI STATE LOGIC (SAFE TO KEEP HERE)
         public string GetSessionState(Booking b)
         {
             var now = DateTime.UtcNow;

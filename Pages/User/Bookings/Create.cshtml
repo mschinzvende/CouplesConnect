@@ -77,6 +77,25 @@
                        class="form-control"
                        placeholder="Select a date"
                        value="@(Model.SelectedDate?.ToString("yyyy-MM-dd"))" />
+
+                <hr />
+
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="isGroup" name="IsGroup" class="form-check-input" onchange="toggleGroup()" />
+                    <label class="form-check-label">Group Session</label>
+                </div>
+
+                <div id="groupSection" class="d-none">
+
+                    <h5>Add Participants (WhatsApp)</h5>
+
+                    <div id="participantsContainer"></div>
+
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addParticipant()">
+                        + Add Phone
+                    </button>
+
+                </div>
             </form>
         </div>
 
@@ -136,4 +155,25 @@
         });
 
     });
+</script>
+
+<script>
+
+    function toggleGroup() {
+        document.getElementById("groupSection")
+            .classList.toggle("d-none");
+    }
+
+    function addParticipant() {
+
+        const container = document.getElementById("participantsContainer");
+
+        const input = document.createElement("input");
+        input.name = "ParticipantPhones";
+        input.className = "form-control mb-2";
+        input.placeholder = "2637XXXXXXXX";
+
+        container.appendChild(input);
+    }
+
 </script>

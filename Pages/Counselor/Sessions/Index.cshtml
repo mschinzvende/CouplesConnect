@@ -3,12 +3,11 @@
 
 <h3 class="fw-bold mb-3">My Sessions</h3>
 
-<!-- SEARCH + FILTER -->
 <form method="get" class="row mb-3">
     <div class="col-md-6">
         <input type="text" name="Search" value="@Model.Search"
                class="form-control"
-               placeholder="Search client..." />
+               placeholder="Search participant..." />
     </div>
 
     <div class="col-md-3">
@@ -18,7 +17,6 @@
             <option value="Ready">Ready</option>
             <option value="Live">Live</option>
             <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
         </select>
     </div>
 
@@ -41,6 +39,7 @@
     @foreach (var s in Model.Sessions)
     {
         var state = Model.GetSessionState(s);
+        var mainBooking = s.Bookings.First();
 
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-sm border-0 h-100 session-card">
@@ -49,15 +48,14 @@
 
                     <div class="d-flex justify-content-between">
                         <div>
-                            <strong>@s.Booking.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
-                            <small>@s.Booking.ScheduledStart.ToString("HH:mm")</small>
+                            <strong>@mainBooking.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
+                            <small>@mainBooking.ScheduledStart.ToString("HH:mm")</small>
                         </div>
 
                         <span class="badge
                         @(state == "Live" ? "bg-success" :
                           state == "Ready" ? "bg-warning text-dark" :
                           state == "Completed" ? "bg-success" :
-                          state == "Cancelled" ? "bg-secondary" :
                           "bg-primary")">
                             @state
                         </span>
@@ -65,39 +63,57 @@
 
                     <hr />
 
+                    <!-- GROUP / INDIVIDUAL -->
+                    @if (mainBooking.IsGroup)
+                    {
+                        <span class="badge bg-info mb-2">Group Session</span>
+                    }
+
+                    <!-- PARTICIPANTS -->
                     <div class="mb-2">
-                        <div><strong>Client:</strong> @s.Booking.User.FullName</div>
+                        <strong>Participants:</strong>
+
+                        <ul class="small mb-0">
+                            <li>@mainBooking.User.FullName (Host)</li>
+
+                            @foreach (var p in mainBooking.Participants.Where(x => x.Status == "Accepted"))
+                            {
+                                if (p.User != null)
+                                {
+                                    <li>@p.User.FullName</li>
+                                }
+                            }
+                        </ul>
                     </div>
 
+                    <!-- COUNTDOWN -->
                     @if (state == "Upcoming" || state == "Ready")
                     {
                         <div class="text-muted small mb-2">
                             Starts in
                             <span class="countdown"
-                                  data-time="@s.Booking.ScheduledStart.ToString("o")">
+                                  data-time="@mainBooking.ScheduledStart.ToString("o")">
                             </span>
                         </div>
                     }
 
+                    <!-- ACTIONS -->
                     <div class="d-flex flex-column gap-2 mt-2">
 
-                        @if (state != "Cancelled" && state != "Completed")
+                        @if (!s.IsStarted && !s.IsEnded)
                         {
-                            @if (!s.IsStarted)
-                            {
-                                <form method="post" asp-page-handler="Start" asp-route-id="@s.SessionId">
-                                    <button class="btn btn-success btn-sm w-100">
-                                        Start Session
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <a href="/Sessions/PreJoin/@s.SessionId"
-                                   class="btn btn-primary btn-sm">
-                                    Enter Room
-                                </a>
-                            }
+                            <form method="post" asp-page-handler="Start" asp-route-id="@s.SessionId">
+                                <button class="btn btn-success btn-sm w-100">
+                                    Start Session
+                                </button>
+                            </form>
+                        }
+                        else if (s.IsStarted && !s.IsEnded)
+                        {
+                            <a href="/Sessions/PreJoin/@s.SessionId"
+                               class="btn btn-primary btn-sm">
+                                Enter Room
+                            </a>
                         }
 
                         <a href="/Counselor/Sessions/Notes/@s.SessionId"
@@ -105,7 +121,7 @@
                             Notes
                         </a>
 
-                        @if (state != "Cancelled" && state != "Completed")
+                        @if (!s.IsEnded)
                         {
                             <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId">
                                 <button class="btn btn-outline-primary btn-sm">
@@ -170,6 +186,7 @@
 <script>
     function updateCountdowns() {
         document.querySelectorAll('.countdown').forEach(el => {
+
             const time = new Date(el.dataset.time);
             const now = new Date();
 

@@ -8,8 +8,7 @@ namespace CouplesConnect.Models
         [Key]
         public int SessionId { get; set; }
 
-        public Guid BookingId { get; set; }
-        public Booking Booking { get; set; }
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
         public string MeetingLink { get; set; }
 

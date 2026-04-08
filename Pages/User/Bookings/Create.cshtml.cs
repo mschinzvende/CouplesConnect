@@ -50,7 +50,7 @@ namespace CouplesConnect.Pages.User.Bookings
     .Select(x => x.User)
     .ToListAsync();
 
-            if (CounselorId!=null)
+            if (CounselorId != null)
             {
                 var availability = await _context.CounselorAvailabilities
                     .Where(x => x.CounselorId == CounselorId)
@@ -118,7 +118,7 @@ namespace CouplesConnect.Pages.User.Bookings
                         var start = SelectedDate.Value.Date.Add(slot.StartTime);
                         var end = SelectedDate.Value.Date.Add(slot.EndTime);
 
-                        
+
 
                         while (start < end)
                         {
@@ -145,62 +145,61 @@ namespace CouplesConnect.Pages.User.Bookings
             }
         }
 
-        public async Task<IActionResult> OnPostAsync(int ServiceId, Guid CounselorId, DateTime ScheduledStart)
+        public async Task<IActionResult> OnPostAsync(
+    int ServiceId,
+    Guid CounselorId,
+    DateTime ScheduledStart,
+    bool IsGroup,
+    List<string> ParticipantPhones)
         {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
 
-                if (!await _subscriptionService.HasSessions(user.Id))
+            var session = new Session
+            {
+                MeetingLink = "https://meet.jitsi/" + Guid.NewGuid()
+            };
+
+            _context.Sessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            var booking = new Booking
+            {
+                UserId = user.Id,
+                CounselorId = CounselorId,
+                ServiceId = ServiceId,
+                ScheduledStart = ScheduledStart,
+                SessionId = session.SessionId,
+                IsGroup = IsGroup
+            };
+
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            // GROUP PARTICIPANTS
+            if (IsGroup && ParticipantPhones != null)
+            {
+                foreach (var phone in ParticipantPhones.Where(x => !string.IsNullOrEmpty(x)))
                 {
-                    TempData["Error"] = "No sessions remaining";
-                    return Redirect("/User/Packages");
+                    var token = Guid.NewGuid().ToString();
+
+                    var participant = new BookingParticipant
+                    {
+                        BookingId = booking.BookingId,
+                        PhoneNumber = phone,
+                        InviteToken = token
+                    };
+
+                    _context.BookingParticipants.Add(participant);
+
+                    var link = $"{Request.Scheme}://{Request.Host}/User/Bookings/Accept?token={token}";
+
+                    // TODO: integrate WhatsApp send here
                 }
-
-                var sub = await _context.UserSubscriptions
-                .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
-
-                var booking = new Booking
-                {
-                    UserId = user.Id,
-                    CounselorId = CounselorId,
-                    ServiceId = ServiceId,
-                    SubscriptionId = sub.SubscriptionId,
-                    ScheduledStart = ScheduledStart,
-                    CancelReason = "N/A",
-                    CreatedAt = DateTime.Now
-                };
-
-                _context.Bookings.Add(booking);
-
-                 await _context.SaveChangesAsync();
-
-                // CREATE SESSION
-
-                var session = new Session
-                {
-                    BookingId = booking.BookingId,
-                    MeetingLink = "https://meet.jitsi/" + Guid.NewGuid().ToString()
-                };
-
-                _context.Sessions.Add(session);
-
-                await _context.SaveChangesAsync();
-
-                await _subscriptionService.ConsumeSession(user.Id);
-
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = "Session booked successfully";
-
-                return Redirect("/User/Bookings");
-            }
-            catch
-            {
-                TempData["Error"] = "Booking failed";
             }
 
-            return RedirectToPage();
+            await _context.SaveChangesAsync();
+
+            return Redirect("/User/Bookings");
         }
     }
-}
+    }
