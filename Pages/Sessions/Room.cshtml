@@ -1,32 +1,47 @@
 ﻿@page "{sessionId:int}"
 @model CouplesConnect.Pages.Sessions.RoomModel
 
-<h4 class="mb-3">Live Session</h4>
+<link href="~/css/room.css" rel="stylesheet" />
 
-<div id="connectionStatus" class="alert alert-warning text-center">
-    Connecting...
-</div>
+<h4 class="mb-3">Live Session</h4>
 
 <div class="row">
 
     <!-- ===================== LEFT SIDE ===================== -->
     <div class="@(Model.IsCounselor ? "col-md-7" : "col-md-12")">
 
-        <!-- TIMER -->
-        <div class="alert alert-primary text-center">
-            <strong id="timer">00:00</strong>
-        </div>
+        <!-- TOP BAR -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
 
-        <!-- NEXT SESSION (COUNSELOR ONLY) -->
-        @if (Model.IsCounselor && Model.NextSessionTime != null)
-        {
-            <div class="alert alert-warning text-center">
-                Next session in:
-                <strong id="nextSessionCountdown"
-                        data-time="@Model.NextSessionTime.Value.ToString("o")">
-                </strong>
+            <div class="connection-bar">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="connectionText">Connecting...</span>
             </div>
-        }
+
+            <div class="session-meta">
+
+                <div class="timer-box">
+                    <span>Session</span>
+                    <strong id="timer">00:00</strong>
+                </div>
+
+                @if (Model.IsCounselor && Model.NextSessionTime != null)
+                {
+                    <div class="timer-box">
+                        <span>Next</span>
+                        <strong id="nextSessionCountdown"
+                                data-time="@Model.NextSessionTime.Value.ToString("o")">
+                        </strong>
+                    </div>
+                }
+
+                <div class="participants-box">
+                    👥 <span id="participantCount">1</span>
+                </div>
+
+            </div>
+
+        </div>
 
         <!-- VIDEO SECTION -->
         <div id="waitingScreen" class="text-center mt-5 d-none">
@@ -37,46 +52,53 @@
 
             <div class="video-layout">
 
+                <!-- MAIN VIDEO -->
                 <div id="mainStage" class="main-stage">
                     <video id="activeSpeaker" autoplay></video>
                 </div>
 
+                <!-- PARTICIPANTS -->
                 <div id="videosContainer" class="participants-grid"></div>
 
             </div>
 
+            <!-- CONTROLS -->
             <div class="controls-bar">
-                <button onclick="toggleMute()">🎤</button>
-                <button onclick="toggleVideo()">📷</button>
-                <button onclick="shareScreen()">🖥</button>
-                <button onclick="raiseHand()">✋</button>
-                <button onclick="leaveSession()">⏹</button>
+                <button id="btnMic" onclick="toggleMute()">🎤</button>
+                <button id="btnCam" onclick="toggleVideo()">📷</button>
+                <button id="btnScreen" onclick="shareScreen()">🖥</button>
+                <button id="btnHand" onclick="raiseHand()">✋</button>
+                <button onclick="leaveSession()" class="danger">⏹</button>
             </div>
 
         </div>
 
-        <!-- Therapist waiting list -->
+        <!-- WAITING LIST -->
         <div id="waitingList" class="position-fixed top-0 end-0 m-3"></div>
 
     </div>
-
 
     <!-- ===================== RIGHT SIDE (NOTES) ===================== -->
     @if (Model.IsCounselor)
     {
         <div class="col-md-5">
 
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100 shadow-sm d-flex flex-column">
 
-                <div class="card-header">
-                    Session Notes
+                <div class="card-header d-flex justify-content-between">
+                    <span>Session Notes</span>
+                    <button class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#upcomingModal">
+                        Upcoming
+                    </button>
                 </div>
 
-                <div class="card-body d-flex flex-column">
+                <div class="card-body d-flex flex-column" style="min-height:400px;">
 
                     <textarea id="notesBox"
                               class="form-control flex-grow-1 mb-2"
-                              rows="10">@Model.ExistingNotes</textarea>
+                              style="resize:none;">@Model.ExistingNotes</textarea>
 
                     <button onclick="saveNotes()" class="btn btn-primary">
                         Save Notes
@@ -142,70 +164,76 @@
     </div>
 </div>
 
-<style>
-    .video-layout {
-        display: flex;
-        flex-direction: column;
-        height: 75vh;
-    }
 
-    .main-stage {
-        flex: 2;
-        background: #000;
-        border-radius: 10px;
-        margin-bottom: 10px;
-    }
-
-        .main-stage video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    .participants-grid {
-        flex: 1;
-        display: grid;
-        grid-template-columns: repeat(auto-fill,minmax(150px,1fr));
-        gap: 8px;
-    }
-
-        .participants-grid video {
-            width: 100%;
-            height: 120px;
-            object-fit: cover;
-            border-radius: 8px;
-            background: black;
-        }
-
-    .controls-bar {
-        position: fixed;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1f1f1f;
-        padding: 10px 20px;
-        border-radius: 30px;
-        display: flex;
-        gap: 10px;
-    }
-</style>
 
 
 <!-- ===================== JAVASCRIPT ===================== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
 <script>
+    
 
     const sessionId = "@Model.SessionId";
     const isCounselor = @Model.IsCounselor.ToString().ToLower();
+    const sessionStart = new Date("@Model.SessionStartTime.ToString("o")");
 
     let connection;
     let localStream;
     let peerConnections = {};
     let isForceMuted = false;
 
+    // ================= TIMER =================
+    function startTimer() {
+
+        setInterval(() => {
+            const now = new Date();
+            const diff = Math.floor((now - sessionStart) / 1000);
+
+            if (diff < 0) return;
+
+            const min = Math.floor(diff / 60);
+            const sec = diff % 60;
+
+            document.getElementById("timer").innerText =
+                `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+
+        }, 1000);
+    }
+
+    // NEXT SESSION TIMER
+    function startNextSessionTimer() {
+
+        const el = document.getElementById("nextSessionCountdown");
+        if (!el) return;
+
+        const target = new Date(el.dataset.time);
+
+        setInterval(() => {
+
+            const diff = target - new Date();
+
+            if (diff <= 0) {
+                el.innerText = "Now";
+                return;
+            }
+
+            const min = Math.floor(diff / 60000);
+            const sec = Math.floor((diff % 60000) / 1000);
+
+            el.innerText = `${min}m ${sec}s`;
+
+        }, 1000);
+    }
+
     // ================= INIT =================
     async function init() {
+
+        startTimer();
+        startNextSessionTimer();
+
+            
+
+    
 
         connection = new signalR.HubConnectionBuilder()
             .withUrl("/sessionHub")
@@ -216,6 +244,8 @@
 
         await connection.start();
 
+        setConnectedState(true);
+
         if (isCounselor) {
             await connection.invoke("JoinSession", sessionId);
             startSessionUI();
@@ -225,6 +255,20 @@
         }
     }
 
+
+        function setConnectedState(isConnected) {
+
+        const dot = document.getElementById("statusDot");
+        const text = document.getElementById("connectionText");
+
+        if (isConnected) {
+            dot.classList.add("connected");
+            text.innerText = "Connected";
+        } else {
+            dot.classList.remove("connected");
+            text.innerText = "Connecting...";
+        }
+    }
     // ================= EVENTS =================
     function registerEvents() {
 
@@ -233,23 +277,14 @@
             startSessionUI();
         });
 
-        connection.on("UserWaiting", (id) => {
-            if (!isCounselor) return;
-
-            const div = document.createElement("div");
-            div.className = "alert alert-info";
-            div.innerHTML = `User waiting
-                <button onclick="admit('${id}')">Admit</button>`;
-
-            document.getElementById("waitingList").appendChild(div);
-        });
-
         connection.on("ExistingParticipants", users => {
             users.forEach(id => createPeer(id));
+                updateParticipantCount();
         });
 
         connection.on("UserJoined", id => {
             createPeer(id, true);
+                updateParticipantCount();
         });
 
         connection.on("ReceiveOffer", async (id, offer) => {
@@ -270,22 +305,16 @@
             await peerConnections[id].addIceCandidate(JSON.parse(candidate));
         });
 
-        connection.on("ForceMute", () => {
-            isForceMuted = true;
-            localStream.getAudioTracks().forEach(t => t.enabled = false);
-        });
+      connection.onreconnecting(() => {
+        setConnectedState(false);
+    });
 
-        connection.on("ForceUnmute", () => {
-            isForceMuted = false;
-            localStream.getAudioTracks().forEach(t => t.enabled = true);
-        });
-
-        connection.on("UserRaisedHand", () => {
-            alert("Participant raised hand");
-        });
+    connection.onreconnected(() => {
+        setConnectedState(true);
+    });
     }
 
-    // ================= CORE =================
+    // ================= VIDEO =================
     async function startSessionUI() {
 
         document.getElementById("sessionUI").classList.remove("d-none");
@@ -296,7 +325,6 @@
         });
 
         attachVideo("self", localStream, true);
-        detectAudioLevel(localStream);
     }
 
     function createPeer(id, initiator=false) {
@@ -311,10 +339,11 @@
 
         localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
 
-        pc.ontrack = e => {
-            attachVideo(id, e.streams[0]);
-            detectAudioLevel(e.streams[0]);
-        };
+            pc.ontrack = e => {
+        const stream = e.streams[0];
+        const video = attachVideo(id, stream);
+        detectAudioLevel(stream, video);
+    };
 
         pc.onicecandidate = e => {
             if (e.candidate)
@@ -331,8 +360,7 @@
         return pc;
     }
 
-    // ================= VIDEO =================
-    function attachVideo(id, stream, isSelf=false) {
+        function attachVideo(id, stream, isSelf=false) {
 
         let video = document.getElementById("video-"+id);
 
@@ -342,18 +370,18 @@
             video.autoplay = true;
             video.muted = isSelf;
 
+            if (isSelf) video.classList.add("self");
+
             document.getElementById("videosContainer").appendChild(video);
         }
 
         video.srcObject = stream;
 
         if (!document.getElementById("activeSpeaker").srcObject) {
-            setActive(stream);
+            setActive(stream, video);
         }
     }
-
-    // ================= ACTIVE SPEAKER =================
-    function detectAudioLevel(stream) {
+        function detectAudioLevel(stream, videoEl) {
 
         const ctx = new AudioContext();
         const analyser = ctx.createAnalyser();
@@ -367,22 +395,23 @@
             analyser.getByteFrequencyData(data);
             const volume = data.reduce((a,b)=>a+b)/data.length;
 
-            if (volume > 30) {
-                setActive(stream);
+            if (volume > 35) {
+                setActive(stream, videoEl);
             }
-        }, 500);
+        }, 400);
     }
+        function setActive(stream, videoEl=null) {
 
-    function setActive(stream) {
         document.getElementById("activeSpeaker").srcObject = stream;
-    }
 
+        document.querySelectorAll("#videosContainer video")
+            .forEach(v => v.classList.remove("active"));
+
+        if (videoEl) videoEl.classList.add("active");
+    }
     // ================= CONTROLS =================
     function toggleMute() {
-        if (!isCounselor && isForceMuted) {
-            alert("Therapist controls your mic");
-            return;
-        }
+        if (!isCounselor && isForceMuted) return;
         localStream.getAudioTracks().forEach(t => t.enabled = !t.enabled);
     }
 
@@ -404,15 +433,80 @@
         connection.invoke("RaiseHand", sessionId);
     }
 
-    function admit(id) {
-        connection.invoke("AdmitUser", sessionId, id);
-    }
-
     function leaveSession() {
         window.location.href = "/";
     }
 
-    // ================= START =================
+    // ================= NOTES =================
+    function saveNotes() {
+
+        fetch("?handler=SaveNotes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                notes: document.getElementById("notesBox").value
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const el = document.getElementById("saveStatus");
+                el.classList.remove("d-none");
+                setTimeout(()=>el.classList.add("d-none"),2000);
+            }
+        });
+    }
+
+    // START
     init();
+
+
+        let isMuted = false;
+
+    function toggleMute() {
+
+        if (!isCounselor && isForceMuted) return;
+
+        isMuted = !isMuted;
+
+        localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+
+        const btn = document.getElementById("btnMic");
+        btn.classList.toggle("off", isMuted);
+    }
+
+        let isCameraOff = false;
+
+    function toggleVideo() {
+
+        isCameraOff = !isCameraOff;
+
+        localStream.getVideoTracks().forEach(t => t.enabled = !isCameraOff);
+
+        const btn = document.getElementById("btnCam");
+        btn.classList.toggle("off", isCameraOff);
+    }
+
+    let handRaised = false;
+
+function raiseHand() {
+
+    handRaised = !handRaised;
+
+    const btn = document.getElementById("btnHand");
+    btn.classList.toggle("hand-raised", handRaised);
+
+    connection.invoke("RaiseHand", sessionId);
+}
+
+    function updateParticipantCount() {
+
+        const count = Object.keys(peerConnections).length + 1; // + self
+        document.getElementById("participantCount").innerText = count;
+    }
+
 
 </script>

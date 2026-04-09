@@ -28,9 +28,12 @@ namespace CouplesConnect.Pages.Sessions
 
         public List<Booking> UpcomingSessions { get; set; } = new();
         public DateTime? NextSessionTime { get; set; }
+
+        public DateTime SessionStartTime { get; set; }
         public async Task<IActionResult> OnGetAsync(int sessionId)
         {
             SessionId = sessionId;
+            
 
             var user = await _userManager.GetUserAsync(User);
 
@@ -38,6 +41,8 @@ namespace CouplesConnect.Pages.Sessions
             var booking = await _context.Bookings
                 .Include(b => b.Session)
                 .FirstOrDefaultAsync(b => b.Session.SessionId == sessionId);
+
+            SessionStartTime = booking.ScheduledStart;
 
             if (booking == null)
                 return NotFound();
