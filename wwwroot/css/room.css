@@ -278,3 +278,53 @@
     .save-state.error {
         color: #ef4444;
     }
+
+
+/* PANEL */
+.waiting-panel {
+    position: absolute;
+    top: 70px;
+    right: 15px;
+    width: 260px;
+    max-height: 300px;
+    background: #0f172a;
+    border-radius: 12px;
+    padding: 10px;
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* HEADER */
+.waiting-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* LIST */
+.waiting-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+/* ITEM */
+.waiting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e293b;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+    /* BUTTON */
+    .waiting-item button {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
