@@ -93,10 +93,15 @@ namespace CouplesConnect.Pages.Sessions
         }
 
 
-        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] SaveNotesDto dto)
+        public async Task<IActionResult> OnPostSaveNotesAsync(SaveNotesDto dto)
         {
             try
             {
+                if (dto == null || dto.SessionId == 0)
+                {
+                    return new JsonResult(new { success = false });
+                }
+
                 var user = await _userManager.GetUserAsync(User);
                 var userId = user.Id;
 
@@ -109,20 +114,21 @@ namespace CouplesConnect.Pages.Sessions
                     {
                         SessionId = dto.SessionId,
                         CounselorId = userId,
-                        Notes = dto.Notes
+                        Notes = dto.Notes ?? ""
                     });
                 }
                 else
                 {
-                    existing.Notes = dto.Notes;
+                    existing.Notes = dto.Notes ?? "";
                 }
 
                 await _context.SaveChangesAsync();
 
                 return new JsonResult(new { success = true });
             }
-            catch
+            catch (Exception ex)
             {
+                // log this if needed
                 return new JsonResult(new { success = false });
             }
         }

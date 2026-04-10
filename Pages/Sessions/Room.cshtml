@@ -22,7 +22,7 @@
 
                 <div class="timer-box">
                     <span>Session</span>
-                    <strong id="timer">00:00</strong>
+                    <strong id="timer">00:00:00</strong>
                 </div>
 
                 @if (Model.IsCounselor && Model.NextSessionTime != null)
@@ -83,32 +83,45 @@
     {
         <div class="col-md-5">
 
-            <div class="card h-100 shadow-sm d-flex flex-column">
+            <div class="card notes-card shadow-sm">
 
-                <div class="card-header d-flex justify-content-between">
+                <!-- HEADER -->
+                <div class="notes-header">
                     <span>Session Notes</span>
-                    <button class="btn btn-sm btn-outline-primary"
+
+                    <button class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
                             data-bs-target="#upcomingModal">
-                        Upcoming
+                        Upcoming Sessions
                     </button>
                 </div>
 
-                <div class="card-body d-flex flex-column" style="min-height:400px;">
+                <!-- BODY -->
+                <form id="notesForm" method="post" class="notes-body">
+
+                    @Html.AntiForgeryToken()
 
                     <textarea id="notesBox"
-                              class="form-control flex-grow-1 mb-2"
-                              style="resize:none;">@Model.ExistingNotes</textarea>
+                              name="Notes"
+                              placeholder="Write session notes here..."
+                              class="notes-textarea">@Model.ExistingNotes</textarea>
 
-                    <button onclick="saveNotes()" class="btn btn-primary">
-                        Save Notes
-                    </button>
+                    <input type="hidden" name="SessionId" value="@Model.SessionId" />
 
-                    <div id="saveStatus" class="alert alert-success mt-2 d-none">
-                        Notes saved ✓
+                    <!-- FOOTER -->
+                    <div class="notes-footer">
+
+                        <small id="saveState" class="save-state">
+                            Idle
+                        </small>
+
+                        <button type="button" onclick="saveNotes(true)" class="btn btn-primary btn-sm">
+                            Save
+                        </button>
+
                     </div>
 
-                </div>
+                </form>
 
             </div>
 
@@ -143,7 +156,21 @@
                                 </div>
 
                                 <span class="badge bg-primary">
-                                    @((s.ScheduledStart - DateTime.UtcNow).TotalMinutes.ToString("0")) min
+                                    @{
+                                        var diff = s.ScheduledStart - DateTime.UtcNow;
+
+                                        var hours = (int)diff.TotalHours;
+                                        var minutes = diff.Minutes;
+
+                                        if (diff.TotalMinutes <= 0)
+                                        {
+                                            @:Now
+                                        }
+                                        else
+                                        {
+                                            @($"{hours}h {minutes}min")
+                                        }
+                                    }
                                 </span>
 
                             </li>
@@ -183,25 +210,29 @@
     let isForceMuted = false;
 
     // ================= TIMER =================
-    function startTimer() {
+        function startTimer() {
 
         setInterval(() => {
+
             const now = new Date();
             const diff = Math.floor((now - sessionStart) / 1000);
 
             if (diff < 0) return;
 
-            const min = Math.floor(diff / 60);
-            const sec = diff % 60;
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
 
             document.getElementById("timer").innerText =
-                `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+                `${hours.toString().padStart(2,'0')}:` +
+                `${minutes.toString().padStart(2,'0')}:` +
+                `${seconds.toString().padStart(2,'0')}`;
 
         }, 1000);
     }
 
     // NEXT SESSION TIMER
-    function startNextSessionTimer() {
+        function startNextSessionTimer() {
 
         const el = document.getElementById("nextSessionCountdown");
         if (!el) return;
@@ -210,17 +241,21 @@
 
         setInterval(() => {
 
-            const diff = target - new Date();
+            const diff = Math.floor((target - new Date()) / 1000);
 
             if (diff <= 0) {
-                el.innerText = "Now";
+                el.innerText = "00:00:00";
                 return;
             }
 
-            const min = Math.floor(diff / 60000);
-            const sec = Math.floor((diff % 60000) / 1000);
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
 
-            el.innerText = `${min}m ${sec}s`;
+            el.innerText =
+                `${hours.toString().padStart(2,'0')}:` +
+                `${minutes.toString().padStart(2,'0')}:` +
+                `${seconds.toString().padStart(2,'0')}`;
 
         }, 1000);
     }
@@ -230,10 +265,6 @@
 
         startTimer();
         startNextSessionTimer();
-
-            
-
-    
 
         connection = new signalR.HubConnectionBuilder()
             .withUrl("/sessionHub")
@@ -438,28 +469,122 @@
     }
 
     // ================= NOTES =================
-    function saveNotes() {
+            let lastSavedValue = "";
+    let isSaving = false;
+    let debounceTimer = null;
+
+    // INIT
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const notesBox = document.getElementById("notesBox");
+
+        // set initial value
+        lastSavedValue = notesBox.value;
+
+        // listen for typing
+        notesBox.addEventListener("input", () => {
+            triggerAutoSave();
+        });
+    });
+
+    // ================= AUTO SAVE =================
+
+    function triggerAutoSave() {
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(() => {
+            saveNotes();
+        }, 1500); // wait 1.5s after typing stops
+    }
+
+    // ================= SAVE =================
+
+    function saveNotes(force = false) {
+
+        const notesBox = document.getElementById("notesBox");
+        const currentValue = notesBox.value;
+
+        // prevent unnecessary saves
+        if (!force && currentValue === lastSavedValue) return;
+
+        // prevent overlapping requests
+        if (isSaving) return;
+
+        isSaving = true;
+        setState("saving");
+
+        const form = document.getElementById("notesForm");
+        const formData = new FormData(form);
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
         fetch("?handler=SaveNotes", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "RequestVerificationToken": token
             },
-            body: JSON.stringify({
-                sessionId: sessionId,
-                notes: document.getElementById("notesBox").value
-            })
+            body: formData
         })
-        .then(r => r.json())
-        .then(res => {
-            if (res.success) {
-                const el = document.getElementById("saveStatus");
-                el.classList.remove("d-none");
-                setTimeout(()=>el.classList.add("d-none"),2000);
+        .then(async response => {
+
+            if (!response.ok) {
+                throw new Error("Server error: " + response.status);
             }
+
+            return response.json();
+        })
+        .then(res => {
+
+            if (res.success) {
+
+                lastSavedValue = currentValue;
+                setState("saved");
+
+                // reset to idle after short delay
+                setTimeout(() => setState("idle"), 2000);
+            }
+            else {
+                throw new Error("Save failed");
+            }
+
+        })
+        .catch(err => {
+
+            console.error(err);
+            setState("error");
+        })
+        .finally(() => {
+            isSaving = false;
         });
     }
 
+    // ================= UI STATE =================
+
+    function setState(state) {
+
+        const el = document.getElementById("saveState");
+
+        el.className = "";
+        el.classList.add(state);
+
+        switch(state) {
+            case "saving":
+                el.innerText = "Saving...";
+                break;
+
+            case "saved":
+                el.innerText = "Saved ✓";
+                break;
+
+            case "error":
+                el.innerText = "Failed to save";
+                break;
+
+            default:
+                el.innerText = "Idle";
+        }
+    }
     // START
     init();
 
