@@ -1,5 +1,4 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -9,21 +8,57 @@
 
     <title>@ViewData["Title"] - Couples Connect</title>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- COREUI CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/css/coreui.min.css" rel="stylesheet">
+
+    <!-- ICONS -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/icons/css/all.min.css" rel="stylesheet">
+    <style>
+    body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea);
+    position: relative;
+    overflow: hidden;
+    }
+
+    /* SOFT GLOW EFFECTS */
+    body::before,
+    body::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+    filter: blur(100px);
+    }
+
+    body::before {
+    top: -100px;
+    left: -100px;
+    }
+
+    body::after {
+    bottom: -100px;
+    right: -100px;
+    }
+    </style>
 
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="container">
+    <div class="auth-wrapper">
 
         @RenderBody()
 
     </div>
 
+    <!-- COREUI JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/js/coreui.bundle.min.js"></script>
+
+    <!-- VALIDATION -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 

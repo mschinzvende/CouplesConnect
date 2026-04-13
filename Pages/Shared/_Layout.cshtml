@@ -3,148 +3,98 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var path = Context.Request.Path.Value?.ToLower();
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>@ViewData["Title"] - Couples Connect</title>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- COREUI CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/css/coreui.min.css" rel="stylesheet">
 
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    
+    <!-- ICONS -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/icons/css/all.min.css" rel="stylesheet">
 
+    <style>
+        .sidebar {
+            background: linear-gradient(180deg, #4f46e5, #7c3aed);
+        }
+
+            .sidebar .nav-link {
+                color: #fff;
+            }
+
+                .sidebar .nav-link.active {
+                    background: rgba(255,255,255,0.2);
+                    border-radius: 8px;
+                }
+    </style>
 </head>
 
 <body>
 
-    <div class="layout">
+    <div class="d-flex">
 
         <!-- SIDEBAR -->
+        <div class="sidebar p-3 vh-100">
 
-        <div class="sidebar">
+            <h4 class="text-white mb-4">💙 Couples Connect</h4>
 
-            <div class="brand">
-
-                Couples Connect
-
-            </div>
-
-            <nav class="menu">
+            <ul class="nav flex-column">
 
                 @if (User.IsInRole("User") || User.IsInRole("Counselor"))
                 {
-                    <!-- DASHBOARD (ONE ONLY) -->
-                    <a href="/User/Dashboard" class="menu-item">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
+                    <li class="nav-item">
+                        <a class="nav-link @(path.Contains("dashboard") ? "active" : "")" href="/User/Dashboard">
+                            <i class="cil-speedometer me-2"></i> Dashboard
+                        </a>
+                    </li>
                 }
 
-
-                <!-- CLIENT FEATURES -->
                 @if (User.IsInRole("User"))
                 {
-                    
+                    <li class="mt-3 text-white-50 small">Client</li>
 
-                    <div class="menu-section">Client</div>
-
-                    <a href="/User/Bookings" class="menu-item">
-                        <i class="bi bi-calendar-check"></i> My Bookings
-                    </a>
-
-                    <a href="/User/Bookings/Create" class="menu-item">
-                        <i class="bi bi-plus-circle"></i> Book Session
-                    </a>
-
-                    <a href="/User/Packages" class="menu-item">
-                        <i class="bi bi-box"></i> My Package
-                    </a>
-
-                    
+                    <li><a class="nav-link" href="/User/Bookings">My Bookings</a></li>
+                    <li><a class="nav-link" href="/User/Bookings/Create">Book Session</a></li>
+                    <li><a class="nav-link" href="/User/Packages">My Package</a></li>
                 }
 
-                <!-- COUNSELOR FEATURES -->
                 @if (User.IsInRole("Counselor"))
                 {
+                    <li class="mt-3 text-white-50 small">Counselor</li>
 
-                    <div class="menu-section">Counselor</div>
-
-                    <a href="/Counselor/Sessions" class="menu-item">
-                        <i class="bi bi-camera-video"></i> My Sessions
-                    </a>
-
-                    <a href="/Counselor/Availability" class="menu-item">
-                        <i class="bi bi-clock"></i> Availability
-                    </a>
+                    <li><a class="nav-link" href="/Counselor/Sessions">My Sessions</a></li>
+                    <li><a class="nav-link" href="/Counselor/Availability">Availability</a></li>
                 }
 
-                
-
-                <!-- BECOME COUNSELOR -->
-                @if (User.IsInRole("User") && !User.IsInRole("Counselor"))
-                {
-                    <a href="/Account/RegisterCounselor" class="menu-item">
-                        <i class="bi bi-person-plus"></i> Become a Counselor
-                    </a>
-                }
-
-                <!-- ADMIN -->
                 @if (User.IsInRole("Admin"))
                 {
-                    <div class="menu-section">Admin</div>
+                    <li class="mt-3 text-white-50 small">Admin</li>
 
-                    <a href="/Admin/Dashboard" class="menu-item">
-                        <i class="bi bi-speedometer2"></i> Admin Dashboard
-                    </a>
-
-                    <a href="/Admin/Services" class="menu-item">
-                        <i class="bi bi-gear"></i> Services
-                    </a>
-
-                    <a href="/Admin/Packages" class="menu-item">
-                        <i class="bi bi-box"></i> Packages
-                    </a>
-
-                    <a href="/Admin/Counselors" class="menu-item">
-                        <i class="bi bi-people"></i> Counselors
-                    </a>
-
-                    <a href="/Admin/Reports" class="menu-item">
-                        <i class="bi bi-bar-chart"></i> Reports
-                    </a>
-
-                    <div class="menu-section mt-3">Configuration</div>
-
-                    <a href="/Admin/ServiceTypes" class="menu-item">
-                        <i class="bi bi-list"></i> Service Types
-                    </a>
+                    <li><a class="nav-link" href="/Admin/Dashboard">Dashboard</a></li>
+                    <li><a class="nav-link" href="/Admin/Services">Services</a></li>
+                    <li><a class="nav-link" href="/Admin/Reports">Reports</a></li>
                 }
 
-                <!-- SHARED -->
-                <div class="menu-section">Growth</div>
-
-                <a href="/User/Resources" class="menu-item">
-                    <i class="bi bi-journal-text"></i> Resources
-                </a>
-
-            </nav>
+            </ul>
 
             @if (SignInManager.IsSignedIn(User))
             {
-                <div class="sidebar-footer">
+                <div class="mt-auto pt-4">
 
-                    <div class="small text-muted mb-2">
+                    <div class="text-white small mb-2">
                         @UserManager.GetUserAsync(User).Result.FullName
                     </div>
 
                     <form method="post" asp-page="/Account/Logout">
-                        <button class="btn btn-outline-danger btn-sm w-100">
+                        <button class="btn btn-light w-100">
                             Logout
                         </button>
                     </form>
@@ -154,65 +104,24 @@
 
         </div>
 
+        <!-- MAIN -->
+        <div class="flex-grow-1">
 
-
-        <!-- MAIN CONTENT -->
-
-        <div class="main">
-
-            <header class="topbar">
-
-                <button id="toggleMenu" class="btn btn-light">
-
-                    <i class="bi bi-list"></i>
-
-                </button>
-
-            </header>
-
-            <div class="page">
-
-                @RenderBody()
-
+            <!-- TOPBAR -->
+            <div class="bg-white shadow-sm p-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@ViewData["Title"]</h5>
             </div>
 
-            <footer class="footer">
-
-                © @DateTime.Now.Year Couples Connect
-
-            </footer>
+            <!-- CONTENT -->
+            <div class="p-4">
+                @RenderBody()
+            </div>
 
         </div>
 
     </div>
 
-
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const toggleButton = document.getElementById("toggleMenu");
-            const sidebar = document.querySelector(".sidebar");
-
-            if (toggleButton && sidebar) {
-
-                toggleButton.addEventListener("click", function () {
-
-                    sidebar.classList.toggle("show");
-
-                });
-
-            }
-
-        });
-
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/js/coreui.bundle.min.js"></script>
 
     @RenderSection("Scripts", required: false)
 
