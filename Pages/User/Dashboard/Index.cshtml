@@ -1,7 +1,9 @@
 ﻿@page
 @model CouplesConnect.Pages.User.Dashboard.IndexModel
 
-<h3 class="mb-4">Welcome back 👋</h3>
+<div class="page-header">
+    <h3 class="page-title">Dashboard</h3>
+</div>
 
 @if (TempData["Success"] != null)
 {
@@ -11,7 +13,8 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
-<!-- 🔥 SUBSCRIPTION ALERT -->
+
+<!-- SUBSCRIPTION ALERT -->
 @if (Model.SubscriptionEndDate != null)
 {
     if (Model.IsTrial)
@@ -21,7 +24,7 @@
                 <strong>Trial Active</strong><br />
                 @Model.DaysRemaining days remaining
             </div>
-            <a href="/User/Packages" class="btn btn-dark">Upgrade</a>
+            <a href="/User/Packages" class="btn btn-dark btn-sm">Upgrade</a>
         </div>
     }
     else if (Model.DaysRemaining <= 5)
@@ -31,25 +34,24 @@
                 <strong>Expiring Soon</strong><br />
                 @Model.DaysRemaining days left
             </div>
-            <a href="/User/Packages" class="btn btn-light">Renew</a>
+            <a href="/User/Packages" class="btn btn-light btn-sm">Renew</a>
         </div>
     }
 }
 
-<!-- 🔥 NEXT SESSION (FOCUS CARD) -->
+<!-- NEXT SESSION -->
 @if (Model.NextSession != null)
 {
-    <div class="card shadow-sm mb-4 border-primary">
+    <div class="card mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
 
             <div>
-                <div class="text-muted small">Next Session</div>
-                <h5 class="mb-1">@Model.NextSession.ScheduledStart.ToString("dddd, HH:mm")</h5>
+                <p class="text-muted mb-1">Next Session</p>
+                <h5>@Model.NextSession.ScheduledStart.ToString("dddd, HH:mm")</h5>
 
                 <div class="text-primary">
                     <span class="countdown"
-                          data-time="@Model.NextSession.ScheduledStart.ToString("o")">
-                    </span>
+                          data-time="@Model.NextSession.ScheduledStart.ToString("o")"></span>
                 </div>
             </div>
 
@@ -65,70 +67,71 @@
     </div>
 }
 
-<!-- 🔥 METRICS -->
-<div class="row g-4 mb-4">
+<!-- METRICS -->
+<div class="row">
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <div class="text-muted small">Sessions Left</div>
-                <h2 class="fw-bold text-primary">@Model.SessionsRemaining</h2>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">Sessions Left</p>
+                <h3 class="text-primary">@Model.SessionsRemaining</h3>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <div class="text-muted small">Upcoming</div>
-                <h2 class="fw-bold">@Model.UpcomingSessions</h2>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">Upcoming</p>
+                <h3>@Model.UpcomingSessions</h3>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <div class="text-muted small">Completed</div>
-                <h2 class="fw-bold text-success">@Model.CompletedSessions</h2>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">Completed</p>
+                <h3 class="text-success">@Model.CompletedSessions</h3>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <div class="text-muted small">Total</div>
-                <h2 class="fw-bold">@Model.TotalBookings</h2>
+    <div class="col-md-3 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body text-center">
+                <p class="text-muted">Total</p>
+                <h3>@Model.TotalBookings</h3>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- 🔥 CONTENT -->
-<div class="row g-4">
+<!-- CONTENT -->
+<div class="row">
 
     <!-- CHART -->
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">Activity</div>
+    <div class="col-md-8 grid-margin stretch-card">
+        <div class="card">
             <div class="card-body">
+                <h4 class="card-title">Activity</h4>
                 <canvas id="chart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- ACTIONS -->
-    <div class="col-md-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">Quick Actions</div>
-            <div class="card-body d-grid gap-2">
+    <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Quick Actions</h4>
 
-                <a href="/User/Bookings/Create" class="btn btn-primary">Book Session</a>
-                <a href="/User/Bookings" class="btn btn-outline-primary">My Bookings</a>
-                <a href="/User/Packages" class="btn btn-outline-secondary">Manage Plan</a>
-
+                <div class="d-grid gap-2">
+                    <a href="/User/Bookings/Create" class="btn btn-primary">Book Session</a>
+                    <a href="/User/Bookings" class="btn btn-primary">My Bookings</a>
+                    <a href="/User/Packages" class="btn btn-primary">Manage Plan</a>
+                </div>
             </div>
         </div>
     </div>
@@ -137,62 +140,57 @@
 
 @section Scripts {
 
-    <script>
-        // Countdown
-        function updateCountdowns() {
-            document.querySelectorAll('.countdown').forEach(el => {
-                const time = new Date(el.dataset.time);
-                const now = new Date();
-                let diff = time - now;
-
-                if (diff <= 0) {
-                    el.innerText = "Starting now";
-                    return;
-                }
-
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff / (1000 * 60)) % 60);
-
-                el.innerText = `${hours}h ${minutes}m`;
-            });
-        }
-
-        updateCountdowns();
-        setInterval(updateCountdowns, 60000);
-
-        // Chart
-        new Chart(document.getElementById('chart'), {
-            type: 'line',
-            data: {
-                labels: @Html.Raw(Model.ChartLabels),
-                datasets: [{
-                    label: 'Sessions',
-                    data: @Html.Raw(Model.ChartData),
-                    borderWidth: 2
-                }]
-            }
-        });
-    </script>
-
-    <script>
-        function updateJoinButton() {
-            const btn = document.getElementById("joinBtn");
-            if (!btn) return;
-
-            const start = new Date(btn.dataset.time);
+<script>
+    function updateCountdowns() {
+        document.querySelectorAll('.countdown').forEach(el => {
+            const time = new Date(el.dataset.time);
             const now = new Date();
+            let diff = time - now;
 
-            const diffMinutes = (start - now) / (1000 * 60);
-
-            if (diffMinutes <= 5) {
-                btn.classList.remove("disabled");
-                btn.style.pointerEvents = "auto";
-                btn.innerText = "Join Session";
+            if (diff <= 0) {
+                el.innerText = "Starting now";
+                return;
             }
-        }
 
-        updateJoinButton();
-        setInterval(updateJoinButton, 30000);
-    </script>
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+            el.innerText = `${hours}h ${minutes}m`;
+        });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 60000);
+
+    new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+            labels: @Html.Raw(Model.ChartLabels),
+            datasets: [{
+                label: 'Sessions',
+                data: @Html.Raw(Model.ChartData),
+                borderWidth: 2
+            }]
+        }
+    });
+
+    function updateJoinButton() {
+        const btn = document.getElementById("joinBtn");
+        if (!btn) return;
+
+        const start = new Date(btn.dataset.time);
+        const now = new Date();
+        const diffMinutes = (start - now) / (1000 * 60);
+
+        if (diffMinutes <= 5) {
+            btn.classList.remove("disabled");
+            btn.style.pointerEvents = "auto";
+            btn.innerText = "Join Session";
+        }
+    }
+
+    updateJoinButton();
+    setInterval(updateJoinButton, 30000);
+</script>
 
 }

@@ -3,177 +3,259 @@
 @model CouplesConnect.Pages.User.Bookings.CreateModel
 @attribute [Authorize(Roles = "User")]
 
-<h3 class="mb-4">Book a Session</h3>
+<div class="page-header">
+    <h3 class="page-title">Book a Session</h3>
+</div>
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger mb-3">@TempData["Error"]</div>
 }
-
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success mb-3">@TempData["Success"]</div>
 }
 
-<form method="get">
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="mb-2">
-                <label>Service</label>
-                <select name="ServiceId" class="form-control" onchange="this.form.submit()">
-                    <option value="">Select Service</option>
+<!-- FILTER -->
+<div class="row">
+    <div class="col-md-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
 
-                    @foreach (var s in Model.Services)
-                    {
-                        <option value="@s.ServiceId" selected="@(Model.ServiceId == s.ServiceId)">
-                            @s.Name
-                        </option>
-                    }
-                </select>
-            </div>
-        </div>
+                <h4 class="card-title mb-3">Filter Options</h4>
 
-        <div class="col-sm-4">
-            <div class="mb-2">
-                <label>Counselor</label>
-                <select name="CounselorId" class="form-control" onchange="this.form.submit()">
-                    <option value="">Select Counselor</option>
+                <form method="get">
+                    <div class="row g-3">
 
-                    @foreach (var c in Model.Counselors)
-                    {
-                        <option value="@c.Id" selected="@(Model.CounselorId == c.Id)">
-                            @c.FullName
-                        </option>
-                    }
-                </select>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Service</label>
+                            <select name="ServiceId" class="form-select cc-select" onchange="this.form.submit()">
+                                <option value="">Select Service</option>
+                                @foreach (var s in Model.Services)
+                                {
+                                    <option value="@s.ServiceId" selected="@(Model.ServiceId == s.ServiceId)">
+                                        @s.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Counselor</label>
+                            <select name="CounselorId" class="form-select cc-select" onchange="this.form.submit()">
+                                <option value="">Select Counselor</option>
+                                @foreach (var c in Model.Counselors)
+                                {
+                                    <option value="@c.Id" selected="@(Model.CounselorId == c.Id)">
+                                        @c.FullName
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>
-
-
-    
-
-   
-
-</form>
+</div>
 
 @if (Model.AvailableDates.Any())
 {
-    <hr />
+    <form method="post" id="bookingForm">
 
-    <div class="row">
+        <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
+        <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
+        <input type="hidden" id="selectedTime" name="ScheduledStart" />
 
-        <!-- LEFT: Calendar -->
-        <div class="col-md-5">
-            <h5>Select Date</h5>
+        <div class="row">
 
-            <form method="get">
-                <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
-                <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
+            <!-- LEFT SIDE -->
+            <div class="col-md-5 grid-margin stretch-card">
+                <div class="card h-100">
+                    <div class="card-body">
 
-                <input type="text"
-                       id="calendar"
-                       name="SelectedDate"
-                       class="form-control"
-                       placeholder="Select a date"
-                       value="@(Model.SelectedDate?.ToString("yyyy-MM-dd"))" />
+                        <h4 class="card-title mb-3">Select Date</h4>
 
-                <hr />
-
-                <div class="form-check mb-3">
-                    <input type="checkbox" id="isGroup" name="IsGroup" class="form-check-input" onchange="toggleGroup()" />
-                    <label class="form-check-label">Group Session</label>
-                </div>
-
-                <div id="groupSection" class="d-none">
-
-                    <h5>Add Participants (WhatsApp)</h5>
-
-                    <div id="participantsContainer"></div>
-
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="addParticipant()">
-                        + Add Phone
-                    </button>
-
-                </div>
-            </form>
-        </div>
-
-        <!-- RIGHT: Time Slots -->
-        <div class="col-md-7">
-            @if (Model.TimeSlots.Any())
-            {
-                <h5>Available Time Slots</h5>
-
-                <div class="row">
-                    @foreach (var t in Model.TimeSlots)
-                    {
-                        <div class="col-md-4 mb-2">
-                            <form method="post">
-
-                                <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
-                                <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
-                                <input type="hidden" name="ScheduledStart" value="@t.ToString("yyyy-MM-ddTHH:mm")" />
-
-                                <button class="btn btn-outline-primary w-100">
-                                    @t.ToString("HH:mm")
-                                </button>
-
-                            </form>
+                        <div class="mb-3">
+                            <input type="text"
+                                   id="calendar"
+                                   name="SelectedDate"
+                                   class="form-control"
+                                   placeholder="Select date"
+                                   value="@(Model.SelectedDate?.ToString("yyyy-MM-dd"))" />
                         </div>
-                    }
+
+                        <!-- GROUP TOGGLE -->
+                        <div class="cc-group-toggle mb-3">
+                            <label class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">Group Session</span>
+                                <input type="checkbox" id="isGroup" onchange="toggleGroup()" />
+                            </label>
+                        </div>
+
+                        <!-- PARTICIPANTS -->
+                        <div id="groupSection" class="d-none">
+                            <div class="border rounded p-3 bg-light">
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <h6 class="mb-0">Participants</h6>
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm"
+                                            onclick="addParticipant()">
+                                        + Add
+                                    </button>
+                                </div>
+
+                                <div id="participantsContainer"></div>
+
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-            }
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="col-md-7 grid-margin stretch-card">
+                <div class="card h-100">
+                    <div class="card-body">
+
+                        <h4 class="card-title mb-3">Available Time Slots</h4>
+
+                        @if (Model.TimeSlots.Any())
+                        {
+                            <div class="row g-3">
+
+                                @foreach (var t in Model.TimeSlots)
+                                {
+                                    <div class="col-md-4">
+                                        <button type="button"
+                                                class="cc-slot-btn w-100 slot-btn"
+                                                data-time="@t.ToString("yyyy-MM-ddTHH:mm")">
+                                            @t.ToString("HH:mm")
+                                        </button>
+                                    </div>
+                                }
+
+                            </div>
+
+                            <!-- CONFIRM BUTTON -->
+                            <div class="mt-4 text-end">
+                                <button type="submit"
+                                        id="confirmBookingBtn"
+                                        class="btn btn-primary px-4"
+                                        disabled>
+                                    Confirm Booking
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mb-0">
+                                No available time slots
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
         </div>
 
+    </form>
+}
+else
+{
+    <div class="alert alert-info">
+        No available dates
     </div>
 }
 
-@if(!Model.AvailableDates.Any()){
-    <div class="alert alert-info">No Available time slots</div>
-}
+@section Scripts {
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-        var availableDates = [
-    @foreach (var d in Model.AvailableDates)
-    {
-        @: "@d.ToString("yyyy-MM-dd")",
-    }
-        ];
+            var availableDates = @Html.Raw(
+            System.Text.Json.JsonSerializer.Serialize(
+                Model.AvailableDates.Select(d => d.ToString("yyyy-MM-dd"))
+            )
+        );
 
-        flatpickr("#calendar", {
-            dateFormat: "Y-m-d",
-            enable: availableDates, // only allow available dates
-            defaultDate: "@(Model.SelectedDate?.ToString("yyyy-MM-dd"))",
-            onChange: function (selectedDates, dateStr, instance) {
-                if (dateStr) {
-                    instance.element.form.submit();
+            flatpickr("#calendar", {
+                dateFormat: "Y-m-d",
+                enable: availableDates,
+                defaultDate: "@(Model.SelectedDate?.ToString("yyyy-MM-dd"))",
+
+                onChange: function (selectedDates, dateStr, instance) {
+                    if (dateStr) {
+
+                        // submit the GET form manually
+                        const form = document.createElement("form");
+                        form.method = "get";
+
+                        // preserve existing filters
+                        form.innerHTML = `
+                            <input type="hidden" name="ServiceId" value="@Model.ServiceId" />
+                            <input type="hidden" name="CounselorId" value="@Model.CounselorId" />
+                            <input type="hidden" name="SelectedDate" value="${dateStr}" />
+                        `;
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
                 }
-            }
+            });
+
         });
+    </script>
 
-    });
-</script>
+    <script>
+        function toggleGroup() {
+            document.getElementById("groupSection").classList.toggle("d-none");
+        }
+    </script>
 
-<script>
+    <script>
+        function addParticipant() {
+            const container = document.getElementById("participantsContainer");
 
-    function toggleGroup() {
-        document.getElementById("groupSection")
-            .classList.toggle("d-none");
-    }
+            const wrapper = document.createElement("div");
+            wrapper.className = "d-flex gap-2 mb-2";
 
-    function addParticipant() {
+            const input = document.createElement("input");
+            input.name = "ParticipantPhones";
+            input.className = "form-control";
+            input.placeholder = "2637XXXXXXXX";
 
-        const container = document.getElementById("participantsContainer");
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "btn btn-outline-danger btn-sm";
+            removeBtn.innerText = "✕";
+            removeBtn.onclick = () => wrapper.remove();
 
-        const input = document.createElement("input");
-        input.name = "ParticipantPhones";
-        input.className = "form-control mb-2";
-        input.placeholder = "2637XXXXXXXX";
+            wrapper.appendChild(input);
+            wrapper.appendChild(removeBtn);
 
-        container.appendChild(input);
-    }
+            container.appendChild(wrapper);
+        }
+    </script>
 
-</script>
+    <script>
+        document.querySelectorAll(".slot-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+
+                document.querySelectorAll(".slot-btn").forEach(b => b.classList.remove("active"));
+
+                this.classList.add("active");
+
+                document.getElementById("selectedTime").value = this.dataset.time;
+
+                document.getElementById("confirmBookingBtn").disabled = false;
+            });
+        });
+    </script>
+
+}

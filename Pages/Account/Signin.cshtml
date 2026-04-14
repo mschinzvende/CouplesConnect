@@ -6,73 +6,102 @@
     ViewData["Title"] = "Sign In";
 }
 
-<div class="container mt-5">
+<div class="auth-form">
 
-    <div class="row justify-content-center">
+    <h3 class="fw-bold mb-2">
+        Welcome Back
+    </h3>
 
-        <div class="col-md-5">
+    <p class="text-muted mb-4">
+        Sign in to continue your journey together.
+    </p>
 
-            <div class="card shadow border-0">
+    <form method="post">
 
-                <div class="card-body p-4">
+        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
 
-                    <h3 class="text-center mb-4">
-                        Sign In
-                    </h3>
+        <!-- EMAIL -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Email</label>
+            <input asp-for="Input.Email"
+                   class="form-control"
+                   placeholder="Enter your email" />
+        </div>
 
-                    <form method="post">
+        <!-- PASSWORD -->
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+            <input asp-for="Input.Password"
+                   type="password"
+                   class="form-control"
+                   placeholder="Enter your password" />
+        </div>
 
-                        <div asp-validation-summary="All" class="text-danger"></div>
+        <!-- REMEMBER -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-                        <div class="mb-3">
-                            <label>Email</label>
-                            <input asp-for="Input.Email" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label>Password</label>
-                            <input asp-for="Input.Password"
-                                   type="password"
-                                   class="form-control" />
-                        </div>
-
-                        <div class="form-check mb-3">
-
-                            <input asp-for="Input.RememberMe"
-                                   class="form-check-input" />
-
-                            <label class="form-check-label">
-                                Remember me
-                            </label>
-
-                        </div>
-
-                        <button class="btn btn-primary w-100">
-
-                            Sign In
-
-                        </button>
-
-                        <div class="text-center mt-3">
-
-                            Don't have an account?
-
-                            <a href="/signup">Create one</a>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
+            <div class="form-check">
+                <input asp-for="Input.RememberMe"
+                       class="form-check-input" />
+                <label class="form-check-label small">
+                    Remember me
+                </label>
             </div>
+
+            <a href="#" class="small text-decoration-none">
+                Forgot password?
+            </a>
 
         </div>
 
-    </div>
+        <!-- BUTTON -->
+        <button class="btn btn-primary w-100">
+            Sign In
+        </button>
+
+        <!-- LINK -->
+        <div class="text-center mt-4 small">
+            Don’t have an account?
+            <a href="/signup" class="fw-semibold">Create one</a>
+        </div>
+
+    </form>
+
+    
 
 </div>
 
-@section Scripts{
-<partial name="_ValidationScriptsPartial"/>
+<style>
+
+    /* FORM WRAPPER */
+    .auth-form {
+        max-width: 380px;
+        margin: auto;
+    }
+
+    /* INPUT */
+    .form-control {
+        height: 42px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    /* BUTTON */
+    .btn-primary {
+        height: 42px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+    /* IMAGE STRIP */
+    .auth-image-strip {
+        opacity: 0.85;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

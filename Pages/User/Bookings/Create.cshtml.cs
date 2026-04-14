@@ -42,106 +42,114 @@ namespace CouplesConnect.Pages.User.Bookings
             this.CounselorId = CounselorId;
             this.SelectedDate = SelectedDate;
 
-            Services = await _context.Services.Where(x => x.IsActive).ToListAsync();
+            Services = await _context.Services
+                .Where(x => x.IsActive)
+                .ToListAsync();
 
             Counselors = await _context.CounselorProfiles
-    .Where(x => x.IsApproved)
-    .Include(x => x.User)
-    .Select(x => x.User)
-    .ToListAsync();
+                .Where(x => x.IsApproved)
+                .Include(x => x.User)
+                .Select(x => x.User)
+                .ToListAsync();
 
-            if (CounselorId != null)
+            if (CounselorId == null)
+                return;
+
+            var now = DateTime.Now;
+
+            // ? GET AVAILABILITY (FULL DATETIME)
+            var availability = await _context.CounselorAvailabilities
+                .Where(x => x.CounselorId == CounselorId)
+                .ToListAsync();
+
+            // =========================
+            // AVAILABLE DATES (NEXT 7 DAYS)
+            // =========================
+            for (int i = 0; i < 7; i++)
             {
-                var availability = await _context.CounselorAvailabilities
-                    .Where(x => x.CounselorId == CounselorId)
+                var date = DateTime.Today.AddDays(i);
+
+                // slots for this specific date
+                var daySlots = availability
+                    .Where(a => a.StartDateTime.Date == date.Date)
+                    .ToList();
+
+                if (!daySlots.Any())
+                    continue;
+
+                var potentialSlots = new List<DateTime>();
+
+                foreach (var slot in daySlots)
+                {
+                    var start = slot.StartDateTime;
+                    var end = slot.EndDateTime;
+
+                    while (start < end)
+                    {
+                        if (start > now)
+                            potentialSlots.Add(start);
+
+                        start = start.AddHours(1);
+                    }
+                }
+
+                // booked slots
+                var booked = await _context.Bookings
+                    .Where(b => b.CounselorId == CounselorId &&
+                                b.ScheduledStart.Date == date.Date &&
+                                b.BookingStatus != "Cancelled")
+                    .Select(b => b.ScheduledStart)
                     .ToListAsync();
 
-                // Next 7 days
-                var now = DateTime.Now;
+                var availableSlots = potentialSlots
+                    .Where(t => !booked.Contains(t))
+                    .ToList();
 
-                // Next 7 days
-                for (int i = 0; i < 7; i++)
+                if (availableSlots.Any())
                 {
-                    var date = DateTime.Today.AddDays(i);
+                    AvailableDates.Add(date);
+                }
+            }
 
-                    var daySlots = availability
-                        .Where(a => a.DayOfWeek == date.DayOfWeek)
-                        .ToList();
+            // =========================
+            // TIMESLOTS FOR SELECTED DATE
+            // =========================
+            if (SelectedDate.HasValue)
+            {
+                var date = SelectedDate.Value.Date;
 
-                    if (!daySlots.Any())
-                        continue;
+                var daySlots = availability
+                    .Where(a => a.StartDateTime.Date == date)
+                    .ToList();
 
-                    var potentialSlots = new List<DateTime>();
+                foreach (var slot in daySlots)
+                {
+                    var start = slot.StartDateTime;
+                    var end = slot.EndDateTime;
 
-                    foreach (var slot in daySlots)
+                    while (start < end)
                     {
-                        var start = date.Date.Add(slot.StartTime);
-                        var end = date.Date.Add(slot.EndTime);
-
-                        while (start < end)
+                        if (start > now)
                         {
-                            // only future slots
-                            if (start > now)
-                            {
-                                potentialSlots.Add(start);
-                            }
-
-                            start = start.AddMinutes(60);
+                            TimeSlots.Add(start);
                         }
-                    }
 
-                    // remove already booked
-                    var booked = await _context.Bookings
-                        .Where(b => b.CounselorId == CounselorId &&
-                                    b.ScheduledStart.Date == date.Date && b.BookingStatus != "Cancelled")
-                        .Select(b => b.ScheduledStart)
-                        .ToListAsync();
-
-                    var availableSlots = potentialSlots
-                        .Where(t => !booked.Contains(t))
-                        .ToList();
-
-                    // ? ONLY add date if it still has free slots
-                    if (availableSlots.Any())
-                    {
-                        AvailableDates.Add(date);
+                        start = start.AddHours(1);
                     }
                 }
 
-                if (SelectedDate.HasValue)
-                {
-                    var daySlots = availability
-                        .Where(a => a.DayOfWeek == SelectedDate.Value.DayOfWeek);
+                // remove booked
+                var booked = await _context.Bookings
+                    .Where(b => b.CounselorId == CounselorId &&
+                                b.ScheduledStart.Date == date &&
+                                b.BookingStatus != "Cancelled")
+                    .Select(b => b.ScheduledStart)
+                    .ToListAsync();
 
-                    foreach (var slot in daySlots)
-                    {
-                        var start = SelectedDate.Value.Date.Add(slot.StartTime);
-                        var end = SelectedDate.Value.Date.Add(slot.EndTime);
-
-
-
-                        while (start < end)
-                        {
-                            if (start > now) // only future slots
-                            {
-                                TimeSlots.Add(start);
-                            }
-
-                            start = start.AddMinutes(60); // 1-hour slots
-                        }
-                    }
-
-                    // Remove already booked slots
-                    var booked = await _context.Bookings
-                        .Where(b => b.CounselorId == CounselorId &&
-                                    b.ScheduledStart.Date == SelectedDate.Value.Date && b.BookingStatus != "Cancelled")
-                        .Select(b => b.ScheduledStart)
-                        .ToListAsync();
-
-                    TimeSlots = TimeSlots
-                        .Where(t => !booked.Contains(t))
-                        .ToList();
-                }
+                TimeSlots = TimeSlots
+                    .Where(t => !booked.Contains(t))
+                    .OrderBy(t => t)
+                    .ToList();
             }
         }
 

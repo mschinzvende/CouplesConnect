@@ -3,19 +3,21 @@
 @model CouplesConnect.Pages.User.Packages.IndexModel
 @attribute [Authorize(Roles = "User")]
 
-<h3 class="mb-4">Choose a Plan</h3>
+<div class="page-header">
+    <h3 class="page-title">Choose a Plan</h3>
+</div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success mb-3">@TempData["Success"]</div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger mb-3">@TempData["Error"]</div>
 }
 
-<div class="row">
+<div class="row g-4">
 
     @foreach (var p in Model.Packages)
     {
@@ -27,59 +29,59 @@
         var used = totalSessions - remaining;
         var percentUsed = totalSessions == 0 ? 0 : (used * 100 / totalSessions);
 
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4">
 
-            <div class="card shadow-sm h-100 @(isCurrent ? "border-success" : "")"
-                 style="@(isCurrent ? "background: linear-gradient(135deg,#e6fffa,#f0fff4);" : "")">
+            <div class="card h-100 package-card @(isCurrent ? "active-plan" : "")">
 
                 <div class="card-body text-center">
 
-                    <h5>@p.Name</h5>
+                    <!-- PLAN NAME -->
+                    <h5 class="fw-semibold">@p.Name</h5>
 
-                    <h3 class="fw-bold mt-2">$@p.Price</h3>
+                    <!-- PRICE -->
+                    <h2 class="fw-bold my-2">$@p.Price</h2>
 
-                    <p class="text-muted">@p.SessionsPerMonth sessions/month</p>
+                    <!-- DETAILS -->
+                    <p class="text-muted small mb-2">
+                        @p.SessionsPerMonth sessions per month
+                    </p>
 
-                    <p>@p.Description</p>
+                    <p class="text-muted small mb-3">
+                        @p.Description
+                    </p>
 
                     @if (isCurrent)
                     {
-                        <!-- ACTIVE PLAN HEADER -->
+                        <!-- ACTIVE BADGE -->
                         <div class="mb-2">
-                            <span class="badge bg-success px-3 py-2">
+                            <span class="badge cc-badge-primary">
                                 Active Plan
                             </span>
                         </div>
 
-                        <!-- SESSIONS -->
+                        <!-- USAGE -->
                         <div class="mb-2">
                             <strong>@remaining</strong> / @totalSessions sessions left
                         </div>
 
-                        <!-- PROGRESS BAR -->
-                        <div class="progress mb-3" style="height: 10px;">
-                            <div class="progress-bar bg-success"
+                        <!-- PROGRESS -->
+                        <div class="progress mb-3" style="height: 8px;">
+                            <div class="progress-bar"
                                  style="width:@percentUsed%">
                             </div>
                         </div>
 
-                        <!-- DAYS REMAINING -->
+                        <!-- COUNTDOWN -->
+                        @if (Model.CurrentSubscription?.EndDate != null)
                         {
-                            
-                            DateTime? endDate = @Model.CurrentSubscription.EndDate;
-
-                        }
-
-                        <div class="mb-2 text-muted">
-                            @if (Model.CurrentSubscription?.EndDate != null)
-                            {
+                            <div class="text-muted small mb-3">
                                 <span class="countdown"
                                       data-time="@Model.CurrentSubscription.EndDate.Value.ToString("o")">
                                 </span>
-                            }
-                        </div>
+                            </div>
+                        }
 
-                        <button class="btn btn-success w-100" disabled>
+                        <button class="btn btn-outline-secondary w-100" disabled>
                             Current Plan
                         </button>
                     }
@@ -88,17 +90,19 @@
                         <!-- UPGRADE -->
                         <form method="post" asp-page-handler="Purchase">
                             <input type="hidden" name="PackageId" value="@p.PackageId" />
-                            <button class="btn btn-warning w-100">
-                                Upgrade
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                Upgrade Plan
                             </button>
                         </form>
                     }
                     else
                     {
-                        <!-- NEW USER -->
+                        <!-- SELECT -->
                         <form method="post" asp-page-handler="Purchase">
                             <input type="hidden" name="PackageId" value="@p.PackageId" />
-                            <button class="btn btn-primary w-100">
+
+                            <button type="submit" class="btn btn-primary w-100">
                                 Select Plan
                             </button>
                         </form>
@@ -112,6 +116,45 @@
     }
 
 </div>
+
+<style>
+    /* CARD */
+    .package-card {
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        }
+
+    /* ACTIVE PLAN */
+    .active-plan {
+        border: 2px solid #4f46e5;
+        background: #fafaff;
+    }
+
+    /* BADGE */
+    .cc-badge-primary {
+        background: #eef2ff;
+        color: #4338ca;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+
+    /* PROGRESS */
+    .progress-bar {
+        background: #4f46e5;
+    }
+
+    /* BUTTON CONSISTENCY */
+    .btn {
+        height: 42px;
+    }
+</style>
 
 <script>
     function updateCountdowns() {

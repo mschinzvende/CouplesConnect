@@ -10,16 +10,8 @@ namespace CouplesConnect.Models
         [Required]
         public Guid CounselorId { get; set; }
 
-        
-
-        [Required]
-        public DayOfWeek DayOfWeek { get; set; }
-
-        [Required]
-        public TimeSpan StartTime { get; set; }
-
-        [Required]
-        public TimeSpan EndTime { get; set; }
+        public DateTime StartDateTime { get; set; }
+        public DateTime EndDateTime { get; set; }
 
         public bool IsActive { get; set; } = true;
     }

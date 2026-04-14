@@ -3,7 +3,9 @@
 
 <link href="~/css/room.css" rel="stylesheet" />
 
-<h4 class="mb-3">Live Session</h4>
+<div class="page-header">
+    <h4 class="page-title">Live Session</h4>
+</div>
 
 <div class="row">
 
@@ -11,7 +13,7 @@
     <div class="@(Model.IsCounselor ? "col-md-7" : "col-md-12")">
 
         <!-- TOP BAR -->
-        <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="session-topbar">
 
             <div class="connection-bar">
                 <span class="status-dot" id="statusDot"></span>
@@ -20,14 +22,14 @@
 
             <div class="session-meta">
 
-                <div class="timer-box">
+                <div class="meta-box">
                     <span>Session</span>
                     <strong id="timer">00:00:00</strong>
                 </div>
 
                 @if (Model.IsCounselor && Model.NextSessionTime != null)
                 {
-                    <div class="timer-box">
+                    <div class="meta-box">
                         <span>Next</span>
                         <strong id="nextSessionCountdown"
                                 data-time="@Model.NextSessionTime.Value.ToString("o")">
@@ -35,7 +37,7 @@
                     </div>
                 }
 
-                <div class="participants-box">
+                <div class="meta-box">
                     👥 <span id="participantCount">1</span>
                 </div>
 
@@ -43,16 +45,17 @@
 
         </div>
 
-        <!-- VIDEO SECTION -->
-        <div id="waitingScreen" class="text-center mt-5 d-none">
-            <h4>Waiting for therapist to admit you...</h4>
+        <!-- WAITING -->
+        <div id="waitingScreen" class="waiting-screen d-none">
+            <h5>Waiting for therapist to admit you...</h5>
         </div>
 
+        <!-- SESSION -->
         <div id="sessionUI" class="d-none">
 
             <div class="video-layout">
 
-                <!-- MAIN VIDEO -->
+                <!-- MAIN -->
                 <div id="mainStage" class="main-stage">
                     <video id="activeSpeaker" autoplay></video>
                 </div>
@@ -64,71 +67,81 @@
 
             <!-- CONTROLS -->
             <div class="controls-bar">
-                <button id="btnMic" onclick="toggleMute()">🎤</button>
-                <button id="btnCam" onclick="toggleVideo()">📷</button>
-                
-                <button id="btnHand" onclick="raiseHand()">✋</button>
-                <button onclick="leaveSession()" class="danger">⏹</button>
+
+                <button id="btnMic" onclick="toggleMute()" class="control-btn">
+                    🎤
+                </button>
+
+                <button id="btnCam" onclick="toggleVideo()" class="control-btn">
+                    📷
+                </button>
+
+                <button id="btnHand" onclick="raiseHand()" class="control-btn">
+                    ✋
+                </button>
+
+                <button onclick="leaveSession()" class="control-btn danger">
+                    ⏹
+                </button>
+
             </div>
 
         </div>
 
-        <!-- WAITING LIST -->
-        <div id="waitingList" class="position-fixed top-0 end-0 m-3"></div>
+        <!-- FLOATING WAITING LIST -->
+        <div id="waitingList" class="waiting-floating"></div>
 
     </div>
 
-    <!-- ===================== RIGHT SIDE (NOTES) ===================== -->
+    <!-- ===================== RIGHT SIDE ===================== -->
     @if (Model.IsCounselor)
     {
         <div class="col-md-5">
 
-            <div class="card waitingArea-card shadow-sm">
-                <div id="waitingPanel" class="waiting-panel d-none">
+            <!-- WAITING PANEL -->
+            <div class="card mb-3">
 
-                    <div class="waiting-header">
-                        <span>Waiting Room</span>
-                        <span id="waitingCount" class="badge bg-warning">0</span>
+                <div id="waitingPanel" class="p-3 d-none">
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>Waiting Room</strong>
+                        <span id="waitingCount" class="badge cc-badge-warning">0</span>
                     </div>
 
-                    <div id="waitingListContainer" class="waiting-list">
-                        <!-- users injected here -->
-                    </div>
+                    <div id="waitingListContainer"></div>
 
                 </div>
-                </div>
 
-            <div class="card notes-card shadow-sm">
+            </div>
 
-                <!-- HEADER -->
-                <div class="notes-header">
-                    <span>Session Notes</span>
+            <!-- NOTES -->
+            <div class="card">
 
-                    <button class="btn btn-sm btn-primary"
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <strong>Session Notes</strong>
+
+                    <button class="btn btn-sm btn-outline-secondary"
                             data-bs-toggle="modal"
                             data-bs-target="#upcomingModal">
-                        Upcoming Sessions
+                        Upcoming
                     </button>
                 </div>
 
-                <!-- BODY -->
-                <form id="notesForm" method="post" class="notes-body">
+                <form id="notesForm" method="post" class="p-3">
 
                     @Html.AntiForgeryToken()
 
                     <textarea id="notesBox"
                               name="Notes"
-                              placeholder="Write session notes here..."
-                              class="notes-textarea">@Model.ExistingNotes</textarea>
+                              class="form-control mb-2"
+                              style="height: 200px;"
+                              placeholder="Write session notes...">@Model.ExistingNotes</textarea>
 
                     <input type="hidden" name="SessionId" value="@Model.SessionId" />
 
-                    <!-- FOOTER -->
-                    <div class="notes-footer">
+                    <div class="d-flex justify-content-between align-items-center">
 
-                        <small id="saveState" class="save-state">
-                            Idle
-                        </small>
+                        <small id="saveState" class="text-muted">Idle</small>
 
                         <button type="button" onclick="saveNotes(true)" class="btn btn-primary btn-sm">
                             Save
@@ -145,8 +158,7 @@
 
 </div>
 
-
-<!-- ===================== UPCOMING MODAL ===================== -->
+<!-- MODAL -->
 <div class="modal fade" id="upcomingModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -170,20 +182,16 @@
                                     <small>@s.User?.FullName</small>
                                 </div>
 
-                                <span class="badge bg-primary">
+                                <span class="badge cc-badge-primary">
                                     @{
                                         var diff = s.ScheduledStart - DateTime.UtcNow;
-
-                                        var hours = (int)diff.TotalHours;
-                                        var minutes = diff.Minutes;
-
                                         if (diff.TotalMinutes <= 0)
                                         {
                                             @:Now
                                         }
                                         else
                                         {
-                                            @($"{hours}h {minutes}min")
+                                            @($"{(int)diff.TotalHours}h {diff.Minutes}m")
                                         }
                                     }
                                 </span>
@@ -196,7 +204,7 @@
                 else
                 {
                     <div class="alert alert-info text-center">
-                        No upcoming sessions found
+                        No upcoming sessions
                     </div>
                 }
 
@@ -206,7 +214,89 @@
     </div>
 </div>
 
+<style>
 
+    /* TOP BAR */
+    .session-topbar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    /* META */
+    .meta-box {
+        background: #f9fafb;
+        padding: 6px 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    /* WAITING */
+    .waiting-screen {
+        text-align: center;
+        margin-top: 40px;
+    }
+
+    /* VIDEO */
+    .video-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .main-stage {
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 350px;
+    }
+
+        .main-stage video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* PARTICIPANTS */
+    .participants-grid {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* CONTROLS */
+    .controls-bar {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: none;
+        background: #f3f4f6;
+    }
+
+        .control-btn.danger {
+            background: #ef4444;
+            color: white;
+        }
+
+    /* BADGES */
+    .cc-badge-primary {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .cc-badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+</style>
 
 
 <!-- ===================== JAVASCRIPT ===================== -->

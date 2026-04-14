@@ -169,5 +169,58 @@ namespace CouplesConnect.Pages.Counselor.Sessions
 
             return "Upcoming";
         }
+
+        public async Task<IActionResult> OnGetNotesAsync(int sessionId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var note = await _context.SessionNotes
+                .FirstOrDefaultAsync(x =>
+                    x.SessionId == sessionId &&
+                    x.CounselorId == user.Id);
+
+            return new JsonResult(new
+            {
+                notes = note?.Notes
+            });
+        }
+
+        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] NotesDto dto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var note = await _context.SessionNotes
+                .FirstOrDefaultAsync(x =>
+                    x.SessionId == dto.SessionId &&
+                    x.CounselorId == user.Id);
+
+            if (note == null)
+            {
+                note = new SessionNote
+                {
+                    SessionId = dto.SessionId,
+                    CounselorId = user.Id,
+                    Notes = dto.Notes
+                };
+
+                _context.SessionNotes.Add(note);
+            }
+            else
+            {
+                note.Notes = dto.Notes;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Notes saved";
+
+            return new JsonResult(new { success = true });
+        }
+
+        public class NotesDto
+        {
+            public int SessionId { get; set; }
+            public string Notes { get; set; }
+        }
     }
 }

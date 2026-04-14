@@ -5,101 +5,120 @@
     Layout = "_AuthLayout";
 }
 
-<div class="container-fluid px-3">
+<div class="auth-form-wide">
 
-    <div class="card auth-card border-0 mx-auto" style="max-width: 900px;">
-        <div class="card-body p-4">
-
-            <!-- HEADER -->
-            <div class="text-center mb-4">
-                <h3 class="fw-semibold">Create your account</h3>
-                <p class="text-muted small mb-0">
-                    Start your journey with Couples Connect
-                </p>
-            </div>
-
-            <form method="post">
-
-                <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
-
-                <!-- GRID -->
-                <div class="row g-3">
-
-                    <!-- FULL NAME -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Full Name</label>
-                        <input asp-for="Input.FullName" class="form-control" placeholder="John Doe" />
-                    </div>
-
-                    <!-- ALIAS -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Alias</label>
-                        <input asp-for="Input.Alias" class="form-control" placeholder="Optional" />
-                    </div>
-
-                    <!-- EMAIL -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Email</label>
-                        <input asp-for="Input.Email" class="form-control" placeholder="you@example.com" />
-                    </div>
-
-                    <!-- RELATIONSHIP -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Relationship Stage</label>
-                        <select asp-for="Input.RelationshipStage" class="form-select">
-                            <option value="">Select stage</option>
-                            <option>Dating</option>
-                            <option>Engaged</option>
-                            <option>Married</option>
-                            <option>Complicated</option>
-                        </select>
-                    </div>
-
-                    <!-- PRIVACY -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Privacy Preference</label>
-                        <select asp-for="Input.PrivacyLevel" class="form-select">
-                            <option value="">Select preference</option>
-                            <option>Public</option>
-                            <option>Private</option>
-                            <option>Anonymous</option>
-                        </select>
-                    </div>
-
-                    <!-- PASSWORD -->
-                    <div class="col-md-4">
-                        <label class="form-label small fw-semibold">Password</label>
-                        <input asp-for="Input.Password" type="password" class="form-control" />
-                    </div>
-
-                    <!-- CONFIRM PASSWORD -->
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">Confirm Password</label>
-                        <input asp-for="Input.ConfirmPassword" type="password" class="form-control" />
-                    </div>
-
-                </div>
-
-                <!-- ACTION -->
-                <div class="d-flex justify-content-between align-items-center mt-4">
-
-                    <div class="small">
-                        <span class="text-muted">Already have an account?</span>
-                        <a href="/signin" class="fw-semibold">Sign in</a>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary px-4">
-                        Create Account
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Create your account</h3>
+        <p class="text-muted small mb-0">
+            Start your journey with Couples Connect
+        </p>
     </div>
 
+    <form method="post">
+
+        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
+
+        <!-- GRID -->
+        <div class="row g-3">
+
+            <!-- FULL NAME -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Full Name</label>
+                <input asp-for="Input.FullName" class="form-control" placeholder="John Doe" />
+            </div>
+
+            <!-- ALIAS -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Alias</label>
+                <input asp-for="Input.Alias" class="form-control" placeholder="Optional" />
+            </div>
+
+            <!-- EMAIL -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Email</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="you@example.com" />
+            </div>
+
+            <!-- RELATIONSHIP -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Relationship Stage</label>
+                <select asp-for="Input.RelationshipStage" class="form-select">
+                    <option value="">Select stage</option>
+                    <option>Dating</option>
+                    <option>Engaged</option>
+                    <option>Married</option>
+                    <option>Complicated</option>
+                </select>
+            </div>
+
+            <!-- PRIVACY -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Privacy Preference</label>
+                <select asp-for="Input.PrivacyLevel" class="form-select">
+                    <option value="">Select preference</option>
+                    <option>Public</option>
+                    <option>Private</option>
+                    <option>Anonymous</option>
+                </select>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Password</label>
+                <input asp-for="Input.Password" type="password" class="form-control" />
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div class="col-md-6">
+                <label class="form-label fw-semibold small">Confirm Password</label>
+                <input asp-for="Input.ConfirmPassword" type="password" class="form-control" />
+            </div>
+
+        </div>
+
+        <!-- ACTION -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+
+            <div class="small">
+                <span class="text-muted">Already have an account?</span>
+                <a href="/signin" class="fw-semibold">Sign in</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary px-4">
+                Create Account
+            </button>
+
+        </div>
+
+    </form>
+
 </div>
+
+<style>
+
+    /* WIDER FORM FOR SIGNUP */
+    .auth-form-wide {
+        max-width: 520px;
+        margin: auto;
+    }
+
+    /* INPUT CONSISTENCY */
+    .form-control,
+    .form-select {
+        height: 42px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    /* BUTTON */
+    .btn-primary {
+        height: 42px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+
+</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

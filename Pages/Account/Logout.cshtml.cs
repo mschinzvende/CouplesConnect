@@ -20,7 +20,7 @@ namespace CouplesConnect.Pages.Account
 
             await _signInManager.SignOutAsync();
 
-            return Redirect("/");
+            return Redirect("/Signin");
 
         }
 

@@ -1,104 +1,556 @@
+/* =========================
+   COUPLES CONNECT - FINAL UI
+   ========================= */
+
+/* ---------- ROOT ---------- */
+:root {
+    --cc-primary: #4f46e5;
+    --cc-primary-dark: #4338ca;
+    --cc-bg: #f8fafc;
+    --cc-sidebar: #0f172a;
+    --cc-sidebar-hover: #1e293b;
+    --cc-text: #1f2937;
+}
+
+/* ---------- BODY ---------- */
 body {
-    margin: 0;
-    font-family: "Segoe UI",sans-serif;
-    background: #f5f7fb;
+    background: var(--cc-bg);
+    color: var(--cc-text);
 }
 
-/* LAYOUT */
-
-.layout {
-    display: flex;
-    min-height: 100vh;
+/* ---------- CONTENT ---------- */
+.content-wrapper {
+    background: var(--cc-bg);
 }
 
-/* SIDEBAR */
+/* ---------- REMOVE TEAL COMPLETELY ---------- */
+.btn-info,
+.bg-info,
+.text-info {
+    background-color: var(--cc-primary) !important;
+    border-color: var(--cc-primary) !important;
+    color: #fff !important;
+}
 
+/* ---------- PRIMARY BUTTON ---------- */
+.btn-primary {
+    background: var(--cc-primary) !important;
+    border: none !important;
+    border-radius: 8px;
+}
+
+    .btn-primary:hover {
+        background: var(--cc-primary-dark) !important;
+    }
+
+/* ---------- SIDEBAR ---------- */
 .sidebar {
-    width: 240px;
-    background: white;
-    border-right: 1px solid #e6e6e6;
-    display: flex;
-    flex-direction: column;
+    background: var(--cc-sidebar) !important;
 }
 
-.brand {
-    font-weight: 600;
-    font-size: 18px;
-    padding: 20px;
-}
-
-.menu {
-    display: flex;
-    flex-direction: column;
-}
-
-.menu-item {
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #444;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.menu-section {
-    font-size: 12px;
-    color: #999;
-    padding: 10px 20px 5px;
-    text-transform: uppercase;
-}
-
-    .menu-item:hover {
-        background: #f2f5fb;
+    /* REMOVE TEMPLATE BACKGROUND BLOCK */
+    .sidebar .nav .nav-item.active > .nav-link {
+        background: transparent !important;
     }
 
-.sidebar-footer {
-    margin-top: auto;
-    padding: 15px;
-    border-top: 1px solid #eee;
-}
-
-/* MAIN AREA */
-
-.main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.topbar {
-    background: white;
-    border-bottom: 1px solid #eee;
-    padding: 10px 20px;
-}
-
-.page {
-    flex: 1;
-    padding: 30px;
-}
-
-.footer {
-    border-top: 1px solid #eee;
-    text-align: center;
-    font-size: 13px;
-    padding: 15px;
-    background: white;
-}
-
-/* MOBILE */
-
-@media (max-width:768px) {
-
-    .sidebar {
-        position: fixed;
-        left: -240px;
-        top: 0;
-        height: 100%;
-        transition: 0.3s;
-        z-index: 1000;
+    /* FULL WIDTH MENU ITEMS */
+    .sidebar .nav .nav-item .nav-link {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 12px 20px;
+        color: #e5e7eb !important;
+        border-radius: 0 !important;
+        transition: all 0.2s ease;
     }
 
-        .sidebar.show {
-            left: 0;
+        /* FULL WIDTH HOVER */
+        .sidebar .nav .nav-item .nav-link:hover {
+            background: var(--cc-sidebar-hover) !important;
+            color: #ffffff !important;
         }
+
+    /* ACTIVE STATE (CLEAN LEFT BORDER) */
+    .sidebar .nav .nav-item.active > .nav-link {
+        background: var(--cc-sidebar-hover) !important;
+        border-left: 3px solid var(--cc-primary);
+        color: #ffffff !important;
+    }
+
+    /* REMOVE GREEN CATEGORY COLOR */
+    .sidebar .nav-category {
+        color: #94a3b8 !important;
+        font-weight: 600;
+    }
+
+    /* ---------- ICONS (MORE PROMINENT) ---------- */
+    .sidebar .menu-icon {
+        font-size: 18px;
+        color: #ffffff !important;
+        margin-left: auto;
+        opacity: 0.9;
+    }
+
+    /* ALIGN TEXT LEFT, ICON RIGHT */
+    .sidebar .menu-title {
+        flex: 1;
+    }
+
+/* ---------- CARDS ---------- */
+.card {
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06) !important;
+}
+
+/* ---------- METRIC CARDS ---------- */
+.card-body h3 {
+    font-weight: 600;
+}
+
+/* ---------- ALERT CLEANUP ---------- */
+.alert-warning {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #9a3412;
+}
+
+/* ---------- TABLE ---------- */
+.table tbody tr:hover {
+    background: rgba(79,70,229,0.05);
+}
+
+/* ---------- LINKS ---------- */
+a {
+    color: var(--cc-primary);
+}
+
+    a:hover {
+        color: var(--cc-primary-dark);
+    }
+
+/* ---------- DISABLED BUTTON FIX ---------- */
+.btn.disabled,
+.btn:disabled {
+    background: #9ca3af !important;
+    border: none !important;
+}
+
+/* ---------- REMOVE WEIRD TEMPLATE STYLES ---------- */
+.navbar .badge {
+    background: var(--cc-primary) !important;
+}
+
+/* PROFILE DROPDOWN */
+.user-menu {
+    width: 240px;
+    border-radius: 10px;
+    padding: 0;
+    overflow: hidden;
+}
+
+    /* HEADER */
+    .user-menu .border-bottom {
+        background: #f9fafb;
+    }
+
+    /* ITEMS */
+    .user-menu .dropdown-item {
+        font-size: 14px;
+        padding: 10px 16px;
+        color: #374151;
+        transition: background 0.15s ease;
+    }
+
+        .user-menu .dropdown-item:hover {
+            background: #f3f4f6;
+        }
+
+    /* ICONS (REMOVE TEAL) */
+    .user-menu i {
+        font-size: 16px;
+        color: #6b7280 !important;
+    }
+
+    /* BADGE */
+    .user-menu .badge {
+        font-size: 11px;
+        border-radius: 999px;
+        padding: 4px 8px;
+    }
+
+    /* SIGN OUT */
+    .user-menu .text-danger {
+        color: #ef4444 !important;
+    }
+
+/* FIX DROPDOWN POSITION */
+.user-dropdown .dropdown-menu {
+    right: 0 !important;
+    left: auto !important;
+    top: 100% !important;
+    margin-top: 10px;
+}
+
+/* FIX ICON SIZE */
+.user-menu i {
+    font-size: 14px !important;
+    width: 18px;
+    text-align: center;
+}
+
+.user-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    padding: 10px 16px;
+}
+
+.user-menu {
+    min-width: 220px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ===== DATE PICKER ===== */
+.flatpickr-input {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    color: #111827 !important;
+    font-weight: 500;
+}
+
+.flatpickr-calendar {
+    border-radius: 10px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+    border: none !important;
+}
+
+.flatpickr-day.selected {
+    background: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+}
+
+.flatpickr-day:hover {
+    background: rgba(79,70,229,0.15) !important;
+}
+
+/* ===== DROPDOWNS ===== */
+.cc-select {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #111827;
+    font-weight: 500;
+    padding: 10px;
+}
+
+    .cc-select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+    }
+
+/* ===== TIME SLOT BUTTONS ===== */
+.cc-slot-btn {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #111827;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.2s ease;
+}
+
+    .cc-slot-btn:hover {
+        border-color: #4f46e5;
+        color: #4f46e5;
+        background: rgba(79,70,229,0.05);
+    }
+
+    .cc-slot-btn:active {
+        background: #4f46e5;
+        color: #fff;
+    }
+
+/* ===== GROUP TOGGLE ===== */
+.cc-group-toggle {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+    .cc-group-toggle input {
+        width: 18px;
+        height: 18px;
+        accent-color: #4f46e5;
+    }
+
+#participantsContainer .btn {
+    padding: 6px 10px;
+}
+
+/* SLOT SELECTED */
+.cc-slot-btn.active {
+    background: #4f46e5;
+    color: #fff;
+    border-color: #4f46e5;
+}
+
+/* FORCE TEXT VISIBILITY */
+label,
+.form-label,
+select,
+.form-select,
+input,
+.form-control {
+    color: #111827 !important;
+}
+
+    /* DROPDOWN TEXT */
+    .form-select option {
+        color: #111827;
+    }
+
+/* PLACEHOLDER */
+::placeholder {
+    color: #6b7280 !important;
+}
+
+/* DISABLED BUTTON */
+#confirmBookingBtn:disabled {
+    background: #9ca3af !important;
+    border: none !important;
+    cursor: not-allowed;
+}
+
+/* ACTIVE SLOT */
+.cc-slot-btn.active {
+    background: #4f46e5;
+    color: #fff;
+    border-color: #4f46e5;
+}
+
+/* CANCEL BUTTON */
+.cc-cancel-btn {
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+    .cc-cancel-btn:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+        color: #111827;
+    }
+
+/* PAGINATION */
+.pagination .page-link {
+    color: #374151;
+    border-radius: 6px;
+    margin: 0 3px;
+}
+
+    .pagination .page-link:hover {
+        background: #374151;
+        color: #4f46e5;
+    }
+
+.pagination .page-item.active .page-link {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #fff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #9ca3af;
+}
+
+/* MATCH HEIGHT */
+.btn {
+    height: 42px;
+}
+
+/* MATCH HEIGHT PERFECTLY */
+.cc-input {
+    height: 42px;
+}
+
+.cc-btn {
+    height: 42px;
+}
+.booking-badge {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+    /* IMPROVED COLORS */
+    .booking-badge.scheduled {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .booking-badge.ready {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .booking-badge.live {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .booking-badge.completed {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .booking-badge.cancelled {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+
+.booking-card {
+    border-radius: 12px;
+    background: #fff;
+}
+
+    .booking-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+/* FORM TEXT SIZE FIX */
+.form-control,
+.form-select {
+    font-size: 14px !important;
+}
+
+    /* DROPDOWN OPTIONS */
+    .form-select option {
+        font-size: 14px;
+    }
+
+/* LABELS */
+.form-label {
+    font-size: 13px;
+    color: #111827 !important;
+}
+
+/* FILTER CARD TIGHTENING */
+.card-body form .row {
+    margin-top: 5px;
+}
+
+/* =========================
+   GLOBAL BUTTON RESET
+========================= */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    
+    transition: all 0.15s ease;
+}
+
+/* =========================
+   PRIMARY (MAIN ACTION)
+========================= */
+.btn-primary {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #fff;
+}
+
+    .btn-primary:hover {
+        background: #4338ca;
+        border-color: #4338ca;
+    }
+
+/* =========================
+   SOFT BUTTON (DEFAULT ACTION)
+========================= */
+.cc-btn-soft {
+    background: #f3f4f6;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+}
+
+    .cc-btn-soft:hover {
+        background: #e0e7ff;
+        color: #4338ca;
+        border-color: #c7d2fe;
+    }
+
+/* =========================
+   OUTLINE DARK (CLEAN ALT)
+========================= */
+.cc-btn-outline {
+    background: #fff;
+    border-color: #111827;
+    color: #111827;
+}
+
+    .cc-btn-outline:hover {
+        background: #111827;
+        color: #fff;
+        border-color: #111827;
+    }
+
+/* =========================
+   SUCCESS
+========================= */
+.btn-success {
+    background: #16a34a;
+    border-color: #16a34a;
+}
+
+    .btn-success:hover {
+        background: #15803d;
+    }
+
+/* =========================
+   DANGER
+========================= */
+.btn-danger,
+.btn-outline-danger {
+    border-radius: 8px;
+}
+
+.btn-outline-danger {
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+    .btn-outline-danger:hover {
+        background: #dc2626;
+        color: #fff;
+    }
+
+/* =========================
+   FULL WIDTH BUTTON
+========================= */
+.cc-btn {
+    height: 42px;
+}
+
+/* =========================
+   ICON BUTTONS
+========================= */
+.cc-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* =========================
+   SMALL BUTTON FIX
+========================= */
+.btn-sm {
+    font-size: 13px;
+    
 }

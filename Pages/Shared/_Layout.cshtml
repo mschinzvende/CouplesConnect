@@ -3,127 +3,390 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-@{
-    var path = Context.Request.Path.Value?.ToLower();
-}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Couples Connect</title>
+    <!-- plugins:css -->
+    <link rel="stylesheet" href="~/theme/vendors/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="~/theme/vendors/flag-icon-css/css/flag-icons.min.css">
+    <link rel="stylesheet" href="~/theme/vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- endinject -->
+    <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="~/theme/vendors/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/theme/vendors/bootstrap-datepicker/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="~/theme/vendors/jvectormap/jquery-jvectormap.css">
+    <link rel="stylesheet" href="~/theme/vendors/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="~/theme/vendors/chartist/chartist.min.css">
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <!-- endinject -->
+    <!-- Layout styles -->
+    <link rel="stylesheet" href="~/theme/css/vertical-light-layout/style.css">
 
-    <title>@ViewData["Title"] - Couples Connect</title>
-
-    <!-- COREUI CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/css/coreui.min.css" rel="stylesheet">
-
-    <!-- ICONS -->
-    <link href="https://cdn.jsdelivr.net/npm/@@coreui/icons/css/all.min.css" rel="stylesheet">
-
-    <style>
-        .sidebar {
-            background: linear-gradient(180deg, #4f46e5, #7c3aed);
-        }
-
-            .sidebar .nav-link {
-                color: #fff;
-            }
-
-                .sidebar .nav-link.active {
-                    background: rgba(255,255,255,0.2);
-                    border-radius: 8px;
-                }
-    </style>
+    <link rel="stylesheet" href="~/css/site.css">
+    <!-- End layout styles -->
+    <link rel="shortcut icon" href="~/theme/images/favicon.png" />
 </head>
-
 <body>
+    <div class="container-scroller">
 
-    <div class="d-flex">
+        <!-- partial:partials/_navbar.html -->
+        <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+                <a class="navbar-brand brand-logo" href="index.html">
+                    <img src="~/theme/images/logo.svg" alt="logo" class="logo-dark" />
+                    <img src="~/theme/images/logo-light.svg" alt="logo-light" class="logo-light">
+                </a>
+                <a class="navbar-brand brand-logo-mini" href="#"><img src="~/theme/images/logo-mini.svg" alt="logo" /></a>
+                <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+                    <span class="icon-menu"></span>
+                </button>
+            </div>
+            <div class="navbar-menu-wrapper d-flex align-items-center">
+                @if (SignInManager.IsSignedIn(User))
+                    {
+                <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Welcome @UserManager.GetUserAsync(User).Result.FullName</h5>
+                    }
+                <ul class="navbar-nav navbar-nav-right">
+                    <form class="search-form d-none d-md-block" action="#">
+                        <i class="icon-magnifier"></i>
+                        <input type="search" class="form-control" placeholder="Search Here" title="Search here">
+                    </form>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="icon-basket-loaded"></i></a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="icon-chart"></i></a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="icon-speech"></i>
+                            <span class="count">7</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown">
+                            <a class="dropdown-item py-3">
+                                <p class="mb-0 font-weight-medium float-start me-2">You have 7 unread mails </p>
+                                <span class="badge badge-pill badge-primary float-end">View all</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-thumbnail">
+                                    <img src="~/theme/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
+                                </div>
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis font-weight-medium text-dark">Marian Garner </p>
+                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
+                                </div>
+                            </a>
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-thumbnail">
+                                    <img src="~/theme/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
+                                </div>
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis font-weight-medium text-dark">David Grey </p>
+                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
+                                </div>
+                            </a>
+                            <a class="dropdown-item preview-item">
+                                <div class="preview-thumbnail">
+                                    <img src="~/theme/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
+                                </div>
+                                <div class="preview-item-content flex-grow py-2">
+                                    <p class="preview-subject ellipsis font-weight-medium text-dark">Travis Jenkins </p>
+                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
+                                </div>
+                            </a>
+                        </div>
+                    </li>
+                    
+                   
+                    <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+                        <a class="nav-link d-flex align-items-center gap-2"
+                           id="UserDropdown"
+                           href="#"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
 
-        <!-- SIDEBAR -->
-        <div class="sidebar p-3 vh-100">
+                            <img class="rounded-circle" width="32" height="32"
+                                 src="~/theme/images/faces/face8.jpg" alt="Profile">
 
-            <h4 class="text-white mb-4">💙 Couples Connect</h4>
+                            <span class="fw-semibold small text-dark">
+                                @UserManager.GetUserAsync(User).Result.FullName
+                            </span>
+                        </a>
 
-            <ul class="nav flex-column">
+                        <div class="dropdown-menu dropdown-menu-end navbar-dropdown user-menu">
 
-                @if (User.IsInRole("User") || User.IsInRole("Counselor"))
-                {
-                    <li class="nav-item">
-                        <a class="nav-link @(path.Contains("dashboard") ? "active" : "")" href="/User/Dashboard">
-                            <i class="cil-speedometer me-2"></i> Dashboard
+                            <!-- HEADER -->
+                            <div class="text-center px-3 py-3 border-bottom">
+                                <img class="rounded-circle mb-2" width="64"
+                                     src="~/theme/images/faces/face8.jpg" alt="Profile">
+
+                                <div class="fw-semibold">
+                                    @UserManager.GetUserAsync(User).Result.FullName
+                                </div>
+
+                                <div class="text-muted small">
+                                    @UserManager.GetUserAsync(User).Result.Email
+                                </div>
+                            </div>
+
+                            <!-- ITEMS -->
+                            <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                                <i class="icon-user text-muted"></i>
+                                <span>My Profile</span>
+                                <span class="badge bg-primary ms-auto">1</span>
+                            </a>
+
+                            <div class="dropdown-divider"></div>
+
+                            <form method="post" asp-page="/Account/Logout">
+                                <button class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                    <i class="icon-power"></i>
+                                    <span>Sign Out</span>
+                                </button>
+                            </form>
+
+                        </div>
+                    </li>
+                   
+
+                </ul>
+                <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
+                    <span class="icon-menu"></span>
+                </button>
+            </div>
+        </nav>
+        <!-- partial -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- partial:partials/_sidebar.html -->
+            <nav class="sidebar sidebar-offcanvas custom-sidebar mt-3" id="sidebar">
+                <ul class="nav">
+                    <li class="nav-item navbar-brand-mini-wrapper">
+                        <a class="nav-link navbar-brand brand-logo-mini" href="#"><img src="" alt="Couples Connect" /></a>
+                    </li>
+                    <li class="nav-item nav-profile">
+                        <a href="#" class="nav-link">
+                            <div class="profile-image">
+                                <img class="img-xs rounded-circle" src="~/theme/images/faces/face8.jpg" alt="profile image">
+                                <div class="dot-indicator bg-success"></div>
+                            </div>
+                            <div class="text-wrapper">
+                                <p class="profile-name">
+                                    
+                                        @UserManager.GetUserAsync(User).Result.FullName
+                                    
+                                </p>
+                                
+                            </div>
+                            <div class="icon-container">
+                                <i class="icon-bubbles"></i>
+                                <div class="dot-indicator bg-danger"></div>
+                            </div>
                         </a>
                     </li>
-                }
 
-                @if (User.IsInRole("User"))
-                {
-                    <li class="mt-3 text-white-50 small">Client</li>
+                    @if (User.IsInRole("User") || User.IsInRole("Counselor"))
+                    {
 
-                    <li><a class="nav-link" href="/User/Bookings">My Bookings</a></li>
-                    <li><a class="nav-link" href="/User/Bookings/Create">Book Session</a></li>
-                    <li><a class="nav-link" href="/User/Packages">My Package</a></li>
-                }
+                        <li class="nav-item nav-category">
+                            <span class="nav-link">Dashboard</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Dashboard">
+                                <span class="menu-title">Dashboard</span>
+                                <i class="icon-screen-desktop menu-icon"></i>
+                            </a>
+                        </li>
+                    }
 
-                @if (User.IsInRole("Counselor"))
-                {
-                    <li class="mt-3 text-white-50 small">Counselor</li>
 
-                    <li><a class="nav-link" href="/Counselor/Sessions">My Sessions</a></li>
-                    <li><a class="nav-link" href="/Counselor/Availability">Availability</a></li>
-                }
+                    @if (User.IsInRole("User"))
+                    {
+                        <li class="nav-item nav-category">Client</li>
 
-                @if (User.IsInRole("Admin"))
-                {
-                    <li class="mt-3 text-white-50 small">Admin</li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Bookings">
+                                <span class="menu-title">My Bookings</span>
+                                <i class="icon-calendar menu-icon"></i>
+                            </a>
+                        </li>
 
-                    <li><a class="nav-link" href="/Admin/Dashboard">Dashboard</a></li>
-                    <li><a class="nav-link" href="/Admin/Services">Services</a></li>
-                    <li><a class="nav-link" href="/Admin/Reports">Reports</a></li>
-                }
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Bookings/Create">
+                                <span class="menu-title">Book Session</span>
+                                <i class="icon-plus menu-icon"></i>
+                            </a>
+                        </li>
 
-            </ul>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/User/Packages">
+                                <span class="menu-title">My Package</span>
+                                <i class="icon-box menu-icon"></i>
+                            </a>
+                        </li>
+                    }
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                <div class="mt-auto pt-4">
+                    <!-- COUNSELOR -->
+                    @if (User.IsInRole("Counselor"))
+                    {
+                        <li class="nav-item nav-category">Counselor</li>
 
-                    <div class="text-white small mb-2">
-                        @UserManager.GetUserAsync(User).Result.FullName
-                    </div>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Counselor/Sessions">
+                                <span class="menu-title">My Sessions</span>
+                                <i class="icon-camrecorder menu-icon"></i>
+                            </a>
+                        </li>
 
-                    <form method="post" asp-page="/Account/Logout">
-                        <button class="btn btn-light w-100">
-                            Logout
-                        </button>
-                    </form>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Counselor/Availability">
+                                <span class="menu-title">Availability</span>
+                                <i class="icon-clock menu-icon"></i>
+                            </a>
+                        </li>
+                    }
 
+                    <!-- BECOME COUNSELOR -->
+                    @if (User.IsInRole("User") && !User.IsInRole("Counselor"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Account/RegisterCounselor">
+                                <span class="menu-title">Become a Counselor</span>
+                                <i class="icon-user-follow menu-icon"></i>
+                            </a>
+                        </li>
+                    }
+
+                    <!-- ADMIN -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item nav-category">Admin</li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Dashboard">
+                                <span class="menu-title">Dashboard</span>
+                                <i class="icon-speedometer menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Services">
+                                <span class="menu-title">Services</span>
+                                <i class="icon-settings menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Packages">
+                                <span class="menu-title">Packages</span>
+                                <i class="icon-layers menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Counselors">
+                                <span class="menu-title">Counselors</span>
+                                <i class="icon-people menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Reports">
+                                <span class="menu-title">Reports</span>
+                                <i class="icon-chart menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/ServiceTypes">
+                                <span class="menu-title">Service Types</span>
+                                <i class="icon-list menu-icon"></i>
+                            </a>
+                        </li>
+                    }
+
+                    <!-- SHARED -->
+                    <li class="nav-item nav-category">Growth</li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/User/Resources">
+                            <span class="menu-title">Resources</span>
+                            <i class="icon-book-open menu-icon"></i>
+                        </a>
+                    </li>
+
+
+
+
+                    <li class="nav-item nav-category"><span class="nav-link">UI Elements</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
+                            <span class="menu-title">Basic UI Elements</span>
+                            <i class="icon-layers menu-icon"></i>
+                        </a>
+                        <div class="collapse" id="ui-basic">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/buttons.html">Buttons</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/dropdowns.html">Dropdowns</a></li>
+                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <!-- partial -->
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    @RenderBody()
                 </div>
-            }
-
-        </div>
-
-        <!-- MAIN -->
-        <div class="flex-grow-1">
-
-            <!-- TOPBAR -->
-            <div class="bg-white shadow-sm p-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">@ViewData["Title"]</h5>
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <footer class="footer">
+                    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block"> © @DateTime.Now.Year Couples Connect <a href="#"> Terms of use</a><a href="#">Privacy Policy</a></span>
+                        <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Hand-crafted & made with <i class="icon-heart text-danger"></i></span>
+                    </div>
+                </footer>
+                <!-- partial -->
             </div>
-
-            <!-- CONTENT -->
-            <div class="p-4">
-                @RenderBody()
-            </div>
-
+            <!-- main-panel ends -->
         </div>
-
+        <!-- page-body-wrapper ends -->
     </div>
+    <!-- container-scroller -->
 
-    <script src="https://cdn.jsdelivr.net/npm/@@coreui/coreui@4.3.1/dist/js/coreui.bundle.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
-
+    <!-- plugins:js -->
+    
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="~/theme/vendors/chart.js/chart.umd.js"></script>
+    <script src="~/theme/vendors/jvectormap/jquery-jvectormap.min.js"></script>
+    <script src="~/theme/vendors/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="~/theme/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="~/theme/vendors/moment/moment.min.js"></script>
+    <script src="~/theme/vendors/daterangepicker/daterangepicker.js"></script>
+    
+    
+    <script src="~/theme/vendors/progressbar.js/progressbar.min.js"></script>
+    <script src="~/theme/js/jquery.cookie.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="~/theme/js/off-canvas.js"></script>
+    <script src="~/theme/js/hoverable-collapse.js"></script>
+    <script src="~/theme/js/misc.js"></script>
+    <script src="~/theme/js/settings.js"></script>
+    <script src="~/theme/js/todolist.js"></script>
+    <!-- endinject -->
+   
+    
 </body>
 </html>

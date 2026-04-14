@@ -3,15 +3,17 @@
 
 <h3 class="fw-bold mb-3">My Sessions</h3>
 
-<form method="get" class="row mb-3">
+<form method="get" class="row g-3 mb-3 align-items-end">
     <div class="col-md-6">
+        <label class="form-label fw-semibold">Search</label>
         <input type="text" name="Search" value="@Model.Search"
-               class="form-control"
+               class="form-control cc-input"
                placeholder="Search participant..." />
     </div>
 
     <div class="col-md-3">
-        <select name="StatusFilter" class="form-select">
+        <label class="form-label fw-semibold">Status</label>
+        <select name="StatusFilter" class="form-select cc-input">
             <option value="all">All</option>
             <option value="Upcoming">Upcoming</option>
             <option value="Ready">Ready</option>
@@ -21,7 +23,7 @@
     </div>
 
     <div class="col-md-3">
-        <button class="btn btn-primary w-100">Apply</button>
+        <button type="submit" class="btn btn-primary w-100 cc-btn">Apply</button>
     </div>
 </form>
 
@@ -34,7 +36,7 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<div class="row g-3">
+<div class="row g-4">
 
     @foreach (var s in Model.Sessions)
     {
@@ -42,37 +44,34 @@
         var mainBooking = s.Bookings.First();
 
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm border-0 h-100 session-card">
+            <div class="card session-card h-100">
 
                 <div class="card-body">
 
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-2">
                         <div>
-                            <strong>@mainBooking.ScheduledStart.ToString("ddd, dd MMM")</strong><br />
-                            <small>@mainBooking.ScheduledStart.ToString("HH:mm")</small>
+                            <div class="fw-semibold">
+                                @mainBooking.ScheduledStart.ToString("ddd, dd MMM")
+                            </div>
+                            <div class="text-muted small">
+                                @mainBooking.ScheduledStart.ToString("hh:mm tt")
+                            </div>
                         </div>
 
-                        <span class="badge
-                        @(state == "Live" ? "bg-success" :
-                          state == "Ready" ? "bg-warning text-dark" :
-                          state == "Completed" ? "bg-success" :
-                          "bg-primary")">
+                        <span class="badge session-badge @state.ToLower()">
                             @state
                         </span>
                     </div>
 
                     <hr />
 
-                    <!-- GROUP / INDIVIDUAL -->
                     @if (mainBooking.IsGroup)
                     {
-                        <span class="badge bg-info mb-2">Group Session</span>
+                        <span class="badge cc-group mb-2">Group Session</span>
                     }
 
-                    <!-- PARTICIPANTS -->
                     <div class="mb-2">
                         <strong>Participants:</strong>
-
                         <ul class="small mb-0">
                             <li>@mainBooking.User.FullName (Host)</li>
 
@@ -86,7 +85,6 @@
                         </ul>
                     </div>
 
-                    <!-- COUNTDOWN -->
                     @if (state == "Upcoming" || state == "Ready")
                     {
                         <div class="text-muted small mb-2">
@@ -97,35 +95,33 @@
                         </div>
                     }
 
-                    <!-- ACTIONS -->
                     <div class="d-flex flex-column gap-2 mt-2">
 
                         @if (!s.IsStarted && !s.IsEnded)
                         {
                             <form method="post" asp-page-handler="Start" asp-route-id="@s.SessionId">
-                                <button class="btn btn-success btn-sm w-100">
-                                    Start Session
-                                </button>
+                                <button class="btn btn-primary btn-sm w-100">Start Session</button>
                             </form>
                         }
                         else if (s.IsStarted && !s.IsEnded)
                         {
                             <a href="/Sessions/PreJoin/@s.SessionId"
-                               class="btn btn-primary btn-sm">
-                                Enter Room
+                               class="btn btn-primary btn-sm w-100">
+                                Enter Session Room
                             </a>
                         }
 
-                        <a href="/Counselor/Sessions/Notes/@s.SessionId"
-                           class="btn btn-outline-secondary btn-sm">
-                            Notes
-                        </a>
+                        <!-- 🔥 NOTES BUTTON (NOW MODAL) -->
+                        <button class="btn cc-btn-outline btn-sm w-100"
+                                onclick="openNotes(@s.SessionId)">
+                            View Notes
+                        </button>
 
                         @if (!s.IsEnded)
                         {
                             <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId">
-                                <button class="btn btn-outline-primary btn-sm">
-                                    Complete Session
+                                <button class="btn cc-btn-outline btn-sm w-100">
+                                    End Session
                                 </button>
                             </form>
                         }
@@ -140,50 +136,141 @@
 
 </div>
 
-<!-- PAGINATION -->
-<div class="mt-4 d-flex justify-content-center">
-    <ul class="pagination">
+<!-- ================= NOTES MODAL ================= -->
+<div class="modal fade" id="notesModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
-        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-            <a class="page-link"
-               asp-route-pageNumber="@(Model.PageNumber - 1)"
-               asp-route-Search="@Model.Search"
-               asp-route-StatusFilter="@Model.StatusFilter">Prev</a>
-        </li>
+            <div class="modal-header">
+                <h5>Session Notes</h5>
+            </div>
+            <form method="post">
+            <div class="modal-body">
+                
+                    @Html.AntiForgeryToken()
+                
+                <textarea id="notesBox"
+                          class="form-control"
+                          style="height:200px;"></textarea>
 
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                <a class="page-link"
-                   asp-route-pageNumber="@i"
-                   asp-route-Search="@Model.Search"
-                   asp-route-StatusFilter="@Model.StatusFilter">@i</a>
-            </li>
-        }
+                <input type="hidden" id="notesSessionId" />
 
-        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-            <a class="page-link"
-               asp-route-pageNumber="@(Model.PageNumber + 1)"
-               asp-route-Search="@Model.Search"
-               asp-route-StatusFilter="@Model.StatusFilter">Next</a>
-        </li>
+            </div>
 
-    </ul>
+            <div class="modal-footer">
+                <button class="btn btn-primary w-100" onclick="saveNotes()">
+                    Save Notes
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
 </div>
 
+<!-- ================= STYLES ================= -->
 <style>
+    .cc-input {
+        height: 42px;
+        font-size: 14px;
+    }
+
+    .cc-btn {
+        height: 42px;
+    }
+
     .session-card {
         border-radius: 12px;
-        transition: 0.2s ease;
+        transition: 0.2s;
     }
 
         .session-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
+
+    .session-badge.scheduled {
+        background: #eef2ff;
+        color: #4338ca;
+    }
+
+    .session-badge.ready {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .session-badge.live {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .session-badge.completed {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .cc-group {
+        background: #eef2ff;
+        color: #4f46e5;
+    }
 </style>
 
+<!-- ================= SCRIPTS ================= -->
+
 <script>
+
+    // OPEN NOTES
+    function openNotes(sessionId) {
+
+        document.getElementById("notesSessionId").value = sessionId;
+
+        fetch(`?handler=Notes&sessionId=${sessionId}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("notesBox").value = data.notes || "";
+                new bootstrap.Modal(document.getElementById('notesModal')).show();
+            });
+    }
+
+    // SAVE NOTES
+            function saveNotes() {
+
+        const sessionId = document.getElementById("notesSessionId").value;
+        const notes = document.getElementById("notesBox").value;
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        fetch(`?handler=SaveNotes`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token
+            },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                notes: notes
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error();
+            return res.json();
+        })
+        .then(() => {
+
+            // 🔥 REDIRECT TO TRIGGER TEMPDATA
+           window.location.href = window.location.pathname;
+
+        })
+        .catch(() => {
+            window.location.href = window.location.pathname; // still reload to show error TempData
+        });
+    }
+
+</script>
+<script>
+
+    
+
+    // COUNTDOWN
     function updateCountdowns() {
         document.querySelectorAll('.countdown').forEach(el => {
 
@@ -207,4 +294,5 @@
 
     setInterval(updateCountdowns, 1000);
     updateCountdowns();
+
 </script>

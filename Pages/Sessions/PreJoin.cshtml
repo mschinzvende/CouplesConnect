@@ -1,41 +1,100 @@
 ﻿@page "{sessionId:int}"
 @model CouplesConnect.Pages.Sessions.PreJoinModel
 
-<h3 class="mb-4">Setup Your Session</h3>
+<div class="page-header">
+    <h3 class="page-title">Setup Your Session</h3>
+</div>
 
 <div class="row">
 
     <!-- VIDEO PREVIEW -->
-    <div class="col-md-6">
-        <video id="previewVideo" autoplay muted class="w-100 border rounded"></video>
+    <div class="col-md-7 grid-margin stretch-card">
+        <div class="card h-100">
+            <div class="card-body">
+
+                <h5 class="mb-3 fw-semibold">Camera Preview</h5>
+
+                <div class="video-wrapper">
+                    <video id="previewVideo" autoplay muted></video>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <!-- SETTINGS -->
-    <div class="col-md-6">
+    <div class="col-md-5 grid-margin stretch-card">
+        <div class="card h-100">
+            <div class="card-body">
 
-        <div class="mb-3">
-            <label>Camera</label>
-            <select id="cameraSelect" class="form-control"></select>
+                <h5 class="mb-3 fw-semibold">Device Settings</h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Camera</label>
+                    <select id="cameraSelect" class="form-select cc-input"></select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Microphone</label>
+                    <select id="micSelect" class="form-select cc-input"></select>
+                </div>
+
+                <div class="mb-3">
+                    <button onclick="testMic()" class="btn cc-btn-outline w-100">
+                        Test Microphone
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button onclick="joinSession()" class="btn btn-primary w-100">
+                        Join Session
+                    </button>
+                </div>
+
+            </div>
         </div>
-
-        <div class="mb-3">
-            <label>Microphone</label>
-            <select id="micSelect" class="form-control"></select>
-        </div>
-
-        <div class="mb-3">
-            <button onclick="testMic()" class="btn btn-outline-primary">
-                Test Microphone
-            </button>
-        </div>
-
-        <button onclick="joinSession()" class="btn btn-success w-100">
-            Join Session
-        </button>
-
     </div>
 
 </div>
+
+<style>
+
+    /* VIDEO CONTAINER */
+    .video-wrapper {
+        width: 100%;
+        height: 350px;
+        background: #000;
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* INPUT STYLE */
+    .cc-input {
+        height: 42px;
+        font-size: 14px;
+        color: #111827;
+    }
+
+    /* BUTTON CONSISTENCY */
+    .btn {
+        height: 42px;
+    }
+
+    /* CARD POLISH */
+    .card {
+        border-radius: 12px;
+    }
+
+</style>
 
 <script>
 

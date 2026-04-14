@@ -3,98 +3,270 @@
 @model CouplesConnect.Pages.Counselor.Availability.IndexModel
 @attribute [Authorize(Roles = "Counselor")]
 
-<h3 class="mb-4">My Availability</h3>
+<div class="page-header">
+    <h3 class="page-title">My Availability</h3>
+</div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success mb-3">@TempData["Success"]</div>
 }
 
-<div class="card shadow-sm">
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger mb-3">@TempData["Error"]</div>
+}
 
-    <div class="card-header d-flex justify-content-between">
-        <h5>Weekly Schedule</h5>
-
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-            Add Slot
-        </button>
-    </div>
-
+<div class="card">
     <div class="card-body">
 
-        <table class="table">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Availability Slots</h5>
 
-            <thead class="thead-light">
+            <button class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createModal">
+                Add Availability
+            </button>
+        </div>
+
+        <table class="table align-middle">
+            <thead>
                 <tr>
-                    <th>Day</th>
-                    <th>Start</th>
-                    <th>End</th>
+                    <th>Date</th>
+                    <th>Time</th>
                     <th></th>
                 </tr>
             </thead>
 
             <tbody>
-
                 @foreach (var a in Model.Availability)
                 {
                     <tr>
-                        <td>@a.DayOfWeek</td>
-                        <td>@a.StartTime</td>
-                        <td>@a.EndTime</td>
+                        <td>
+                            <div class="fw-semibold">
+                                @a.StartDateTime.ToString("ddd, dd MMM yyyy")
+                            </div>
+                        </td>
 
                         <td>
+                            @a.StartDateTime.ToString("hh:mm tt")
+                            -
+                            @a.EndDateTime.ToString("hh:mm tt")
+                        </td>
+
+                        <td class="text-end">
                             <form method="post" asp-page-handler="Delete" asp-route-id="@a.AvailabilityId">
-                                <button class="btn btn-danger btn-sm">Delete</button>
+                                <button class="btn btn-outline-secondary btn-sm">Delete</button>
                             </form>
                         </td>
                     </tr>
                 }
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
-
-<!-- CREATE MODAL -->
-
+<!-- MODAL -->
 <div class="modal fade" id="createModal">
-
     <div class="modal-dialog">
-
         <div class="modal-content">
 
-            <form method="post" asp-page-handler="Create">
+            <form method="post" asp-page-handler="Create" id="availabilityForm">
 
                 <div class="modal-header">
-                    <h5>Add Availability</h5>
+                    <h5 class="modal-title">Add Availability</h5>
                 </div>
 
                 <div class="modal-body">
 
-                    <select name="DayOfWeek" class="form-control mb-2">
-                        @foreach (var d in Enum.GetValues(typeof(DayOfWeek)))
-                        {
-                            <option value="@d">@d</option>
-                        }
-                    </select>
+                    <!-- DATE -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Date</label>
+                        <input type="text"
+                               id="datePicker"
+                               name="SelectedDate"
+                               class="form-control cc-input" />
+                    </div>
 
-                    <input type="time" name="StartTime" class="form-control mb-2" />
-                    <input type="time" name="EndTime" class="form-control" />
+                    <!-- HIDDEN VALUES (IMPORTANT) -->
+                    <input type="hidden" id="selectedSlots" name="SelectedSlots" />
+
+                    <!-- SLOT PICKER -->
+                    <div class="mt-3">
+                        <label class="form-label fw-semibold">Select Time Slot</label>
+
+                        <div id="timeSuggestions" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+
+                    <!-- VALIDATION -->
+                    <div id="validationMsg" class="text-danger small mt-2 d-none"></div>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-primary">Save</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary w-100" disabled>
+                        Save Availability
+                    </button>
                 </div>
 
             </form>
 
         </div>
-
     </div>
-
 </div>
+
+<style>
+    .suggestion-btn {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+        .suggestion-btn:hover {
+            background: #eef2ff;
+            border-color: #4f46e5;
+        }
+
+        .suggestion-btn.active {
+            background: #4f46e5;
+            color: #fff;
+            border-color: #4f46e5;
+        }
+
+</style>
+
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+
+    const existingSlots = @Html.Raw(
+        System.Text.Json.JsonSerializer.Serialize(
+            Model.Availability.Select(a => new
+            {
+                start = a.StartDateTime.ToString("o"),
+                end = a.EndDateTime.ToString("o")
+            })
+        )
+    );
+
+    let selectedDate = null;
+    let selectedSlots = [];
+
+    document.getElementById('createModal').addEventListener('shown.bs.modal', function () {
+
+        flatpickr("#datePicker", {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            onChange: function (dates) {
+                selectedDate = dates[0];
+                selectedSlots = []; // reset
+                generateSlots();
+            }
+        });
+
+    });
+
+    function generateSlots() {
+
+        const container = document.getElementById("timeSuggestions");
+        const saveBtn = document.getElementById("saveBtn");
+
+        container.innerHTML = "";
+        saveBtn.disabled = true;
+
+        if (!selectedDate) return;
+
+        const now = new Date();
+
+        for (let hour = 8; hour <= 18; hour++) {
+
+            const start = new Date(selectedDate);
+            start.setHours(hour, 0, 0, 0);
+
+            const end = new Date(start);
+            end.setHours(hour + 1);
+
+            if (isSameDay(selectedDate, now) && start < now) continue;
+            if (isOverlapping(start, end)) continue;
+
+            const btn = document.createElement("div");
+            btn.className = "suggestion-btn";
+            btn.innerText = formatRange(start, end);
+
+            btn.onclick = () => toggleSlot(btn, start, end);
+
+            container.appendChild(btn);
+        }
+    }
+
+    function toggleSlot(btn, start, end) {
+
+        const key = start.toISOString();
+
+        const index = selectedSlots.findIndex(s => s.start === key);
+
+        if (index > -1) {
+            // ❌ REMOVE
+            selectedSlots.splice(index, 1);
+            btn.classList.remove("active");
+        } else {
+            // ✅ ADD
+            selectedSlots.push({
+                start: start.toISOString(),
+                end: end.toISOString()
+            });
+            btn.classList.add("active");
+        }
+
+        updateHiddenInput();
+    }
+
+    function updateHiddenInput() {
+
+        const saveBtn = document.getElementById("saveBtn");
+
+        document.getElementById("selectedSlots").value =
+            JSON.stringify(selectedSlots);
+
+        saveBtn.disabled = selectedSlots.length === 0;
+    }
+
+    // =====================
+    // OVERLAP CHECK
+    // =====================
+    function isOverlapping(start, end) {
+
+        for (let slot of existingSlots) {
+
+            const s = new Date(slot.start);
+            const e = new Date(slot.end);
+
+            if (start < e && end > s) return true;
+        }
+
+        return false;
+    }
+
+    // =====================
+    // HELPERS
+    // =====================
+    function formatRange(start, end) {
+        return `${formatAMPM(start)} - ${formatAMPM(end)}`;
+    }
+
+    function formatAMPM(date) {
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function isSameDay(d1, d2) {
+        return d1.toDateString() === d2.toDateString();
+    }
+
+</script>
