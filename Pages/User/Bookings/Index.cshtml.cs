@@ -1,6 +1,7 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
+using CouplesConnect.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,15 @@ namespace CouplesConnect.Pages.User.Bookings
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SubscriptionService _subscriptionService;
 
         public IndexModel(ApplicationDbContext context,
-                          UserManager<ApplicationUser> userManager)
+                          UserManager<ApplicationUser> userManager,
+                          SubscriptionService subscriptionService)
         {
             _context = context;
             _userManager = userManager;
+            _subscriptionService = subscriptionService;
         }
 
         public List<Booking> Bookings { get; set; } = new();
@@ -49,6 +53,7 @@ namespace CouplesConnect.Pages.User.Bookings
                     .Include(b => b.Counselor)
                     .Include(b => b.Session)
                     .Include(b => b.Participants)
+                   
                     .Where(b =>
                         b.UserId == user.Id ||
                         b.Participants.Any(p => p.UserId == user.Id && p.Status == "Accepted")
@@ -108,17 +113,21 @@ namespace CouplesConnect.Pages.User.Bookings
                     .Take(PageSize)
                     .ToListAsync();
             }
-            catch
+            catch (Exception ex) 
             {
-                TempData["Error"] = "Error loading bookings";
+                TempData["Error"] = $"Error loading bookings {ex.Message}";
             }
         }
 
-        public async Task<IActionResult> OnPostCancelAsync(Guid id)
+        public async Task<IActionResult> OnPostCancelAsync(Guid id, int subId)
         {
             var booking = await _context.Bookings
                 .Include(b => b.Session)
                 .FirstOrDefaultAsync(b => b.BookingId == id);
+
+            var user = await _userManager.GetUserAsync(User);
+
+            
 
             if (booking == null)
             {
@@ -127,6 +136,8 @@ namespace CouplesConnect.Pages.User.Bookings
             }
 
             booking.BookingStatus = "Cancelled";
+
+            await _subscriptionService.RestoreSession(user.Id,subId);
 
             if (booking.Session != null)
                 booking.Session.IsEnded = true;

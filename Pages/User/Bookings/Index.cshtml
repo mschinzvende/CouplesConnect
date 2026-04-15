@@ -132,7 +132,8 @@
                         {
                             <form method="post"
                                   asp-page-handler="Cancel"
-                                  asp-route-id="@b.BookingId">
+                                  asp-route-id="@b.BookingId"
+                                  asp-route-subId="@b.SubscriptionId">
 
                                 <button class="btn cc-cancel-btn btn-sm w-100">
                                     Cancel Booking

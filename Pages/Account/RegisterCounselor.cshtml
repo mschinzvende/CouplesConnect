@@ -1,30 +1,257 @@
 ﻿@page
 @model CouplesConnect.Pages.Account.RegisterCounselorModel
-
-<h3 class="mb-4">Become a Counselor</h3>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
+@{
+    ViewData["Title"] = "Become a Counselor";
 }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+<div class="container py-4" style="max-width:800px;">
 
-<form method="post">
+    <!-- HEADER -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Become a Counselor</h3>
+        <p class="text-muted mb-0">
+            Submit your professional details for review and approval.
+        </p>
+    </div>
 
-    <input name="FullName" class="form-control mb-2" placeholder="Full Name" />
+    <!-- ALERTS -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
 
-    <textarea name="Bio" class="form-control mb-2" placeholder="Short Bio"></textarea>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
 
-    <input name="Qualifications" class="form-control mb-2" placeholder="Qualifications" />
+    <!-- FORM CARD -->
+    <div class="card cc-card">
 
-    <input name="YearsOfExperience" type="number" class="form-control mb-2" placeholder="Years of Experience" />
+        <div class="card-body">
 
-    <input name="Specializations" class="form-control mb-2" placeholder="Specializations" />
+            <form method="post" enctype="multipart/form-data">
 
-    <button class="btn btn-primary">Submit Application</button>
+                <div asp-validation-summary="All" class="text-danger small mb-3"></div>
 
-</form>
+                <!-- PERSONAL INFO -->
+                <div class="mb-4">
+                    <h6 class="section-title">Personal Information</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input asp-for="Input.FullName" class="form-control cc-input" placeholder="John Doe" />
+                    </div>
+
+                    <div>
+                        <label class="form-label">Bio</label>
+                        <textarea asp-for="Input.Bio" rows="3" class="form-control cc-input"
+                                  placeholder="Tell us about yourself..."></textarea>
+                    </div>
+                </div>
+
+                <!-- PROFESSIONAL -->
+                <div class="mb-4">
+                    <h6 class="section-title">Professional Details</h6>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Qualifications</label>
+                            <input asp-for="Input.Qualifications" class="form-control cc-input" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Years of Experience</label>
+                            <input asp-for="Input.YearsOfExperience" type="number" class="form-control cc-input" />
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Specializations</label>
+                        <input asp-for="Input.Specializations"
+                               class="form-control cc-input"
+                               placeholder="Marriage, Conflict Resolution..." />
+                    </div>
+                </div>
+
+                <!-- DOCUMENTS -->
+                <div class="mb-4">
+                    <h6 class="section-title">Credentials</h6>
+
+                    <div class="upload-box" id="uploadBox">
+
+                        <i class="mdi mdi-cloud-upload-outline upload-icon"></i>
+                        <p class="mb-1">Upload certificates or licenses</p>
+                        <small class="text-muted">PDF, JPG, PNG (Multiple allowed)</small>
+
+                        <input type="file"
+                               id="fileInput"
+                               name="CredentialFiles"
+                               multiple
+                               class="form-control mt-2 cc-input" />
+
+                    </div>
+
+                    <!-- FILE PREVIEW -->
+                    <div id="fileList" class="mt-3"></div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <a href="/" class="text-muted small">Cancel</a>
+
+                    <button class="btn btn-primary px-4">
+                        Submit Application
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+    /* CARD */
+    .cc-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    /* SECTION TITLES */
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #111827;
+    }
+
+    /* INPUT */
+    .cc-input {
+        height: 42px;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #111827;
+    }
+
+    textarea.cc-input {
+        height: auto;
+    }
+
+    /* LABEL */
+    .form-label {
+        font-weight: 500;
+        color: #111827;
+    }
+
+    /* UPLOAD BOX */
+    .upload-box {
+        border: 2px dashed #e5e7eb;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        background: #fafafa;
+    }
+
+    .upload-icon {
+        font-size: 28px;
+        color: #4f46e5;
+    }
+
+    /* BUTTON */
+    .btn-primary {
+        border-radius: 8px;
+        height: 42px;
+        font-weight: 500;
+    }
+
+
+    .file-item {
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: #fff;
+    }
+
+    .file-name {
+        font-size: 13px;
+        color: #111827;
+    }
+</style>
+
+<script>
+    <script>
+     const fileInput = document.getElementById("fileInput");
+     const fileList = document.getElementById("fileList");
+
+     let filesArray = [];
+
+     fileInput.addEventListener("change", function () {
+
+         const selectedFiles = Array.from(this.files);
+
+         // 🔥 VALIDATION HERE
+         selectedFiles.forEach(file => {
+
+             // Size check (5MB)
+             if (file.size > 5 * 1024 * 1024) {
+                 alert(file.name + " is too large (max 5MB)");
+                 return;
+             }
+
+             // Type check
+             const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+             if (!allowedTypes.includes(file.type)) {
+                 alert(file.name + " is not a valid file type");
+                 return;
+             }
+
+             filesArray.push(file);
+         });
+
+         updateInputFiles();
+         renderFiles();
+     });
+
+     function updateInputFiles() {
+         const dataTransfer = new DataTransfer();
+         filesArray.forEach(f => dataTransfer.items.add(f));
+         fileInput.files = dataTransfer.files;
+     }
+
+     function renderFiles() {
+         fileList.innerHTML = "";
+
+         filesArray.forEach((file, index) => {
+
+             const div = document.createElement("div");
+             div.className = "file-item d-flex justify-content-between align-items-center";
+
+             div.innerHTML = `
+                 <span class="file-name">${file.name}</span>
+                 <button type="button" class="btn btn-sm btn-outline-danger"
+                         onclick="removeFile(${index})">
+                     Remove
+                 </button>
+             `;
+
+             fileList.appendChild(div);
+         });
+     }
+
+     function removeFile(index) {
+         filesArray.splice(index, 1);
+         updateInputFiles();
+         renderFiles();
+     }
+</script>
+</script>

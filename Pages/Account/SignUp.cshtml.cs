@@ -56,7 +56,7 @@ namespace CouplesConnect.Pages.Account
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Redirect("/dashboard");
+                return Redirect("/User/Dashboard");
             }
 
             return Page();
@@ -66,7 +66,7 @@ namespace CouplesConnect.Pages.Account
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Redirect("/dashboard");
+                return Redirect("/User/Dashboard");
             }
 
             if (!ModelState.IsValid)
@@ -107,7 +107,7 @@ namespace CouplesConnect.Pages.Account
 
                 await _signInManager.SignInAsync(user, false);
 
-                return Redirect("/dashboard");
+                return Redirect("/User/Dashboard");
             }
 
             foreach (var error in result.Errors)

@@ -1,14 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="24px" height="21px" viewBox="0 0 24 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
-    <title>Group 26 Copy</title>
-    <desc>Created with Sketch.</desc>
-    <g id="Stellar-Dashboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Group-26-Copy">
-            <g id="Group-7-Copy">
-                <rect id="Rectangle" fill="#24D5D8" opacity="0.519856771" x="0" y="0" width="19" height="15"></rect>
-                <rect id="Rectangle-Copy-94" fill="#33C92D" x="4" y="4" width="20" height="17"></rect>
-            </g>
-        </g>
-    </g>
+<svg width="40" height="40" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" fill="none">
+
+  <!-- HEART -->
+  <path d="M30 52C30 52 8 34 8 20C8 11 14 6 21 6C25 6 30 9 30 14C30 9 35 6 39 6C46 6 52 11 52 20C52 34 30 52 30 52Z" fill="url(#grad)"></path>
+
+  <!-- CONNECTION DOTS -->
+  <circle cx="22" cy="22" r="2.5" fill="#ffffff"></circle>
+  <circle cx="38" cy="22" r="2.5" fill="#ffffff"></circle>
+
+  <!-- CONNECTION LINE -->
+  <line x1="24.5" y1="22" x2="35.5" y2="22" stroke="#ffffff" stroke-width="2"></line>
+
+  <!-- GRADIENT -->
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="60" y2="60">
+      <stop offset="0%" stop-color="#4f46e5"></stop>
+      <stop offset="100%" stop-color="#7c3aed"></stop>
+    </linearGradient>
+  </defs>
+
 </svg>

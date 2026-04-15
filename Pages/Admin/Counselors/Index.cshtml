@@ -3,58 +3,248 @@
 @model CouplesConnect.Pages.Admin.Counselors.IndexModel
 @attribute [Authorize(Roles = "Admin")]
 
-<h3>Counselor Applications</h3>
+<div class="container-fluid py-3">
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    <h4 class="fw-bold mb-3">Counselor Applications</h4>
 
-<table class="table">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
 
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Experience</th>
-            <th>Status</th>
-            <th></th>
-        </tr>
-    </thead>
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
 
-    <tbody>
+    <div class="card cc-card">
 
-        @foreach (var c in Model.Counselors)
-        {
-            <tr>
+        <div class="table-responsive">
 
-                <td>@c.FullName</td>
-                <td>@c.YearsOfExperience years</td>
+            <table class="table align-middle mb-0">
 
-                <td>
-                    @if (c.IsApproved)
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var c in Model.Counselors)
                     {
-                        <span class="badge bg-success">Approved</span>
+                        <tr>
+
+                            <td>
+                                <div class="fw-semibold">@c.FullName</div>
+                                <div class="small text-muted">@c.User.Email</div>
+                            </td>
+
+                            <td>@c.YearsOfExperience years</td>
+
+                            <td>
+                                @if (c.IsApproved)
+                                {
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+
+                                <!-- VIEW -->
+                                <button class="btn cc-btn-soft btn-sm me-1"
+                                        onclick="openView('@c.UserId')">
+                                    View
+                                </button>
+
+                                @if (!c.IsApproved)
+                                {
+                                    <!-- APPROVE -->
+                                    <form method="post" asp-page-handler="Approve"
+                                          asp-route-id="@c.UserId"
+                                          class="d-inline">
+                                        <button class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+
+                                    <!-- REJECT -->
+                                    <button class="btn btn-outline-danger btn-sm ms-1"
+                                            onclick="openReject('@c.UserId')">
+                                        Reject
+                                    </button>
+                                }
+
+                            </td>
+
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="badge bg-warning">Pending</span>
-                    }
-                </td>
 
-                <td>
+                </tbody>
 
-                    @if (!c.IsApproved)
-                    {
-                        <form method="post" asp-page-handler="Approve" asp-route-id="@c.UserId">
-                            <button class="btn btn-success btn-sm">Approve</button>
-                        </form>
-                    }
+            </table>
 
-                </td>
+        </div>
 
-            </tr>
+    </div>
+
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal fade" id="viewModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Counselor Details</h5>
+            </div>
+
+            <div class="modal-body" id="viewContent">
+                Loading...
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="modal fade" id="rejectModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="post" asp-page-handler="Reject">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Application</h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <input type="hidden" id="rejectId" name="id" />
+
+                    <label class="form-label">Reason</label>
+                    <textarea name="reason" class="form-control" required></textarea>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary">Cancel</button>
+                    <button class="btn btn-danger">Reject</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ATTACHMENT PREVIEW -->
+<div class="modal fade" id="fileModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h6 class="modal-title">Preview</h6>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center" id="previewContainer">
+
+                <!-- IMAGE -->
+                <img id="previewImg" class="img-fluid d-none" />
+
+                <!-- PDF -->
+                <iframe id="previewPdf"
+                        class="w-100 d-none"
+                        style="height:70vh; border:none;"></iframe>
+
+                <!-- FALLBACK -->
+                <div id="previewFallback" class="d-none">
+                    <p class="text-muted">Preview not available</p>
+                    <a id="downloadLink" class="btn btn-primary" target="_blank">
+                        Open File
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .cc-card {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    img:hover {
+        transform: scale(1.05);
+        transition: 0.2s;
+    }
+
+</style>
+
+<script>
+
+    function openReject(id) {
+        document.getElementById("rejectId").value = id;
+        new bootstrap.Modal(document.getElementById("rejectModal")).show();
+    }
+
+    function openView(id) {
+
+        fetch(`/Admin/Counselors?handler=Details&id=${id}`)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("viewContent").innerHTML = html;
+                new bootstrap.Modal(document.getElementById("viewModal")).show();
+            });
+    }
+
+   
+    function previewFile(url) {
+
+        const img = document.getElementById("previewImg");
+        const pdf = document.getElementById("previewPdf");
+        const fallback = document.getElementById("previewFallback");
+        const download = document.getElementById("downloadLink");
+
+        // RESET
+        img.classList.add("d-none");
+        pdf.classList.add("d-none");
+        fallback.classList.add("d-none");
+
+        // DETECT FILE TYPE
+        const ext = url.split('.').pop().toLowerCase();
+
+        if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+
+            img.src = url;
+            img.classList.remove("d-none");
+
+        } else if (ext === "pdf") {
+
+            pdf.src = url;
+            pdf.classList.remove("d-none");
+
+        } else {
+
+            fallback.classList.remove("d-none");
+            download.href = url;
         }
 
-    </tbody>
-
-</table>
+        new bootstrap.Modal(document.getElementById("fileModal")).show();
+    }
+</script>

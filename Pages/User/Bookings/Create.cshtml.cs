@@ -162,6 +162,14 @@ namespace CouplesConnect.Pages.User.Bookings
         {
             var user = await _userManager.GetUserAsync(User);
 
+            if (!await _subscriptionService.HasSessions(user.Id))
+            {
+                TempData["Error"] = "No sessions remaining. Please purchase a package";
+                return Redirect("/User/Packages");
+            }
+
+
+
             var session = new Session
             {
                 MeetingLink = "https://meet.jitsi/" + Guid.NewGuid()
@@ -170,6 +178,10 @@ namespace CouplesConnect.Pages.User.Bookings
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
 
+            var sub = await _context.UserSubscriptions
+                        .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
+
+
             var booking = new Booking
             {
                 UserId = user.Id,
@@ -177,11 +189,17 @@ namespace CouplesConnect.Pages.User.Bookings
                 ServiceId = ServiceId,
                 ScheduledStart = ScheduledStart,
                 SessionId = session.SessionId,
+                SubscriptionId = sub.SubscriptionId,
                 IsGroup = IsGroup
             };
 
             _context.Bookings.Add(booking);
+
+            await _subscriptionService.ConsumeSession(user.Id);
+
             await _context.SaveChangesAsync();
+
+            
 
             // GROUP PARTICIPANTS
             if (IsGroup && ParticipantPhones != null)
@@ -207,6 +225,8 @@ namespace CouplesConnect.Pages.User.Bookings
 
             await _context.SaveChangesAsync();
 
+
+            TempData["Success"] = "Session booked successfully";
             return Redirect("/User/Bookings");
         }
     }

@@ -21,7 +21,4 @@ public partial class CounselorCredential
 
     public DateTime? UploadedAt { get; set; }
 
-    [ForeignKey("CounselorId")]
-    
-    public virtual Counselor Counselor { get; set; } = null!;
 }

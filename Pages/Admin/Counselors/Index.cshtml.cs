@@ -30,6 +30,52 @@ namespace CouplesConnect.Pages.Admin.Counselors
                 .ToListAsync();
         }
 
+        public async Task<IActionResult> OnPostRejectAsync(Guid id, string reason)
+        {
+            try
+            {
+                var profile = await _context.CounselorProfiles
+                    .FirstOrDefaultAsync(x => x.UserId == id);
+
+                if (profile == null)
+                {
+                    TempData["Error"] = "Not found";
+                    return RedirectToPage();
+                }
+
+                profile.IsApproved= false;
+                //profile.RejectionReason = reason;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Application rejected";
+            }
+            catch
+            {
+                TempData["Error"] = "Error rejecting";
+            }
+
+            return RedirectToPage();
+        }
+        public async Task<PartialViewResult> OnGetDetailsAsync(Guid id)
+        {
+            var profile = await _context.CounselorProfiles
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.UserId == id);
+
+            var files = await _context.CounselorCredentials
+                .Where(x => x.CounselorId == id)
+                .ToListAsync();
+
+            ViewData["Files"] = files;
+
+            return new PartialViewResult
+            {
+                ViewName = "_CounselorDetails",
+                ViewData = new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary<CounselorProfile>(ViewData, profile)
+            };
+        }
+
         public async Task<IActionResult> OnPostApproveAsync(Guid id)
         {
             try

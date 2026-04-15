@@ -1,0 +1,41 @@
+﻿@using CouplesConnect.Data.Models
+@model CouplesConnect.Models.CounselorProfile
+@{
+    var files = ViewData["Files"] as List<CounselorCredential>;
+}
+
+<div>
+
+    <h5>@Model.FullName</h5>
+    <p class="text-muted">@Model.User.Email</p>
+
+    <hr />
+
+    <p><strong>Bio:</strong> @Model.Bio</p>
+    <p><strong>Qualifications:</strong> @Model.Qualifications</p>
+    <p><strong>Experience:</strong> @Model.YearsOfExperience years</p>
+    <p><strong>Specializations:</strong> @Model.Specializations</p>
+
+    <hr />
+
+    <h6>Credentials</h6>
+
+    @if (files != null && files.Any())
+    {
+        <div class="d-flex flex-wrap gap-2">
+
+            @foreach (var f in files)
+            {
+                <img src="@f.DocumentUrl"
+                     style="width:100px; cursor:pointer;"
+                     onclick="previewFile('@f.DocumentUrl')" />
+            }
+
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No attachments</p>
+    }
+
+</div>
