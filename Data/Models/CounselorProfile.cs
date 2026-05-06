@@ -20,10 +20,17 @@ namespace CouplesConnect.Models
 
         public int YearsOfExperience { get; set; }
 
-        public string Specializations { get; set; }
+        
+
+        public DateTime DateOfBirth { get; set; }
+        public int Age { get; set; }
+        public string Gender { get; set; }
 
         public bool IsApproved { get; set; } = false;
 
+        public bool IsRejected { get; set; } = false; // ✅ NEW
+
+        public string? RejectionReason { get; set; }  // ✅ NEW
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -54,6 +54,9 @@ namespace CouplesConnect.Data
 
         public DbSet<BookingParticipant> BookingParticipants { get; set; }
 
+        public DbSet<CounselorService> CounselorServices { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

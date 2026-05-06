@@ -64,20 +64,17 @@
                                     View
                                 </button>
 
-                                @if (!c.IsApproved)
+                                @if (c.IsApproved)
                                 {
-                                    <!-- APPROVE -->
-                                    <form method="post" asp-page-handler="Approve"
-                                          asp-route-id="@c.UserId"
-                                          class="d-inline">
-                                        <button class="btn btn-success btn-sm">Approve</button>
-                                    </form>
-
-                                    <!-- REJECT -->
-                                    <button class="btn btn-outline-danger btn-sm ms-1"
-                                            onclick="openReject('@c.UserId')">
-                                        Reject
-                                    </button>
+                                    <span class="badge bg-success">Approved</span>
+                                }
+                                else if (c.IsRejected)
+                                {
+                                    <span class="badge bg-danger">Rejected</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
                                 }
 
                             </td>
@@ -133,8 +130,49 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button class="btn btn-outline-secondary">Cancel</button>
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
                     <button class="btn btn-danger">Reject</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- APPROVE MODAL -->
+<div class="modal fade" id="approveModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form method="post" asp-page-handler="Approve">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Approval</h5>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="approveId" name="id" />
+
+                    <p>
+                        Are you sure you want to approve this counselor?
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-success">
+                        Yes, Approve
+                    </button>
                 </div>
 
             </form>
@@ -145,53 +183,64 @@
 
 <!-- ATTACHMENT PREVIEW -->
 <div class="modal fade" id="fileModal">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h6 class="modal-title">Preview</h6>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body text-center" id="previewContainer">
-
-                <!-- IMAGE -->
-                <img id="previewImg" class="img-fluid d-none" />
-
-                <!-- PDF -->
-                <iframe id="previewPdf"
-                        class="w-100 d-none"
-                        style="height:70vh; border:none;"></iframe>
-
-                <!-- FALLBACK -->
-                <div id="previewFallback" class="d-none">
-                    <p class="text-muted">Preview not available</p>
-                    <a id="downloadLink" class="btn btn-primary" target="_blank">
-                        Open File
-                    </a>
-                </div>
-
-            </div>
-
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content p-2">
+            <img id="previewImg" class="img-fluid rounded" />
         </div>
     </div>
 </div>
 
 <style>
 
-    .cc-card {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    .attachment-card {
+        width: 110px;
+        text-align: center;
     }
 
-    .table td {
-        vertical-align: middle;
+    .attachment-img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid #e5e7eb;
     }
 
-    img:hover {
-        transform: scale(1.05);
-        transition: 0.2s;
+        .attachment-img:hover {
+            transform: scale(1.05);
+        }
+
+    /* PDF CARD */
+    .attachment-pdf {
+        height: 90px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        background: #fafafa;
+    }
+
+        .attachment-pdf i {
+            font-size: 24px;
+            color: #dc2626;
+        }
+
+        .attachment-pdf span {
+            font-size: 12px;
+            color: #111827;
+        }
+
+    /* OTHER FILE */
+    .attachment-file {
+        display: block;
+        padding: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #111827;
     }
 
 </style>
@@ -201,6 +250,12 @@
     function openReject(id) {
         document.getElementById("rejectId").value = id;
         new bootstrap.Modal(document.getElementById("rejectModal")).show();
+    }
+
+
+    function openApprove(id) {
+        document.getElementById("approveId").value = id;
+        new bootstrap.Modal(document.getElementById("approveModal")).show();
     }
 
     function openView(id) {
@@ -213,38 +268,15 @@
             });
     }
 
-   
-    function previewFile(url) {
+</script>
 
-        const img = document.getElementById("previewImg");
-        const pdf = document.getElementById("previewPdf");
-        const fallback = document.getElementById("previewFallback");
-        const download = document.getElementById("downloadLink");
-
-        // RESET
-        img.classList.add("d-none");
-        pdf.classList.add("d-none");
-        fallback.classList.add("d-none");
-
-        // DETECT FILE TYPE
-        const ext = url.split('.').pop().toLowerCase();
-
-        if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
-
-            img.src = url;
-            img.classList.remove("d-none");
-
-        } else if (ext === "pdf") {
-
-            pdf.src = url;
-            pdf.classList.remove("d-none");
-
-        } else {
-
-            fallback.classList.remove("d-none");
-            download.href = url;
-        }
-
+<script>
+    function previewImage(url) {
+        document.getElementById("previewImg").src = url;
         new bootstrap.Modal(document.getElementById("fileModal")).show();
+    }
+
+    function openPdf(url) {
+        window.open(url, "_blank");
     }
 </script>

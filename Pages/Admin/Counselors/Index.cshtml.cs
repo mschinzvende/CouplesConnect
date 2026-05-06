@@ -1,5 +1,7 @@
 using CouplesConnect.Data;
+using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
+using CouplesConnect.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +16,18 @@ namespace CouplesConnect.Pages.Admin.Counselors
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly MessagingService _messaging;
+        private readonly EmailTemplateService _template;
+
         public IndexModel(ApplicationDbContext context,
-                          UserManager<ApplicationUser> userManager)
+                          UserManager<ApplicationUser> userManager,
+                           MessagingService messaging,
+                           EmailTemplateService template)
         {
             _context = context;
             _userManager = userManager;
+            _messaging = messaging;
+            _template = template;
         }
 
         public List<CounselorProfile> Counselors { get; set; }
@@ -35,6 +44,7 @@ namespace CouplesConnect.Pages.Admin.Counselors
             try
             {
                 var profile = await _context.CounselorProfiles
+                    .Include(x => x.User)
                     .FirstOrDefaultAsync(x => x.UserId == id);
 
                 if (profile == null)
@@ -43,10 +53,22 @@ namespace CouplesConnect.Pages.Admin.Counselors
                     return RedirectToPage();
                 }
 
-                profile.IsApproved= false;
-                //profile.RejectionReason = reason;
+                profile.IsApproved = false;
+                profile.IsRejected = true;
+                profile.RejectionReason = reason;
 
                 await _context.SaveChangesAsync();
+
+                // ? EMAIL
+                var body = _template.BuildTemplate(
+    "Application Update",
+    $"Hi {profile.FullName},<br/><br/>" +
+    "Unfortunately, your application was not approved at this time.<br/><br/>" +
+    $"<strong>Reason:</strong> {reason}<br/><br/>" +
+    "You are welcome to reapply after making improvements."
+);
+
+                await _messaging.SendEmailAsync(profile.User.Email, "Application Status", body);
 
                 TempData["Success"] = "Application rejected";
             }
@@ -68,6 +90,15 @@ namespace CouplesConnect.Pages.Admin.Counselors
                 .ToListAsync();
 
             ViewData["Files"] = files;
+
+
+            var services = (from s in _context.Services
+                            join cs in _context.CounselorServices
+                                on s.ServiceId equals cs.ServiceId
+                            where cs.CounselorId == id
+                            select s).ToList();
+
+            ViewData["Services"] = services;
 
             return new PartialViewResult
             {
@@ -91,10 +122,27 @@ namespace CouplesConnect.Pages.Admin.Counselors
                 }
 
                 profile.IsApproved = true;
+                profile.IsRejected = false;
+                profile.RejectionReason = null;
 
-                await _userManager.AddToRoleAsync(profile.User, "Counselor");
+                if (!await _userManager.IsInRoleAsync(profile.User, "Counselor"))
+                {
+                    await _userManager.AddToRoleAsync(profile.User, "Counselor");
+                }
 
                 await _context.SaveChangesAsync();
+
+                // ? EMAIL
+                var body = _template.BuildTemplate(
+    "Application Approved ??",
+    $"Hi {profile.FullName},<br/><br/>" +
+    "Congratulations! Your counselor application has been approved. " +
+    "You can now start receiving bookings on CouplesConnect.",
+    "Go to Dashboard",
+    "https://yourdomain.com/counselor/dashboard"
+);
+
+                await _messaging.SendEmailAsync(profile.User.Email, "You're Approved!", body);
 
                 TempData["Success"] = "Counselor approved";
             }

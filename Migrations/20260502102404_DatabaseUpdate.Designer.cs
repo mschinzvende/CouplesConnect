@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260407163435_dbUpdate")]
-    partial class dbUpdate
+    [Migration("20260502102404_DatabaseUpdate")]
+    partial class DatabaseUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -162,9 +162,26 @@ namespace CouplesConnect.Migrations
 
                     b.HasKey("CredentialId");
 
-                    b.HasIndex("CounselorId");
-
                     b.ToTable("CounselorCredentials");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Data.Models.CounselorService", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CounselorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CounselorServices");
                 });
 
             modelBuilder.Entity("CouplesConnect.Data.Models.Feedback", b =>
@@ -449,17 +466,14 @@ namespace CouplesConnect.Migrations
                     b.Property<Guid>("CounselorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("EndDateTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("StartDateTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("AvailabilityId");
 
@@ -496,6 +510,9 @@ namespace CouplesConnect.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
                     b.Property<string>("Bio")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -503,7 +520,14 @@ namespace CouplesConnect.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -957,17 +981,6 @@ namespace CouplesConnect.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CouplesConnect.Data.Models.CounselorCredential", b =>
-                {
-                    b.HasOne("CouplesConnect.Data.Models.Counselor", "Counselor")
-                        .WithMany()
-                        .HasForeignKey("CounselorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Counselor");
                 });
 
             modelBuilder.Entity("CouplesConnect.Data.Models.Message", b =>

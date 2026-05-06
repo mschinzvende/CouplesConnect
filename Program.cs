@@ -32,6 +32,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
 builder.Services.AddScoped<SubscriptionService>();
 
 builder.Services.AddSignalR();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<MessagingService>();
+builder.Services.AddScoped<EmailTemplateService>();
 
 var app = builder.Build();
 

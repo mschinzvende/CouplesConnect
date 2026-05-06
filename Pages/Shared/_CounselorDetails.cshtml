@@ -1,41 +1,174 @@
 ﻿@using CouplesConnect.Data.Models
+@using CouplesConnect.Models
 @model CouplesConnect.Models.CounselorProfile
+
 @{
     var files = ViewData["Files"] as List<CounselorCredential>;
+    var services = ViewData["Services"] as List<Service>;
 }
 
-<div>
+<div class="counselor-wrapper">
 
-    <h5>@Model.FullName</h5>
-    <p class="text-muted">@Model.User.Email</p>
-
-    <hr />
-
-    <p><strong>Bio:</strong> @Model.Bio</p>
-    <p><strong>Qualifications:</strong> @Model.Qualifications</p>
-    <p><strong>Experience:</strong> @Model.YearsOfExperience years</p>
-    <p><strong>Specializations:</strong> @Model.Specializations</p>
-
-    <hr />
-
-    <h6>Credentials</h6>
-
-    @if (files != null && files.Any())
+    @if (Model.IsRejected && !string.IsNullOrEmpty(Model.RejectionReason))
     {
-        <div class="d-flex flex-wrap gap-2">
-
-            @foreach (var f in files)
-            {
-                <img src="@f.DocumentUrl"
-                     style="width:100px; cursor:pointer;"
-                     onclick="previewFile('@f.DocumentUrl')" />
-            }
-
+        <div class="alert alert-danger mt-3">
+            <strong>Rejection Reason:</strong> @Model.RejectionReason
         </div>
     }
-    else
-    {
-        <p class="text-muted">No attachments</p>
-    }
+
+    <!-- HEADER -->
+    <div class="card-lite mb-1">
+        <h6 class="fw-bold mb-0">@Model.FullName</h6>
+        <small class="text-muted">@Model.User.Email</small>
+    </div>
+
+    <!-- INFO GRID -->
+    <div class="card-lite mb-1">
+        <div class="row text-sm g-2">
+            <div class="col-3">
+                <small class="label">DOB</small>
+                <div>@Model.DateOfBirth.ToString("dd MMM yyyy")</div>
+            </div>
+            <div class="col-3">
+                <small class="label">Age</small>
+                <div>@Model.Age</div>
+            </div>
+            <div class="col-3">
+                <small class="label">Gender</small>
+                <div>@Model.Gender</div>
+            </div>
+            <div class="col-3">
+                <small class="label">Experience</small>
+                <div>@Model.YearsOfExperience yrs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="card-lite mb-1">
+        <small class="label d-block mb-1">Services</small>
+
+        @if (services != null && services.Any())
+        {
+            <div class="d-flex flex-wrap gap-1">
+                @foreach (var s in services)
+                {
+                    <span class="badge service-badge">@s.Name</span>
+                }
+            </div>
+        }
+        else
+        {
+            <small class="text-muted">None</small>
+        }
+    </div>
+
+    <!-- PROFESSIONAL -->
+    <div class="card-lite mb-1">
+        <div class="row text-sm g-2">
+            <div class="col-6">
+                <small class="label">Qualifications</small>
+                <div>@Model.Qualifications</div>
+            </div>
+           
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Bio))
+        {
+            <div class="mt-1">
+                <small class="label">Bio</small>
+                <p class="mb-0 small text-truncate-2">@Model.Bio</p>
+            </div>
+        }
+    </div>
+
+    <!-- FILES -->
+    <div class="card-lite">
+        <small class="label d-block mb-1">Credentials</small>
+
+        @if (files != null && files.Any())
+        {
+            <div class="d-flex flex-wrap gap-3"> @foreach (var f in files)
+                {
+                    var ext = System.IO.Path.GetExtension(f.DocumentUrl)?.ToLower();
+                    <div class="attachment-card"> @if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp")
+                        {
+                            <!-- IMAGE --> <img src="@f.DocumentUrl" class="attachment-img" onclick="previewImage('@f.DocumentUrl')" />
+                        }
+                        else if (ext == ".pdf")
+                        {
+                            <!-- PDF --> <div class="attachment-pdf" onclick="openPdf('@f.DocumentUrl')"> <i class="mdi mdi-file-pdf"></i> <span>View PDF</span> </div>
+                        }
+                        else
+                        {
+                            <!-- OTHER --> <a href="@f.DocumentUrl" target="_blank" class="attachment-file"> <i class="mdi mdi-file"></i> Open File </a>
+                        } </div>
+                } </div>
+        }
+        else
+        {
+            <p class="text-muted">No attachments</p>
+        }
+    </div>
 
 </div>
+
+<style>
+    .counselor-wrapper {
+        font-size: 12.5px;
+    }
+
+    .card-lite {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 8px 10px; /* 🔥 reduced from 12-14 */
+        border: 1px solid #eef0f3;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04); /* lighter */
+    }
+
+    .label {
+        font-size: 10px;
+        color: #6b7280;
+        text-transform: uppercase;
+    }
+
+    .service-badge {
+        background: #eef2ff;
+        color: #4338ca;
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 5px;
+    }
+
+    .attachment-mini {
+        width: 42px;
+        height: 42px;
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafafa;
+    }
+
+    .attachment-img-mini {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: pointer;
+    }
+
+    .attachment-pdf-mini {
+        font-size: 18px;
+        color: #dc2626;
+        cursor: pointer;
+    }
+
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>

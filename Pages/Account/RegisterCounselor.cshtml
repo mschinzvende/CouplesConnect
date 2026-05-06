@@ -25,9 +25,8 @@
         <div class="alert alert-danger">@TempData["Error"]</div>
     }
 
-    <!-- FORM CARD -->
+    <!-- FORM -->
     <div class="card cc-card">
-
         <div class="card-body">
 
             <form method="post" enctype="multipart/form-data">
@@ -37,17 +36,42 @@
                 <!-- PERSONAL INFO -->
                 <div class="mb-4">
                     <h6 class="section-title">Personal Information</h6>
-
-                    <div class="mb-3">
+                    <div class="row">
+                    <div class="col-sm-6 mb-3">
                         <label class="form-label">Full Name</label>
-                        <input asp-for="Input.FullName" class="form-control cc-input" placeholder="John Doe" />
+                        <input asp-for="Input.FullName" class="form-control cc-input" />
                     </div>
 
-                    <div>
-                        <label class="form-label">Bio</label>
-                        <textarea asp-for="Input.Bio" rows="3" class="form-control cc-input"
-                                  placeholder="Tell us about yourself..."></textarea>
+                        <div class="col-sm-6 mb-3">
+                        <label class="form-label">Date of Birth</label>
+                            <input asp-for="Input.DateOfBirth"
+                                   type="date"
+                                   id="dob"
+                                   class="form-control cc-input"
+                                   max="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
                     </div>
+
+                        <div class="col-sm-6 mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="text" id="age" class="form-control cc-input" readonly />
+                    </div>
+
+                        <div class="col-sm-6 mb-3">
+                        <label class="form-label">Gender</label>
+                        <select asp-for="Input.Gender" class="form-control cc-input">
+                            <option value="">-- Select Gender --</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                        <div class="col-sm-12">
+                        <label class="form-label">Bio</label>
+                        <textarea asp-for="Input.Bio" rows="5" class="form-control cc-input"></textarea>
+                    </div>
+
+                  </div>
                 </div>
 
                 <!-- PROFESSIONAL -->
@@ -55,7 +79,6 @@
                     <h6 class="section-title">Professional Details</h6>
 
                     <div class="row g-3">
-
                         <div class="col-md-6">
                             <label class="form-label">Qualifications</label>
                             <input asp-for="Input.Qualifications" class="form-control cc-input" />
@@ -65,14 +88,35 @@
                             <label class="form-label">Years of Experience</label>
                             <input asp-for="Input.YearsOfExperience" type="number" class="form-control cc-input" />
                         </div>
-
                     </div>
 
-                    <div class="mt-3">
-                        <label class="form-label">Specializations</label>
-                        <input asp-for="Input.Specializations"
-                               class="form-control cc-input"
-                               placeholder="Marriage, Conflict Resolution..." />
+                    
+                </div>
+
+                <!-- SERVICES -->
+                <div class="mb-4">
+                    <h6 class="section-title">Services You Offer</h6>
+
+                    <div class="row">
+                        @foreach (var service in Model.Services)
+                        {
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <input class="form-check-input m-0"
+                                           type="checkbox"
+                                           name="Input.SelectedServiceIds"
+                                           value="@service.ServiceId"
+                                           id="service_@service.ServiceId" />
+
+                                    <label class="mb-0"
+                                           for="service_@service.ServiceId">
+                                        @service.Name
+                                    </label>
+
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -80,178 +124,115 @@
                 <div class="mb-4">
                     <h6 class="section-title">Credentials</h6>
 
-                    <div class="upload-box" id="uploadBox">
-
-                        <i class="mdi mdi-cloud-upload-outline upload-icon"></i>
-                        <p class="mb-1">Upload certificates or licenses</p>
-                        <small class="text-muted">PDF, JPG, PNG (Multiple allowed)</small>
+                    <div class="upload-box">
+                        <p>Upload certificates (PDF, JPG, PNG)</p>
 
                         <input type="file"
                                id="fileInput"
                                name="CredentialFiles"
                                multiple
                                class="form-control mt-2 cc-input" />
-
                     </div>
 
-                    <!-- FILE PREVIEW -->
                     <div id="fileList" class="mt-3"></div>
                 </div>
 
                 <!-- ACTIONS -->
-                <div class="d-flex justify-content-between align-items-center">
-
+                <div class="d-flex justify-content-between">
                     <a href="/" class="text-muted small">Cancel</a>
-
-                    <button class="btn btn-primary px-4">
-                        Submit Application
-                    </button>
-
+                    <button class="btn btn-primary px-4">Submit Application</button>
                 </div>
 
             </form>
-
         </div>
-
     </div>
-
 </div>
 
-<style>
+<script>
+    // DOB → AGE
+    document.getElementById("dob").addEventListener("change", function () {
+        const birthDate = new Date(this.value);
+        const today = new Date();
 
-    /* CARD */
-    .cc-card {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        document.getElementById("age").value = age >= 0 ? age : "";
+    });
+
+    // FILE HANDLING (UNCHANGED)
+    const fileInput = document.getElementById("fileInput");
+    const fileList = document.getElementById("fileList");
+    let filesArray = [];
+
+    fileInput.addEventListener("change", function () {
+        const selectedFiles = Array.from(this.files);
+
+        selectedFiles.forEach(file => {
+            if (file.size > 5 * 1024 * 1024) return alert(file.name + " too large");
+
+            const allowed = ["application/pdf", "image/jpeg", "image/png"];
+            if (!allowed.includes(file.type)) return alert(file.name + " invalid");
+
+            filesArray.push(file);
+        });
+
+        updateFiles();
+        renderFiles();
+    });
+
+    function updateFiles() {
+        const dt = new DataTransfer();
+        filesArray.forEach(f => dt.items.add(f));
+        fileInput.files = dt.files;
     }
 
-    /* SECTION TITLES */
-    .section-title {
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #111827;
+    function renderFiles() {
+        fileList.innerHTML = "";
+
+        filesArray.forEach((file, i) => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+                <span>${file.name}</span>
+                <button type="button" onclick="removeFile(${i})">Remove</button>
+            `;
+            fileList.appendChild(div);
+        });
     }
 
-    /* INPUT */
-    .cc-input {
-        height: 42px;
-        border-radius: 8px;
-        font-size: 14px;
-        color: #111827;
+    function removeFile(i) {
+        filesArray.splice(i, 1);
+        updateFiles();
+        renderFiles();
     }
-
-    textarea.cc-input {
-        height: auto;
-    }
-
-    /* LABEL */
-    .form-label {
-        font-weight: 500;
-        color: #111827;
-    }
-
-    /* UPLOAD BOX */
-    .upload-box {
-        border: 2px dashed #e5e7eb;
-        border-radius: 10px;
-        padding: 20px;
-        text-align: center;
-        background: #fafafa;
-    }
-
-    .upload-icon {
-        font-size: 28px;
-        color: #4f46e5;
-    }
-
-    /* BUTTON */
-    .btn-primary {
-        border-radius: 8px;
-        height: 42px;
-        font-weight: 500;
-    }
-
-
-    .file-item {
-        padding: 10px;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        background: #fff;
-    }
-
-    .file-name {
-        font-size: 13px;
-        color: #111827;
-    }
-</style>
+</script>
 
 <script>
-    <script>
-     const fileInput = document.getElementById("fileInput");
-     const fileList = document.getElementById("fileList");
+    const dob = document.getElementById("dob");
+    const ageField = document.getElementById("age");
 
-     let filesArray = [];
+    dob.addEventListener("change", function () {
+        const birthDate = new Date(this.value);
+        const today = new Date();
 
-     fileInput.addEventListener("change", function () {
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
 
-         const selectedFiles = Array.from(this.files);
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
 
-         // 🔥 VALIDATION HERE
-         selectedFiles.forEach(file => {
+        ageField.value = age >= 0 ? age : "";
 
-             // Size check (5MB)
-             if (file.size > 5 * 1024 * 1024) {
-                 alert(file.name + " is too large (max 5MB)");
-                 return;
-             }
-
-             // Type check
-             const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
-
-             if (!allowedTypes.includes(file.type)) {
-                 alert(file.name + " is not a valid file type");
-                 return;
-             }
-
-             filesArray.push(file);
-         });
-
-         updateInputFiles();
-         renderFiles();
-     });
-
-     function updateInputFiles() {
-         const dataTransfer = new DataTransfer();
-         filesArray.forEach(f => dataTransfer.items.add(f));
-         fileInput.files = dataTransfer.files;
-     }
-
-     function renderFiles() {
-         fileList.innerHTML = "";
-
-         filesArray.forEach((file, index) => {
-
-             const div = document.createElement("div");
-             div.className = "file-item d-flex justify-content-between align-items-center";
-
-             div.innerHTML = `
-                 <span class="file-name">${file.name}</span>
-                 <button type="button" class="btn btn-sm btn-outline-danger"
-                         onclick="removeFile(${index})">
-                     Remove
-                 </button>
-             `;
-
-             fileList.appendChild(div);
-         });
-     }
-
-     function removeFile(index) {
-         filesArray.splice(index, 1);
-         updateInputFiles();
-         renderFiles();
-     }
-</script>
+        // ✅ AGE VALIDATION (25+)
+        if (age < 25) {
+            alert("You must be at least 25 years old to apply as a counselor.");
+            this.value = "";
+            ageField.value = "";
+        }
+    });
 </script>

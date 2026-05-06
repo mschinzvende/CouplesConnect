@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CouplesConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class dbUpdate : Migration
+    public partial class DatabaseUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -62,14 +62,28 @@ namespace CouplesConnect.Migrations
                     AvailabilityId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CounselorAvailabilities", x => x.AvailabilityId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CounselorCredentials",
+                columns: table => new
+                {
+                    CredentialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CredentialType = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    DocumentUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CounselorCredentials", x => x.CredentialId);
                 });
 
             migrationBuilder.CreateTable(
@@ -104,6 +118,20 @@ namespace CouplesConnect.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Counselors", x => x.CounselorId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CounselorServices",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CounselorServices", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -385,6 +413,9 @@ namespace CouplesConnect.Migrations
                     Qualifications = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     YearsOfExperience = table.Column<int>(type: "int", nullable: false),
                     Specializations = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Age = table.Column<int>(type: "int", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsApproved = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -418,27 +449,6 @@ namespace CouplesConnect.Migrations
                         column: x => x.SenderId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CounselorCredentials",
-                columns: table => new
-                {
-                    CredentialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CounselorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CredentialType = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    DocumentUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CounselorCredentials", x => x.CredentialId);
-                    table.ForeignKey(
-                        name: "FK_CounselorCredentials_Counselors_CounselorId",
-                        column: x => x.CounselorId,
-                        principalTable: "Counselors",
-                        principalColumn: "CounselorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -677,11 +687,6 @@ namespace CouplesConnect.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CounselorCredentials_CounselorId",
-                table: "CounselorCredentials",
-                column: "CounselorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Messages_SenderId",
                 table: "Messages",
                 column: "SenderId");
@@ -741,6 +746,12 @@ namespace CouplesConnect.Migrations
                 name: "CounselorProfiles");
 
             migrationBuilder.DropTable(
+                name: "Counselors");
+
+            migrationBuilder.DropTable(
+                name: "CounselorServices");
+
+            migrationBuilder.DropTable(
                 name: "Feedback");
 
             migrationBuilder.DropTable(
@@ -778,9 +789,6 @@ namespace CouplesConnect.Migrations
 
             migrationBuilder.DropTable(
                 name: "Bookings");
-
-            migrationBuilder.DropTable(
-                name: "Counselors");
 
             migrationBuilder.DropTable(
                 name: "Packages");
