@@ -42,6 +42,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+    //await ResourceSeeder.SeedAsync(context);
     if (!context.PlatformSettings.Any())
     {
         context.PlatformSettings.Add(new PlatformSetting
@@ -50,6 +51,8 @@ using (var scope = app.Services.CreateScope())
             TrialDurationDays = 30,
             CounselorCommissionPercent = 70
         });
+
+
 
         context.SaveChanges();
     }

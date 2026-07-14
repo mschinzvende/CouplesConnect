@@ -3,7 +3,7 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-
+@RenderSection("Styles", required: false)
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,50 +58,8 @@
                         <i class="icon-magnifier"></i>
                         <input type="search" class="form-control" placeholder="Search Here" title="Search here">
                     </form>
-                    <li class="nav-item"><a href="#" class="nav-link"><i class="icon-basket-loaded"></i></a></li>
-                    <li class="nav-item"><a href="#" class="nav-link"><i class="icon-chart"></i></a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link count-indicator message-dropdown" id="messageDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="icon-speech"></i>
-                            <span class="count">7</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="messageDropdown">
-                            <a class="dropdown-item py-3">
-                                <p class="mb-0 font-weight-medium float-start me-2">You have 7 unread mails </p>
-                                <span class="badge badge-pill badge-primary float-end">View all</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item preview-item">
-                                <div class="preview-thumbnail">
-                                    <img src="~/theme/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
-                                </div>
-                                <div class="preview-item-content flex-grow py-2">
-                                    <p class="preview-subject ellipsis font-weight-medium text-dark">Marian Garner </p>
-                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                                </div>
-                            </a>
-                            <a class="dropdown-item preview-item">
-                                <div class="preview-thumbnail">
-                                    <img src="~/theme/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
-                                </div>
-                                <div class="preview-item-content flex-grow py-2">
-                                    <p class="preview-subject ellipsis font-weight-medium text-dark">David Grey </p>
-                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                                </div>
-                            </a>
-                            <a class="dropdown-item preview-item">
-                                <div class="preview-thumbnail">
-                                    <img src="~/theme/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
-                                </div>
-                                <div class="preview-item-content flex-grow py-2">
-                                    <p class="preview-subject ellipsis font-weight-medium text-dark">Travis Jenkins </p>
-                                    <p class="font-weight-light small-text"> The meeting is cancelled </p>
-                                </div>
-                            </a>
-                        </div>
-                    </li>
                     
-                   
+                    
                     <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
                         <a class="nav-link d-flex align-items-center gap-2"
                            id="UserDropdown"
@@ -306,35 +264,21 @@
                                 <i class="icon-list menu-icon"></i>
                             </a>
                         </li>
+
+                      
                     }
 
                     <!-- SHARED -->
                     <li class="nav-item nav-category">Growth</li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/User/Resources">
+                        <a class="nav-link" asp-page="/Resources/Index">
+                            <i class="mdi mdi-book-open-page-variant menu-icon"></i>
                             <span class="menu-title">Resources</span>
-                            <i class="icon-book-open menu-icon"></i>
                         </a>
                     </li>
 
 
-
-
-                    <li class="nav-item nav-category"><span class="nav-link">UI Elements</span></li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                            <span class="menu-title">Basic UI Elements</span>
-                            <i class="icon-layers menu-icon"></i>
-                        </a>
-                        <div class="collapse" id="ui-basic">
-                            <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/buttons.html">Buttons</a></li>
-                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/dropdowns.html">Dropdowns</a></li>
-                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
-                            </ul>
-                        </div>
-                    </li>
                     
                 </ul>
             </nav>

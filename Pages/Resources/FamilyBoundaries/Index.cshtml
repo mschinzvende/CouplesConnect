@@ -1,0 +1,1393 @@
+﻿@page
+@model CouplesConnect.Pages.Resources.FamilyBoundaries.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Family & Boundaries";
+}
+
+
+<div class="container-fluid py-4">
+
+    <!-- HERO -->
+
+    <section class="fb-hero">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+
+                <span class="fb-tag">
+
+                    Couples Connect Resource
+
+                </span>
+
+                <h1>
+
+                    Family & Boundaries
+
+                </h1>
+
+                <p>
+
+                    Build healthy boundaries together, communicate with confidence, and protect the unity of your relationship.
+
+                </p>
+
+                <div class="fb-badges">
+
+                    <span>
+
+                        <i class="mdi mdi-account-group"></i>
+
+                        Family
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-shield-check"></i>
+
+                        Healthy Boundaries
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-heart"></i>
+
+                        Couple Unity
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 text-center">
+
+                <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=900&q=80"
+                     class="img-fluid rounded-4 shadow-lg" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="fb-layout mt-4">
+
+        <!-- SIDEBAR -->
+
+        <aside class="fb-sidebar">
+
+            <h5>
+
+                Boundary Plan
+
+            </h5>
+
+            <div class="fb-progress">
+
+                <div id="progressBar"></div>
+
+            </div>
+
+            <div class="fb-step active">
+
+                <span>1</span>
+
+                Area
+
+            </div>
+
+            <div class="fb-step">
+
+                <span>2</span>
+
+                Challenge
+
+            </div>
+
+            <div class="fb-step">
+
+                <span>3</span>
+
+                Boundary
+
+            </div>
+
+            <div class="fb-step">
+
+                <span>4</span>
+
+                Communication
+
+            </div>
+
+            <div class="fb-step">
+
+                <span>5</span>
+
+                Review
+
+            </div>
+
+            <div class="fb-tip">
+
+                <h6>
+
+                    Healthy Reminder
+
+                </h6>
+
+                <p id="boundaryTip">
+
+                    Boundaries protect relationships—they are not punishments.
+
+                </p>
+
+            </div>
+
+        </aside>
+
+        <main>
+
+            <!-- STEP 1 -->
+
+            <div class="fb-card active-step">
+
+                <div class="fb-header">
+
+                    <div class="fb-number">
+
+                        1
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Which area needs attention?
+
+                        </h2>
+
+                        <p>
+
+                            Choose where you're experiencing the greatest pressure.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="area-grid">
+
+                    <div class="area-card" data-area="Extended family">
+
+                        👨‍👩‍👧
+
+                        <span>Extended Family</span>
+
+                    </div>
+
+                    <div class="area-card" data-area="In-laws">
+
+                        👵
+
+                        <span>In-Laws</span>
+
+                    </div>
+
+                    <div class="area-card" data-area="Friends">
+
+                        👥
+
+                        <span>Friends</span>
+
+                    </div>
+
+                    <div class="area-card" data-area="Parenting">
+
+                        👶
+
+                        <span>Parenting</span>
+
+                    </div>
+
+                    <div class="area-card" data-area="Money requests">
+
+                        💵
+
+                        <span>Money</span>
+
+                    </div>
+
+                    <div class="area-card" data-area="Time and privacy">
+
+                        🔒
+
+                        <span>Privacy</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- STEP 2 -->
+
+            <div class="fb-card">
+
+                <div class="fb-header">
+
+                    <div class="fb-number">
+
+                        2
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Describe the challenge
+
+                        </h2>
+
+                        <p>
+
+                            What keeps happening that is affecting your peace as a couple?
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="fb-reflection">
+
+                    <i class="mdi mdi-lightbulb-on-outline"></i>
+
+                    <div>
+
+                        <strong>
+
+                            Reflect Together
+
+                        </strong>
+
+                        <p>
+
+                            Describe behaviour instead of attacking people. Focus on the situation rather than personalities.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <textarea id="challenge"
+                          class="fb-textarea"
+                          placeholder="Describe the recurring situation causing stress..."></textarea>
+
+            </div>
+
+            <!-- STEP 3 -->
+
+            <div class="fb-card">
+
+                <div class="fb-header">
+
+                    <div class="fb-number">
+
+                        3
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Define your boundary
+
+                        </h2>
+
+                        <p>
+
+                            Decide together what boundary protects your relationship.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="boundary-grid">
+
+                    <div class="boundary-card">
+
+                        <i class="mdi mdi-shield-check-outline"></i>
+
+                        <h5>
+
+                            Protect our marriage first
+
+                        </h5>
+
+                    </div>
+
+                    <div class="boundary-card">
+
+                        <i class="mdi mdi-account-heart-outline"></i>
+
+                        <h5>
+
+                            Make decisions together
+
+                        </h5>
+
+                    </div>
+
+                    <div class="boundary-card">
+
+                        <i class="mdi mdi-chat-processing-outline"></i>
+
+                        <h5>
+
+                            Speak with one voice
+
+                        </h5>
+
+                    </div>
+
+                    <div class="boundary-card">
+
+                        <i class="mdi mdi-lock-outline"></i>
+
+                        <h5>
+
+                            Respect privacy
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <textarea id="boundary"
+                          class="fb-textarea mt-4"
+                          placeholder="Example: We will discuss every major family request privately before giving an answer."></textarea>
+
+            </div>
+
+            <!-- STEP 4 -->
+
+            <div class="fb-card">
+
+                <div class="fb-header">
+
+                    <div class="fb-number">
+
+                        4
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Communication Script
+
+                        </h2>
+
+                        <p>
+
+                            Practice saying your boundary with kindness and confidence.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="script-card">
+
+                    <i class="mdi mdi-message-text-outline"></i>
+
+                    <div>
+
+                        <strong>
+
+                            Example
+
+                        </strong>
+
+                        <p>
+
+                            "We appreciate your concern. We have decided to discuss this together before making any decisions."
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <textarea id="script"
+                          class="fb-textarea"
+                          placeholder="Write how you will communicate your boundary..."></textarea>
+
+            </div>
+
+            <!-- STEP 5 -->
+
+            <div class="fb-card">
+
+                <div class="fb-header">
+
+                    <div class="fb-number">
+
+                        5
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Boundary Review
+
+                        </h2>
+
+                        <p>
+
+                            Review your completed plan before saving.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="review-card">
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Area
+
+                        </h6>
+
+                        <p id="reviewArea">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Challenge
+
+                        </h6>
+
+                        <p id="reviewChallenge">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Boundary
+
+                        </h6>
+
+                        <p id="reviewBoundary">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Communication Script
+
+                        </h6>
+
+                        <p id="reviewScript">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ACTION BAR -->
+
+            <div class="fb-actionbar">
+
+                <div>
+
+                    <button type="button"
+                            id="btnPrevious"
+                            class="btn btn-outline-secondary">
+
+                        <i class="mdi mdi-arrow-left"></i>
+
+                        Previous
+
+                    </button>
+
+                </div>
+
+                <div class="fb-status">
+
+                    <div class="fb-status-dot"></div>
+
+                    <div>
+
+                        <strong id="saveStatus">
+
+                            Ready
+
+                        </strong>
+
+                        <small>
+
+                            Your plan is automatically saved
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <button type="button"
+                            class="btn btn-outline-success me-2"
+                            onclick="savePlan()">
+
+                        <i class="mdi mdi-content-save"></i>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-primary me-2"
+                            onclick="downloadPlan()">
+
+                        <i class="mdi mdi-download"></i>
+
+                        Download
+
+                    </button>
+
+                    <button type="button"
+                            id="btnNext"
+                            class="btn btn-gradient">
+
+                        Next
+
+                        <i class="mdi mdi-arrow-right"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <div id="completionScreen"
+         class="fb-complete"
+         style="display:none;">
+
+        <i class="mdi mdi-shield-check"></i>
+
+        <h2>
+
+            Boundary Plan Complete
+
+        </h2>
+
+        <p>
+
+            Healthy boundaries strengthen trust, unity and respect. Review this plan together regularly and adjust it as your relationship grows.
+
+        </p>
+
+        <button class="btn btn-gradient btn-lg"
+                onclick="downloadPlan()">
+
+            Download Boundary Plan
+
+        </button>
+
+    </div>
+</div>
+
+<style>
+    /*==================================================
+        Couples Connect - Family & Boundaries
+    ==================================================*/
+
+    :root {
+        --primary: #5B5CEB;
+        --secondary: #7C3AED;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --text: #111827;
+        --muted: #6B7280;
+        --border: #E5E7EB;
+        --bg: #F5F7FB;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    /*==================================================
+    HERO
+    ==================================================*/
+
+    .fb-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px 40px;
+        border-radius: 24px;
+        background: linear-gradient(135deg,#2563EB,#5B5CEB);
+        color: #fff;
+        box-shadow: 0 20px 45px rgba(37,99,235,.18);
+    }
+
+        .fb-hero::before {
+            content: "";
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            right: -120px;
+            top: -120px;
+            background: rgba(255,255,255,.08);
+        }
+
+        .fb-hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            left: -60px;
+            bottom: -60px;
+            background: rgba(255,255,255,.06);
+        }
+
+        .fb-hero > * {
+            position: relative;
+            z-index: 2;
+        }
+
+    .fb-tag {
+        display: inline-flex;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(10px);
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .fb-hero h1 {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .fb-hero p {
+        max-width: 650px;
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    .fb-hero img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,.25);
+    }
+
+    .fb-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+        .fb-badges span {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(10px);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+    /*==================================================
+    LAYOUT
+    ==================================================*/
+
+    .fb-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+    }
+
+    @@media(max - width:992px) {
+        .fb-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    /*==================================================
+    SIDEBAR
+    ==================================================*/
+
+    .fb-sidebar {
+        position: sticky;
+        top: 90px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 15px 35px rgba(15,23,42,.08);
+    }
+
+        .fb-sidebar h5 {
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+    .fb-progress {
+        height: 8px;
+        background: #E5E7EB;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    #progressBar {
+        width: 20%;
+        height: 100%;
+        background: linear-gradient(135deg,#2563EB,#5B5CEB);
+        transition: .35s;
+    }
+
+    .fb-step {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 14px;
+        margin-bottom: 8px;
+        color: #6B7280;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .fb-step span {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: 700;
+        }
+
+        .fb-step.active {
+            background: #EEF4FF;
+            color: #2563EB;
+        }
+
+            .fb-step.active span {
+                background: #2563EB;
+                color: #fff;
+            }
+
+    .fb-tip {
+        margin-top: 22px;
+        padding: 16px;
+        border-radius: 16px;
+        background: #EEF4FF;
+        border-left: 4px solid #2563EB;
+    }
+
+        .fb-tip h6 {
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .fb-tip p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+    /*==================================================
+    CONTENT CARDS
+    ==================================================*/
+
+    .fb-card {
+        display: none;
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 15px 40px rgba(15,23,42,.06);
+        animation: fbFade .35s ease;
+    }
+
+        .fb-card.active-step {
+            display: block;
+        }
+
+    @@keyframes fbFade {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+
+    /*==================================================
+    HEADER
+    ==================================================*/
+
+    .fb-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .fb-number {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg,#2563EB,#5B5CEB);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        margin-right: 18px;
+        box-shadow: 0 10px 20px rgba(37,99,235,.25);
+    }
+
+    .fb-header h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .fb-header p {
+        margin: 6px 0 0;
+        color: #6B7280;
+        font-size: 15px;
+    }
+
+    /*==================================================
+    AREA CARDS
+    ==================================================*/
+
+    .area-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 18px;
+    }
+
+    .area-card {
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 24px;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        transition: .25s;
+        font-size: 40px;
+    }
+
+        .area-card span {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .area-card:hover {
+            transform: translateY(-5px);
+            border-color: #2563EB;
+            box-shadow: 0 15px 30px rgba(37,99,235,.15);
+        }
+
+        .area-card.active {
+            background: #EEF4FF;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+
+    /*==================================================
+    BOUNDARY PRINCIPLES
+    ==================================================*/
+
+    .boundary-grid {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        gap: 18px;
+    }
+
+    .boundary-card {
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 22px;
+        text-align: center;
+        transition: .25s;
+    }
+
+        .boundary-card:hover {
+            border-color: #2563EB;
+            transform: translateY(-4px);
+        }
+
+        .boundary-card i {
+            font-size: 42px;
+            color: #2563EB;
+            margin-bottom: 15px;
+        }
+
+        .boundary-card h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #111827;
+        }
+
+    /*==================================================
+    REFLECTION CARD
+    ==================================================*/
+
+    .fb-reflection {
+        display: flex;
+        gap: 16px;
+        background: #EEF4FF;
+        border-left: 5px solid #2563EB;
+        border-radius: 18px;
+        padding: 18px;
+        margin-bottom: 22px;
+    }
+
+        .fb-reflection i {
+            font-size: 28px;
+            color: #2563EB;
+        }
+
+        .fb-reflection strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        .fb-reflection p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.7;
+        }
+
+    /*==================================================
+    SCRIPT CARD
+    ==================================================*/
+
+    .script-card {
+        display: flex;
+        gap: 18px;
+        padding: 22px;
+        background: linear-gradient(135deg,#EEF4FF,#F8FAFF);
+        border-radius: 18px;
+        margin-bottom: 20px;
+    }
+
+        .script-card i {
+            font-size: 34px;
+            color: #2563EB;
+        }
+
+        .script-card strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .script-card p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.8;
+        }
+
+    /*==================================================
+    TEXTAREA
+    ==================================================*/
+
+    .fb-textarea {
+        width: 100%;
+        height: 180px;
+        resize: none;
+        border-radius: 18px;
+        border: 2px solid #E5E7EB;
+        padding: 18px;
+        font-size: 15px;
+        line-height: 1.8;
+        transition: .25s;
+    }
+
+        .fb-textarea:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 5px rgba(37,99,235,.10);
+        }
+
+    /*==================================================
+    REVIEW
+    ==================================================*/
+
+    .review-card {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        gap: 20px;
+    }
+
+    .review-item {
+        background: #F8FAFC;
+        border-left: 5px solid #2563EB;
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+        .review-item h6 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #2563EB;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .review-item p {
+            margin: 0;
+            color: #374151;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+    /*==================================================
+    ACTION BAR
+    ==================================================*/
+
+    .fb-actionbar {
+        position: sticky;
+        bottom: 15px;
+        z-index: 999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-top: 25px;
+        padding: 15px 20px;
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #EEF2F7;
+        box-shadow: 0 18px 45px rgba(15,23,42,.12);
+    }
+
+        .fb-actionbar > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .fb-status {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #F8FAFC;
+        border-radius: 14px;
+        padding: 10px 18px;
+    }
+
+    .fb-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22C55E;
+        animation: fbPulse 2s infinite;
+    }
+
+    @@keyframes fbPulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34,197,94,0);
+    }
+
+    }
+
+    /*==================================================
+    BUTTONS
+    ==================================================*/
+
+    .fb-actionbar .btn {
+        height: 46px;
+        padding: 0 22px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .fb-actionbar .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-gradient {
+        background: linear-gradient(135deg,#2563EB,#5B5CEB);
+        border: none;
+        color: #fff;
+    }
+
+        .btn-gradient:hover {
+            color: #fff;
+            box-shadow: 0 12px 25px rgba(37,99,235,.30);
+        }
+
+    .btn-outline-primary {
+        border: 2px solid #2563EB;
+    }
+
+        .btn-outline-primary:hover {
+            background: #2563EB;
+            color: #fff;
+        }
+
+    .btn-outline-success {
+        border: 2px solid #22C55E;
+    }
+
+        .btn-outline-success:hover {
+            background: #22C55E;
+            color: #fff;
+        }
+
+    /*==================================================
+    COMPLETION SCREEN
+    ==================================================*/
+
+    .fb-complete {
+        background: #fff;
+        border-radius: 26px;
+        padding: 70px 45px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(15,23,42,.08);
+        animation: fbFade .4s ease;
+    }
+
+        .fb-complete i {
+            font-size: 90px;
+            color: #2563EB;
+            margin-bottom: 25px;
+        }
+
+        .fb-complete h2 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 15px;
+        }
+
+        .fb-complete p {
+            max-width: 700px;
+            margin: 0 auto 35px;
+            color: #6B7280;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+    /*==================================================
+    SCROLLBAR
+    ==================================================*/
+
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 20px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #F8FAFC;
+    }
+
+    /*==================================================
+    RESPONSIVE
+    ==================================================*/
+
+    @@media(max - width:1200px) {
+        .fb-layout
+
+    {
+        grid-template-columns: 250px 1fr;
+    }
+
+    }
+
+    @@media(max - width:992px) {
+        .fb-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .fb-sidebar {
+        position: relative;
+        top: auto;
+        margin-bottom: 20px;
+    }
+
+    .area-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .boundary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .review-card {
+        grid-template-columns: 1fr;
+    }
+
+    .fb-actionbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+        .fb-actionbar > div {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .fb-actionbar .btn {
+            width: 100%;
+        }
+
+    }
+
+    @@media(max - width:768px) {
+        .fb-hero
+
+    {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .fb-hero h1 {
+        font-size: 34px;
+    }
+
+    .fb-card {
+        padding: 22px;
+    }
+
+    .fb-header {
+        align-items: flex-start;
+    }
+
+        .fb-header h2 {
+            font-size: 24px;
+        }
+
+    .area-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fb-textarea {
+        height: 150px;
+    }
+
+    .script-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .fb-reflection {
+        flex-direction: column;
+    }
+
+    .review-card {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+@section Scripts {
+
+    <script src="~/js/family-boundaries.js"></script>
+
+}

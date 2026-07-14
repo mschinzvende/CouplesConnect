@@ -24873,9 +24873,9 @@ div.tagsinput span.tag a {
   color: #1b2658;
 }
 .navbar .navbar-brand-wrapper .navbar-brand img {
-  width: calc(240px - 120px);
+  width: 90px;
   max-width: 100%;
-  height: 28px;
+  height: auto;
   margin: auto;
   vertical-align: middle;
 }
@@ -24901,11 +24901,11 @@ div.tagsinput span.tag a {
   }
 }
 .navbar .navbar-brand-wrapper .navbar-brand.brand-logo-mini img {
-  width: calc(70px - 35px);
-  max-width: 100%;
-  height: 28px;
-  margin: auto;
-  display: inline;
+    width: 90px;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+    display: block;
 }
 .navbar .navbar-brand-wrapper .navbar-toggler {
   color: #626262;

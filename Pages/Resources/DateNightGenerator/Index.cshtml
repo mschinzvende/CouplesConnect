@@ -1,0 +1,1394 @@
+﻿@page
+@model CouplesConnect.Pages.Resources.DateNightGenerator.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Date Night Generator";
+}
+
+
+<div class="container-fluid py-4">
+
+    <!-- HERO -->
+
+    <section class="dn-hero">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+
+                <span class="dn-tag">
+
+                    Couples Connect Resource
+
+                </span>
+
+                <h1>
+
+                    Date Night Generator
+
+                </h1>
+
+                <p>
+
+                    Discover meaningful date ideas tailored to your mood, budget and available time.
+
+                </p>
+
+                <div class="dn-badges">
+
+                    <span>
+
+                        <i class="mdi mdi-heart-outline"></i>
+
+                        Unlimited Ideas
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-cash"></i>
+
+                        Any Budget
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-calendar-heart"></i>
+
+                        Strengthen Connection
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 text-center">
+
+                <img src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=900&q=80"
+                     class="img-fluid rounded-4 shadow-lg" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="dn-layout mt-4">
+
+        <!-- SIDEBAR -->
+
+        <aside class="dn-sidebar">
+
+            <h5>
+
+                Preferences
+
+            </h5>
+
+            <div class="dn-progress">
+
+                <div id="progressBar"></div>
+
+            </div>
+
+            <div class="dn-step active">
+
+                <span>1</span>
+
+                Budget
+
+            </div>
+
+            <div class="dn-step">
+
+                <span>2</span>
+
+                Mood
+
+            </div>
+
+            <div class="dn-step">
+
+                <span>3</span>
+
+                Setting
+
+            </div>
+
+            <div class="dn-step">
+
+                <span>4</span>
+
+                Time
+
+            </div>
+
+            <div class="dn-step">
+
+                <span>5</span>
+
+                Your Date
+
+            </div>
+
+            <div class="dn-tip">
+
+                <h6>
+
+                    Date Tip
+
+                </h6>
+
+                <p id="dateTip">
+
+                    Great dates are about connection, not spending money.
+
+                </p>
+
+            </div>
+
+        </aside>
+
+        <main>
+
+            <!-- STEP 1 -->
+
+            <div class="dn-card active-step">
+
+                <div class="dn-header">
+
+                    <div class="dn-number">
+
+                        1
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            What's your budget?
+
+                        </h2>
+
+                        <p>
+
+                            Select the budget you'd like for today's date.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="option-grid">
+
+                    <div class="option-card budget-card" data-budget="Low">
+
+                        💰
+
+                        <span>Low</span>
+
+                        <small>Simple & meaningful</small>
+
+                    </div>
+
+                    <div class="option-card budget-card" data-budget="Medium">
+
+                        💳
+
+                        <span>Medium</span>
+
+                        <small>A little extra</small>
+
+                    </div>
+
+                    <div class="option-card budget-card" data-budget="High">
+
+                        💎
+
+                        <span>High</span>
+
+                        <small>Special occasion</small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STEP 2 -->
+
+            <div class="dn-card">
+
+                <div class="dn-header">
+
+                    <div class="dn-number">
+
+                        2
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            What's the mood?
+
+                        </h2>
+
+                        <p>
+
+                            Choose the type of experience you'd like.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="option-grid">
+
+                    <div class="option-card mood-card" data-mood="Romantic">
+
+                        ❤️
+
+                        <span>Romantic</span>
+
+                    </div>
+
+                    <div class="option-card mood-card" data-mood="Fun">
+
+                        😂
+
+                        <span>Fun</span>
+
+                    </div>
+
+                    <div class="option-card mood-card" data-mood="Deep Talk">
+
+                        💬
+
+                        <span>Deep Talk</span>
+
+                    </div>
+
+                    <div class="option-card mood-card" data-mood="Relaxed">
+
+                        ☕
+
+                        <span>Relaxed</span>
+
+                    </div>
+
+                    <div class="option-card mood-card" data-mood="Adventure">
+
+                        🏕️
+
+                        <span>Adventure</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- STEP 3 -->
+
+            <div class="dn-card">
+
+                <div class="dn-header">
+
+                    <div class="dn-number">
+
+                        3
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Where would you like to go?
+
+                        </h2>
+
+                        <p>
+
+                            Choose your preferred setting.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="option-grid">
+
+                    <div class="option-card setting-card"
+                         data-setting="Indoors">
+
+                        🏠
+
+                        <span>Indoors</span>
+
+                    </div>
+
+                    <div class="option-card setting-card"
+                         data-setting="Outdoors">
+
+                        🌳
+
+                        <span>Outdoors</span>
+
+                    </div>
+
+                    <div class="option-card setting-card"
+                         data-setting="Either">
+
+                        🌍
+
+                        <span>Either</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STEP 4 -->
+
+            <div class="dn-card">
+
+                <div class="dn-header">
+
+                    <div class="dn-number">
+
+                        4
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            How much time do you have?
+
+                        </h2>
+
+                        <p>
+
+                            Choose how much time you can spend together.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="option-grid">
+
+                    <div class="option-card time-card"
+                         data-time="30 minutes">
+
+                        ⏱️
+
+                        <span>30 Minutes</span>
+
+                    </div>
+
+                    <div class="option-card time-card"
+                         data-time="1 hour">
+
+                        🕐
+
+                        <span>1 Hour</span>
+
+                    </div>
+
+                    <div class="option-card time-card"
+                         data-time="2+ hours">
+
+                        🌙
+
+                        <span>2+ Hours</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STEP 5 -->
+
+            <div class="dn-card">
+
+                <div class="dn-header">
+
+                    <div class="dn-number">
+
+                        5
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Your Perfect Date
+
+                        </h2>
+
+                        <p>
+
+                            Based on your preferences, here's today's suggestion.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="date-result">
+
+                    <div class="date-icon">
+
+                        <i class="mdi mdi-heart"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h4>
+
+                            Date Idea
+
+                        </h4>
+
+                        <p id="ideaBox">
+
+                            Click <strong>Generate Date</strong> below to receive a personalized date idea.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <label class="form-label mt-4">
+
+                    Planning Notes
+
+                </label>
+
+                <textarea id="notes"
+                          class="dn-textarea"
+                          placeholder="Restaurant, location, booking details, budget, things to bring..."></textarea>
+
+            </div>
+
+            <!-- FAVORITES -->
+
+            <div class="dn-favorites">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <h4 class="mb-0">
+
+                        Saved Date Ideas
+
+                    </h4>
+
+                    <span class="badge bg-primary"
+                          id="favoriteCount">
+
+                        0 Saved
+
+                    </span>
+
+                </div>
+
+                <div id="favoritesContainer">
+
+                    <div class="empty-favorites">
+
+                        <i class="mdi mdi-heart-outline"></i>
+
+                        <h5>
+
+                            No saved dates yet
+
+                        </h5>
+
+                        <p>
+
+                            Save your favourite ideas to build your own date collection.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ACTION BAR -->
+
+            <div class="dn-actionbar">
+
+                <div>
+
+                    <button type="button"
+                            id="btnPrevious"
+                            class="btn btn-outline-secondary">
+
+                        <i class="mdi mdi-arrow-left"></i>
+
+                        Previous
+
+                    </button>
+
+                </div>
+
+                <div class="dn-status">
+
+                    <div class="dn-status-dot"></div>
+
+                    <div>
+
+                        <strong id="saveStatus">
+
+                            Ready
+
+                        </strong>
+
+                        <small>
+
+                            Your preferences are automatically remembered
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <button type="button"
+                            id="btnGenerate"
+                            class="btn btn-outline-primary me-2">
+
+                        <i class="mdi mdi-auto-fix"></i>
+
+                        Generate
+
+                    </button>
+
+                    <button type="button"
+                            id="btnSaveFavourite"
+                            class="btn btn-outline-success me-2">
+
+                        <i class="mdi mdi-heart"></i>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            id="btnDownload"
+                            class="btn btn-outline-info me-2">
+
+                        <i class="mdi mdi-download"></i>
+
+                        Download
+
+                    </button>
+
+                    <button type="button"
+                            id="btnNext"
+                            class="btn btn-gradient">
+
+                        Next
+
+                        <i class="mdi mdi-arrow-right"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- COMPLETION -->
+
+    <div id="completionScreen"
+         class="dn-complete"
+         style="display:none;">
+
+        <i class="mdi mdi-calendar-heart"></i>
+
+        <h2>
+
+            Date Planned!
+
+        </h2>
+
+        <p>
+
+            The best relationships aren't built by grand gestures—they're built by consistently making time for each other.
+
+        </p>
+
+        <button type="button"
+                class="btn btn-gradient btn-lg"
+                onclick="generateDateIdea()">
+
+            Generate Another Date
+
+        </button>
+
+    </div>
+
+</div>
+
+<style>
+    /*==================================================
+        Couples Connect - Date Night Generator
+    ==================================================*/
+
+    :root {
+        --primary: #5B5CEB;
+        --primary-dark: #4338CA;
+        --secondary: #7C3AED;
+        --success: #22C55E;
+        --danger: #EF4444;
+        --warning: #F59E0B;
+        --info: #06B6D4;
+        --text: #111827;
+        --muted: #6B7280;
+        --border: #E5E7EB;
+        --bg: #F5F7FB;
+        --card: #FFFFFF;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    /*==================================================
+    HERO
+    ==================================================*/
+
+    .dn-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        padding: 30px 40px;
+        background: linear-gradient(135deg,#EC4899,#7C3AED);
+        color: #fff;
+        box-shadow: 0 20px 45px rgba(236,72,153,.18);
+    }
+
+        .dn-hero::before {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            right: -120px;
+            top: -120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+        }
+
+        .dn-hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            left: -50px;
+            bottom: -70px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+        }
+
+        .dn-hero > * {
+            position: relative;
+            z-index: 2;
+        }
+
+    .dn-tag {
+        display: inline-flex;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(12px);
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .dn-hero h1 {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .dn-hero p {
+        max-width: 620px;
+        font-size: 16px;
+        line-height: 1.7;
+    }
+
+    .dn-hero img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,.25);
+    }
+
+    .dn-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+        .dn-badges span {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(12px);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+    /*==================================================
+    LAYOUT
+    ==================================================*/
+
+    .dn-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+    }
+
+    @@media(max - width:992px) {
+        .dn-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    /*==================================================
+    SIDEBAR
+    ==================================================*/
+
+    .dn-sidebar {
+        position: sticky;
+        top: 90px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 15px 35px rgba(15,23,42,.08);
+    }
+
+        .dn-sidebar h5 {
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+    .dn-progress {
+        height: 8px;
+        background: #E5E7EB;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    #progressBar {
+        width: 20%;
+        height: 100%;
+        background: linear-gradient(135deg,#EC4899,#7C3AED);
+        transition: .35s;
+    }
+
+    .dn-step {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 14px;
+        color: #6B7280;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .dn-step span {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #E5E7EB;
+            margin-right: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .dn-step.active {
+            background: #FCE7F3;
+            color: #DB2777;
+        }
+
+            .dn-step.active span {
+                background: #DB2777;
+                color: #fff;
+            }
+
+    .dn-tip {
+        margin-top: 22px;
+        padding: 16px;
+        border-radius: 16px;
+        background: #FDF2F8;
+        border-left: 4px solid #DB2777;
+    }
+
+        .dn-tip h6 {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dn-tip p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+    /*==================================================
+    CARDS
+    ==================================================*/
+
+    .dn-card {
+        display: none;
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 15px 40px rgba(15,23,42,.06);
+        animation: fadeCard .35s ease;
+    }
+
+        .dn-card.active-step {
+            display: block;
+        }
+
+    @@keyframes fadeCard {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+
+    /*==================================================
+    HEADER
+    ==================================================*/
+
+    .dn-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .dn-number {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: linear-gradient(135deg,#EC4899,#7C3AED);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        margin-right: 18px;
+        box-shadow: 0 10px 22px rgba(236,72,153,.25);
+    }
+
+    .dn-header h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .dn-header p {
+        margin: 6px 0 0;
+        color: #6B7280;
+        font-size: 15px;
+    }
+
+    /*==================================================
+    OPTION GRID
+    ==================================================*/
+
+    .option-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 18px;
+    }
+
+    .option-card {
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: .25s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+    }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #DB2777;
+            box-shadow: 0 18px 35px rgba(236,72,153,.15);
+        }
+
+        .option-card.active {
+            background: #FDF2F8;
+            border-color: #DB2777;
+        }
+
+    .option-card {
+        font-size: 38px;
+    }
+
+        .option-card span {
+            display: block;
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .option-card small {
+            display: block;
+            margin-top: 8px;
+            color: #6B7280;
+            font-size: 13px;
+        }
+
+    /*==================================================
+    GENERATED IDEA
+    ==================================================*/
+
+    .date-result {
+        display: flex;
+        gap: 20px;
+        padding: 25px;
+        border-radius: 20px;
+        background: linear-gradient(135deg,#FDF2F8,#FAF5FF);
+        border: 1px solid #F3E8FF;
+    }
+
+    .date-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        background: linear-gradient(135deg,#EC4899,#7C3AED);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+
+    .date-result h4 {
+        margin: 0 0 10px;
+        font-weight: 700;
+    }
+
+    .date-result p {
+        margin: 0;
+        line-height: 1.8;
+        color: #4B5563;
+        font-size: 16px;
+    }
+
+    /*==================================================
+    TEXTAREA
+    ==================================================*/
+
+    .dn-textarea {
+        width: 100%;
+        height: 170px;
+        resize: none;
+        border-radius: 18px;
+        border: 2px solid #E5E7EB;
+        padding: 18px;
+        font-size: 15px;
+        transition: .25s;
+        line-height: 1.8;
+    }
+
+        .dn-textarea:focus {
+            outline: none;
+            border-color: #DB2777;
+            box-shadow: 0 0 0 5px rgba(236,72,153,.10);
+        }
+
+    /*==================================================
+    FAVOURITES
+    ==================================================*/
+
+    .dn-favorites {
+        margin-top: 25px;
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 15px 40px rgba(15,23,42,.06);
+    }
+
+    .favorite-item {
+        padding: 18px;
+        border-radius: 16px;
+        background: #F8FAFC;
+        border-left: 5px solid #DB2777;
+        margin-bottom: 15px;
+    }
+
+        .favorite-item h6 {
+            margin: 0 0 10px;
+            font-weight: 700;
+        }
+
+        .favorite-item p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.7;
+        }
+
+    .favorite-notes {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #E5E7EB;
+        font-style: italic;
+    }
+
+    .empty-favorites {
+        padding: 60px 30px;
+        text-align: center;
+        color: #9CA3AF;
+    }
+
+        .empty-favorites i {
+            font-size: 70px;
+            color: #DB2777;
+            margin-bottom: 18px;
+        }
+
+        .empty-favorites h5 {
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .empty-favorites p {
+            margin: 0;
+            max-width: 450px;
+            margin-inline: auto;
+        }
+    /*==================================================
+    ACTION BAR
+    ==================================================*/
+
+    .dn-actionbar {
+        position: sticky;
+        bottom: 15px;
+        z-index: 999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-top: 25px;
+        padding: 15px 20px;
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #EEF2F7;
+        box-shadow: 0 18px 45px rgba(15,23,42,.12);
+    }
+
+        .dn-actionbar > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .dn-status {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #F8FAFC;
+        border-radius: 14px;
+        padding: 10px 18px;
+    }
+
+    .dn-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22C55E;
+        animation: statusPulse 2s infinite;
+    }
+
+    @@keyframes statusPulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34,197,94,0);
+    }
+
+    }
+
+    .dn-status strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .dn-status small {
+        display: block;
+        font-size: 12px;
+        color: #6B7280;
+    }
+
+    /*==================================================
+    BUTTONS
+    ==================================================*/
+
+    .dn-actionbar .btn {
+        height: 46px;
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 0 22px;
+        transition: .25s;
+    }
+
+        .dn-actionbar .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-gradient {
+        background: linear-gradient(135deg,#EC4899,#7C3AED);
+        color: #fff;
+        border: none;
+    }
+
+        .btn-gradient:hover {
+            color: #fff;
+            box-shadow: 0 12px 25px rgba(236,72,153,.35);
+        }
+
+    .btn-outline-primary {
+        border: 2px solid #DB2777;
+    }
+
+        .btn-outline-primary:hover {
+            background: #DB2777;
+            color: #fff;
+        }
+
+    .btn-outline-success {
+        border: 2px solid #22C55E;
+    }
+
+        .btn-outline-success:hover {
+            background: #22C55E;
+            color: #fff;
+        }
+
+    .btn-outline-info {
+        border: 2px solid #06B6D4;
+    }
+
+        .btn-outline-info:hover {
+            background: #06B6D4;
+            color: #fff;
+        }
+
+    /*==================================================
+    COMPLETION
+    ==================================================*/
+
+    .dn-complete {
+        background: #fff;
+        border-radius: 24px;
+        padding: 70px 45px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(15,23,42,.08);
+    }
+
+        .dn-complete i {
+            font-size: 90px;
+            color: #EC4899;
+            margin-bottom: 20px;
+        }
+
+        .dn-complete h2 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        .dn-complete p {
+            max-width: 650px;
+            margin: 0 auto 35px;
+            color: #6B7280;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+    /*==================================================
+    SCROLLBAR
+    ==================================================*/
+
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 20px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #F8FAFC;
+    }
+
+    /*==================================================
+    RESPONSIVE
+    ==================================================*/
+
+    @@media(max - width:1200px) {
+        .dn-layout
+
+    {
+        grid-template-columns: 250px 1fr;
+    }
+
+    }
+
+    @@media(max - width:992px) {
+        .dn-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .dn-sidebar {
+        position: relative;
+        top: auto;
+        margin-bottom: 20px;
+    }
+
+    .option-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .dn-actionbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+        .dn-actionbar > div {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .dn-actionbar .btn {
+            width: 100%;
+        }
+
+    }
+
+    @@media(max - width:768px) {
+        .dn-hero
+
+    {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .dn-hero h1 {
+        font-size: 34px;
+    }
+
+    .dn-card {
+        padding: 22px;
+    }
+
+    .dn-header {
+        align-items: flex-start;
+    }
+
+        .dn-header h2 {
+            font-size: 24px;
+        }
+
+    .option-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .date-result {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .date-icon {
+        margin-bottom: 10px;
+    }
+
+    .dn-textarea {
+        height: 150px;
+    }
+
+    }
+</style>
+
+@section Scripts {
+
+    <script src="~/js/date-night-generator.js"></script>
+
+}

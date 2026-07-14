@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CouplesConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class DatabaseUpdate : Migration
+    public partial class ResourceModule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -216,19 +216,19 @@ namespace CouplesConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Resources",
+                name: "ResourceCategory",
                 columns: table => new
                 {
-                    ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ResourceType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Icon = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Resources", x => x.ResourceId);
+                    table.PrimaryKey("PK_ResourceCategory", x => x.CategoryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -412,11 +412,12 @@ namespace CouplesConnect.Migrations
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Qualifications = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     YearsOfExperience = table.Column<int>(type: "int", nullable: false),
-                    Specializations = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Age = table.Column<int>(type: "int", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsApproved = table.Column<bool>(type: "bit", nullable: false),
+                    IsRejected = table.Column<bool>(type: "bit", nullable: false),
+                    RejectionReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -475,6 +476,33 @@ namespace CouplesConnect.Migrations
                         column: x => x.PackageId,
                         principalTable: "Packages",
                         principalColumn: "PackageId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Resources",
+                columns: table => new
+                {
+                    ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Thumbnail = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    HtmlPage = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    EstimatedDuration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsFeatured = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Resources", x => x.ResourceId);
+                    table.ForeignKey(
+                        name: "FK_Resources_ResourceCategory_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "ResourceCategory",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -692,6 +720,11 @@ namespace CouplesConnect.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Resources_CategoryId",
+                table: "Resources",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Services_ServiceTypeId",
                 table: "Services",
                 column: "ServiceTypeId");
@@ -789,6 +822,9 @@ namespace CouplesConnect.Migrations
 
             migrationBuilder.DropTable(
                 name: "Bookings");
+
+            migrationBuilder.DropTable(
+                name: "ResourceCategory");
 
             migrationBuilder.DropTable(
                 name: "Packages");

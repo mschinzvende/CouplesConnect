@@ -1,0 +1,1928 @@
+﻿@page
+@model CouplesConnect.Pages.Resources.GratitudeJournal.IndexModel
+@{
+    ViewData["Title"] = "Memory & Gratitude Journal";
+}
+
+
+
+<div class="page-header d-print-none mb-4">
+    <div class="container-xl">
+
+        <div class="row g-3 align-items-center">
+
+            <div class="col">
+
+                <div class="page-pretitle">
+                    Couples Connect
+                </div>
+
+                <h2 class="page-title">
+                    ❤️ Memory & Gratitude Journal
+                </h2>
+
+            </div>
+
+            <div class="col-auto ms-auto">
+
+                <button class="btn btn-primary"
+                        id="btnAddMemory">
+
+                    <i class="ti ti-plus"></i>
+
+                    New Memory
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div class="page-body">
+
+    <div class="container-xl">
+
+        <!-- ======================================================= -->
+        <!-- HERO -->
+        <!-- ======================================================= -->
+
+        <div class="card hero-card mb-4">
+
+            <div class="card-body p-0">
+
+                <div class="row g-0 align-items-center">
+
+                    <div class="col-lg-7">
+
+                        <div class="hero-content">
+
+                            <span class="hero-pill">
+
+                                <i class="ti ti-heart-filled"></i>
+
+                                Couples Connect Journal
+
+                            </span>
+
+                            <h1>
+
+                                Every Love Story
+                                Deserves To Be Remembered
+
+                            </h1>
+
+                            <p>
+
+                                Capture beautiful memories, celebrate milestones,
+                                express gratitude, and build your relationship
+                                timeline together.
+
+                            </p>
+
+                            <div class="hero-buttons">
+
+                                <button class="btn btn-primary btn-lg"
+                                        id="btnHeroMemory">
+
+                                    <i class="ti ti-plus"></i>
+
+                                    Add Memory
+
+                                </button>
+
+                                <button class="btn btn-outline-light btn-lg">
+
+                                    <i class="ti ti-download"></i>
+
+                                    Export Journal
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-5">
+
+                        <img src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999?auto=format&fit=crop&w=1200&q=80"
+                             class="hero-image"
+                             alt="Couple">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- DASHBOARD -->
+        <!-- ======================================================= -->
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-icon pink">
+
+                        <i class="ti ti-heart-filled"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="lblMemories">
+                            0
+                        </h2>
+
+                        <span>Total Memories</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-icon purple">
+
+                        <i class="ti ti-flame"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="lblStreak">
+                            0
+                        </h2>
+
+                        <span>Day Streak</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-icon orange">
+
+                        <i class="ti ti-heart-handshake"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="lblGratitude">
+                            0
+                        </h2>
+
+                        <span>Gratitude Entries</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+
+                <div class="dashboard-card">
+
+                    <div class="dashboard-icon yellow">
+
+                        <i class="ti ti-star-filled"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h2 id="lblFavourite">
+                            0
+                        </h2>
+
+                        <span>Favourite Memories</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- HIGHLIGHTS -->
+        <!-- ======================================================= -->
+
+        <div class="row g-4 mb-4">
+
+            <div class="col-lg-8">
+
+                <div class="card cc-card h-100">
+
+                    <div class="card-header">
+
+                        <h3>
+
+                            <i class="ti ti-calendar-heart"></i>
+
+                            Relationship Highlights
+
+                        </h3>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-4">
+
+                                <div class="highlight-card">
+
+                                    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80">
+
+                                    <div class="highlight-content">
+
+                                        <span class="badge bg-pink">
+                                            Anniversary
+                                        </span>
+
+                                        <h5>First Anniversary</h5>
+
+                                        <small>14 February 2026</small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <div class="highlight-card">
+
+                                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80">
+
+                                    <div class="highlight-content">
+
+                                        <span class="badge bg-success">
+
+                                            Vacation
+
+                                        </span>
+
+                                        <h5>Nyanga Weekend</h5>
+
+                                        <small>July 2026</small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                <div class="highlight-card">
+
+                                    <img src="https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=800&q=80">
+
+                                    <div class="highlight-content">
+
+                                        <span class="badge bg-primary">
+
+                                            Date Night
+
+                                        </span>
+
+                                        <h5>Rooftop Dinner</h5>
+
+                                        <small>March 2026</small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="card cc-card h-100">
+
+                    <div class="card-header">
+
+                        <h3>
+
+                            <i class="ti ti-trophy"></i>
+
+                            Milestones
+
+                        </h3>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <ul class="timeline-simple">
+
+                            <li>
+
+                                ❤️ First Date
+
+                            </li>
+
+                            <li>
+
+                                💍 Engagement
+
+                            </li>
+
+                            <li>
+
+                                🏡 First Home
+
+                            </li>
+
+                            <li>
+
+                                👶 First Child
+
+                            </li>
+
+                            <li>
+
+                                🌍 First Vacation
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- ======================================================= -->
+        <!-- SEARCH / FILTER -->
+        <!-- ======================================================= -->
+
+        <div class="card cc-card mb-4">
+
+            <div class="card-body">
+
+                <div class="row g-3 align-items-center">
+
+                    <div class="col-lg-5">
+
+                        <div class="input-icon">
+
+                            <span class="input-icon-addon">
+
+                                <i class="ti ti-search"></i>
+
+                            </span>
+
+                            <input class="form-control"
+                                   id="txtSearch"
+                                   placeholder="Search memories..." />
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-2">
+
+                        <select class="form-select"
+                                id="ddlCategory">
+
+                            <option value="">All Categories</option>
+                            <option>Date Night</option>
+                            <option>Anniversary</option>
+                            <option>Vacation</option>
+                            <option>Achievement</option>
+                            <option>Family</option>
+                            <option>Adventure</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-lg-2">
+
+                        <select class="form-select"
+                                id="ddlMood">
+
+                            <option value="">All Moods</option>
+
+                            <option>😍</option>
+                            <option>🥰</option>
+                            <option>😊</option>
+                            <option>❤️</option>
+                            <option>🤗</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-lg-2">
+
+                        <select class="form-select"
+                                id="ddlSort">
+
+                            <option value="new">Newest</option>
+                            <option value="old">Oldest</option>
+                            <option value="fav">Favourites</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-lg-1">
+
+                        <button class="btn btn-outline-primary w-100">
+
+                            <i class="ti ti-filter"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================================= -->
+        <!-- TIMELINE -->
+        <!-- ======================================================= -->
+
+        <div class="card cc-card">
+
+            <div class="card-header">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h3 class="mb-1">
+
+                            <i class="ti ti-history"></i>
+
+                            Your Relationship Timeline
+
+                        </h3>
+
+                        <small class="text-muted">
+
+                            Every memory tells part of your story together.
+
+                        </small>
+
+                    </div>
+
+                    <button class="btn btn-primary"
+                            id="btnTimelineMemory">
+
+                        <i class="ti ti-plus"></i>
+
+                        Add Memory
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <!-- Empty -->
+
+                <div id="emptyState"
+                     class="timeline-empty d-none">
+
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80"
+                         class="empty-image" />
+
+                    <h2>
+
+                        Start Your Story
+
+                    </h2>
+
+                    <p>
+
+                        Create your first beautiful memory together.
+
+                    </p>
+
+                    <button class="btn btn-primary btn-lg"
+                            id="btnEmptyMemory">
+
+                        <i class="ti ti-plus"></i>
+
+                        Create First Memory
+
+                    </button>
+
+                </div>
+
+                <!-- Timeline -->
+
+                <div id="timelineContainer"
+                     class="timeline-container">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================= -->
+<!-- ADD / EDIT MEMORY -->
+<!-- ======================================================= -->
+
+<div class="modal fade"
+     id="memoryModal"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h3 class="modal-title">
+
+                    ❤️ Memory Details
+
+                </h3>
+
+                <button class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden"
+                       id="MemoryId" />
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Date
+
+                        </label>
+
+                        <input type="date"
+                               id="EntryDate"
+                               class="form-control" />
+
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+
+                            Category
+
+                        </label>
+
+                        <select id="EntryCategory"
+                                class="form-select">
+
+                            <option>Date Night</option>
+                            <option>Vacation</option>
+                            <option>Anniversary</option>
+                            <option>Achievement</option>
+                            <option>Adventure</option>
+                            <option>Family</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Title
+
+                    </label>
+
+                    <input id="EntryTitle"
+                           class="form-control" />
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+
+                        Mood
+
+                    </label>
+
+                    <div class="mood-selector">
+
+                        <button type="button"
+                                class="mood-btn active"
+                                data-mood="😍">
+                            😍
+                        </button>
+
+                        <button type="button"
+                                class="mood-btn"
+                                data-mood="🥰">
+                            🥰
+                        </button>
+
+                        <button type="button"
+                                class="mood-btn"
+                                data-mood="😊">
+                            😊
+                        </button>
+
+                        <button type="button"
+                                class="mood-btn"
+                                data-mood="❤️">
+                            ❤️
+                        </button>
+
+                        <button type="button"
+                                class="mood-btn"
+                                data-mood="🤗">
+                            🤗
+                        </button>
+
+                    </div>
+
+                    <input type="hidden"
+                           id="EntryMood"
+                           value="😍" />
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Memory
+
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="5"
+                              id="EntryMemory"></textarea>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Gratitude
+
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="4"
+                              id="EntryGratitude"></textarea>
+
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Tags
+
+                        </label>
+
+                        <input id="EntryTags"
+                               class="form-control"
+                               placeholder="love, family" />
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+
+                            Photos
+
+                        </label>
+
+                        <input type="file"
+                               id="EntryPhotos"
+                               class="form-control"
+                               accept="image/*"
+                               multiple />
+
+                    </div>
+
+                </div>
+
+                <div class="form-check form-switch mt-4">
+
+                    <input class="form-check-input"
+                           id="EntryFavourite"
+                           type="checkbox" />
+
+                    <label class="form-check-label">
+
+                        Favourite Memory
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button class="btn btn-primary"
+                        id="btnSaveMemory">
+
+                    <i class="ti ti-device-floppy"></i>
+
+                    Save Memory
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ======================================================= -->
+<!-- DELETE -->
+<!-- ======================================================= -->
+
+<div class="modal fade"
+     id="deleteModal">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+
+                <h4>
+
+                    Delete Memory
+
+                </h4>
+
+            </div>
+
+            <div class="modal-body">
+
+                Are you sure you want to permanently delete this memory?
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-light"
+                        data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button class="btn btn-danger"
+                        id="btnDeleteMemory">
+
+                    Delete
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ========================================================= -->
+<!-- TIMELINE CARD TEMPLATE -->
+<!-- ========================================================= -->
+
+<template id="memoryCardTemplate">
+
+    <div class="memory-card">
+
+        <div class="memory-card-header">
+
+            <div class="memory-date">
+
+                <span class="day"></span>
+                <span class="month"></span>
+
+            </div>
+
+            <div class="memory-heading">
+
+                <div class="memory-badges">
+
+                    <span class="badge bg-primary category"></span>
+
+                    <span class="mood"></span>
+
+                    <span class="badge bg-warning text-dark favourite d-none">
+
+                        <i class="ti ti-star-filled"></i>
+
+                        Favourite
+
+                    </span>
+
+                </div>
+
+                <h3 class="title mt-2"></h3>
+
+                <small class="text-muted full-date"></small>
+
+            </div>
+
+            <div class="dropdown">
+
+                <button class="btn btn-icon"
+                        data-bs-toggle="dropdown">
+
+                    <i class="ti ti-dots-vertical"></i>
+
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+
+                    <li>
+
+                        <a class="dropdown-item btnEdit">
+
+                            <i class="ti ti-edit me-2"></i>
+
+                            Edit
+
+                        </a>
+
+                    </li>
+
+                    <li>
+
+                        <a class="dropdown-item btnFavourite">
+
+                            <i class="ti ti-star me-2"></i>
+
+                            Toggle Favourite
+
+                        </a>
+
+                    </li>
+
+                    <li>
+
+                        <a class="dropdown-item btnDownload">
+
+                            <i class="ti ti-download me-2"></i>
+
+                            Export
+
+                        </a>
+
+                    </li>
+
+                    <li>
+
+                        <hr class="dropdown-divider" />
+
+                    </li>
+
+                    <li>
+
+                        <a class="dropdown-item text-danger btnDelete">
+
+                            <i class="ti ti-trash me-2"></i>
+
+                            Delete
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        <div class="memory-card-body">
+
+            <div class="memory-section">
+
+                <h5>
+
+                    <i class="ti ti-book"></i>
+
+                    Memory
+
+                </h5>
+
+                <p class="memoryText">
+
+                </p>
+
+            </div>
+
+            <div class="memory-section">
+
+                <h5>
+
+                    <i class="ti ti-heart-handshake"></i>
+
+                    Gratitude
+
+                </h5>
+
+                <p class="gratitudeText">
+
+                </p>
+
+            </div>
+
+            <div class="gallery">
+            </div>
+
+            <div class="tags">
+            </div>
+
+        </div>
+
+        <div class="memory-card-footer">
+
+            <button class="btn btn-light btnLike">
+
+                <i class="ti ti-heart"></i>
+
+            </button>
+
+            <button class="btn btn-light btnComment">
+
+                <i class="ti ti-message-circle"></i>
+
+            </button>
+
+            <button class="btn btn-light btnShare">
+
+                <i class="ti ti-share"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</template>
+
+
+
+<!-- ========================================================= -->
+<!-- PHOTO TEMPLATE -->
+<!-- ========================================================= -->
+
+<template id="photoTemplate">
+
+    <div class="photo-item">
+
+        <img src=""
+             class="photo" />
+
+    </div>
+
+</template>
+
+
+
+<!-- ========================================================= -->
+<!-- TAG TEMPLATE -->
+<!-- ========================================================= -->
+
+<template id="tagTemplate">
+
+    <span class="badge bg-indigo-lt tag">
+
+    </span>
+
+</template>
+
+
+
+<!-- ========================================================= -->
+<!-- TOAST CONTAINER -->
+<!-- ========================================================= -->
+
+<div class="toast-container position-fixed
+            bottom-0
+            end-0
+            p-3">
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- LOADING -->
+<!-- ========================================================= -->
+
+<div id="pageLoader"
+     class="page-loader d-none">
+
+    <div class="spinner-border text-primary">
+    </div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- ANTIFORGERY -->
+<!-- ========================================================= -->
+@Html.AntiForgeryToken()
+
+<style>
+    /*==========================================================
+        Couples Connect
+        Memory & Gratitude Journal
+    ==========================================================*/
+
+    :root {
+        --journal-primary: #ec4899;
+        --journal-primary-dark: #db2777;
+        --journal-secondary: #8b5cf6;
+        --journal-success: #10b981;
+        --journal-warning: #f59e0b;
+        --journal-danger: #ef4444;
+        --journal-text: #24324a;
+        --journal-muted: #64748b;
+        --journal-border: #e9edf3;
+        --journal-radius: 22px;
+        --journal-shadow: 0 15px 45px rgba(0,0,0,.08);
+        --journal-shadow-hover: 0 25px 55px rgba(0,0,0,.12);
+    }
+
+    /******************************************************
+                        PAGE
+    ******************************************************/
+
+    .page-body {
+        background: #f6f8fb;
+        padding-bottom: 50px;
+    }
+
+    .cc-card {
+        border: none;
+        border-radius: var(--journal-radius);
+        overflow: hidden;
+        box-shadow: var(--journal-shadow);
+    }
+
+        .cc-card .card-header {
+            background: #fff;
+            border-bottom: 1px solid var(--journal-border);
+            padding: 22px 28px;
+        }
+
+            .cc-card .card-header h3 {
+                margin: 0;
+                font-size: 1.2rem;
+                font-weight: 700;
+            }
+
+        .cc-card .card-body {
+            padding: 28px;
+        }
+
+    /******************************************************
+                        HERO
+    ******************************************************/
+
+    .hero-card {
+        border: none;
+        overflow: hidden;
+        border-radius: 28px;
+        background: linear-gradient( 135deg, #ec4899, #8b5cf6);
+        box-shadow: 0 30px 80px rgba(236,72,153,.35);
+    }
+
+    .hero-content {
+        padding: 70px;
+        color: #fff;
+    }
+
+    .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 40px;
+        background: rgba(255,255,255,.18);
+        backdrop-filter: blur(10px);
+        margin-bottom: 28px;
+    }
+
+    .hero-content h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 25px;
+    }
+
+    .hero-content p {
+        max-width: 620px;
+        line-height: 1.9;
+        font-size: 1.05rem;
+        opacity: .95;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 35px;
+    }
+
+    .hero-image {
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+        object-fit: cover;
+    }
+
+    /******************************************************
+                    DASHBOARD
+    ******************************************************/
+
+    .dashboard-card {
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        box-shadow: var(--journal-shadow);
+        transition: .30s;
+        height: 100%;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--journal-shadow-hover);
+        }
+
+        .dashboard-card h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .dashboard-card span {
+            color: var(--journal-muted);
+        }
+
+    .dashboard-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 30px;
+    }
+
+        .dashboard-icon.pink {
+            background: linear-gradient( 135deg, #ec4899, #db2777);
+        }
+
+        .dashboard-icon.purple {
+            background: linear-gradient( 135deg, #8b5cf6, #7c3aed);
+        }
+
+        .dashboard-icon.orange {
+            background: linear-gradient( 135deg, #fb923c, #ea580c);
+        }
+
+        .dashboard-icon.yellow {
+            background: linear-gradient( 135deg, #facc15, #eab308);
+        }
+
+    /******************************************************
+                    HIGHLIGHTS
+    ******************************************************/
+
+    .highlight-card {
+        overflow: hidden;
+        border-radius: 18px;
+        background: #fff;
+        transition: .3s;
+        box-shadow: 0 8px 25px rgba(0,0,0,.08);
+    }
+
+        .highlight-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .highlight-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+    .highlight-content {
+        padding: 18px;
+    }
+
+        .highlight-content h5 {
+            margin-top: 12px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+    .timeline-simple {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .timeline-simple li {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--journal-border);
+            font-weight: 600;
+        }
+
+            .timeline-simple li:last-child {
+                border-bottom: none;
+            }
+
+    /*==========================================================
+        SEARCH BAR
+    ==========================================================*/
+
+    .input-icon {
+        position: relative;
+    }
+
+    .input-icon-addon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94A3B8;
+        z-index: 5;
+    }
+
+    .input-icon .form-control {
+        padding-left: 45px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 14px;
+        min-height: 48px;
+        border: 1px solid var(--journal-border);
+        transition: .25s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--journal-primary);
+            box-shadow: 0 0 0 .2rem rgba(236,72,153,.15);
+        }
+
+    /******************************************************
+                        TIMELINE
+    ******************************************************/
+
+    .timeline-container {
+        position: relative;
+        padding-left: 70px;
+    }
+
+        .timeline-container::before {
+            content: "";
+            position: absolute;
+            left: 28px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 20px;
+            background: linear-gradient( to bottom, var(--journal-primary), var(--journal-secondary));
+        }
+
+    /******************************************************
+                    MEMORY CARD
+    ******************************************************/
+
+    .memory-card {
+        position: relative;
+        margin-bottom: 35px;
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--journal-shadow);
+        transition: .30s;
+    }
+
+        .memory-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--journal-shadow-hover);
+        }
+
+        .memory-card::before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -52px;
+            top: 38px;
+            border-radius: 50%;
+            background: var(--journal-primary);
+            border: 5px solid white;
+            box-shadow: 0 0 0 5px rgba(236,72,153,.18);
+        }
+
+    .memory-card-header {
+        display: flex;
+        gap: 22px;
+        align-items: flex-start;
+        padding: 25px;
+        border-bottom: 1px solid var(--journal-border);
+    }
+
+    .memory-date {
+        width: 78px;
+        height: 78px;
+        border-radius: 20px;
+        color: white;
+        background: linear-gradient( 135deg, var(--journal-primary), var(--journal-secondary));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+        .memory-date .day {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .memory-date .month {
+            text-transform: uppercase;
+            font-size: .8rem;
+            letter-spacing: 1px;
+        }
+
+    .memory-heading {
+        flex: 1;
+    }
+
+        .memory-heading h3 {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+    .memory-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .memory-card-body {
+        padding: 30px;
+    }
+
+    .memory-section {
+        margin-bottom: 28px;
+    }
+
+        .memory-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .memory-section h5 {
+            color: var(--journal-primary);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .memory-section p {
+            line-height: 1.9;
+            color: #4b5563;
+        }
+
+    /******************************************************
+                        GALLERY
+    ******************************************************/
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(120px,1fr));
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .photo-item {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .photo {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        transition: .30s;
+        cursor: pointer;
+    }
+
+        .photo:hover {
+            transform: scale(1.08);
+        }
+
+    /******************************************************
+                        TAGS
+    ******************************************************/
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 25px;
+    }
+
+    .tag {
+        border-radius: 40px;
+        padding: 8px 15px;
+        font-size: .8rem;
+    }
+
+    /******************************************************
+                    CARD FOOTER
+    ******************************************************/
+
+    .memory-card-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 20px 30px;
+        border-top: 1px solid var(--journal-border);
+    }
+
+        .memory-card-footer .btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+        }
+
+    /******************************************************
+                    EMPTY STATE
+    ******************************************************/
+
+    .timeline-empty {
+        padding: 80px 30px;
+        text-align: center;
+    }
+
+    .empty-image {
+        width: 320px;
+        max-width: 100%;
+        border-radius: 24px;
+        margin-bottom: 35px;
+        box-shadow: 0 20px 50px rgba(0,0,0,.15);
+    }
+
+    .timeline-empty h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .timeline-empty p {
+        color: var(--journal-muted);
+        max-width: 550px;
+        margin: auto auto 25px;
+        line-height: 1.9;
+    }
+
+    /******************************************************
+                    BADGES
+    ******************************************************/
+
+    .bg-pink {
+        background: #ec4899 !important;
+    }
+
+    .bg-indigo-lt {
+        background: #eef2ff !important;
+        color: #4f46e5 !important;
+    }
+
+    .favourite {
+        border-radius: 30px;
+    }
+
+    .category {
+        border-radius: 30px;
+    }
+    /*==========================================================
+        MOOD SELECTOR
+    ==========================================================*/
+
+    .mood-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .mood-btn {
+        width: 60px;
+        height: 60px;
+        border: none;
+        background: #fff;
+        border-radius: 18px;
+        font-size: 28px;
+        box-shadow: 0 8px 18px rgba(0,0,0,.08);
+        transition: .25s;
+        cursor: pointer;
+    }
+
+        .mood-btn:hover {
+            transform: translateY(-5px) scale(1.08);
+        }
+
+        .mood-btn.active {
+            background: linear-gradient( 135deg, var(--journal-primary), var(--journal-secondary));
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(236,72,153,.35);
+        }
+
+    /******************************************************
+                        BUTTONS
+    ******************************************************/
+
+    .btn {
+        border-radius: 14px;
+        transition: .25s;
+    }
+
+    .btn-primary {
+        background: linear-gradient( 135deg, var(--journal-primary), var(--journal-secondary));
+        border: none;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(236,72,153,.30);
+        }
+
+    .btn-light {
+        background: #fff;
+    }
+
+        .btn-light:hover {
+            background: #f8fafc;
+        }
+
+    .btn-outline-light {
+        border: 2px solid rgba(255,255,255,.5);
+        color: #fff;
+    }
+
+        .btn-outline-light:hover {
+            background: #fff;
+            color: var(--journal-primary);
+        }
+
+    /******************************************************
+                        MODALS
+    ******************************************************/
+
+    .modal-content {
+        border: none;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 24px 30px;
+        border-bottom: 1px solid var(--journal-border);
+    }
+
+    .modal-title {
+        font-weight: 700;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid var(--journal-border);
+    }
+
+    /******************************************************
+                    TOASTS
+    ******************************************************/
+
+    .toast {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 20px 45px rgba(0,0,0,.15);
+    }
+
+    .toast-header {
+        border-bottom: 1px solid rgba(0,0,0,.05);
+    }
+
+    /******************************************************
+                    PAGE LOADER
+    ******************************************************/
+
+    .page-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,.75);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    /******************************************************
+                ANIMATIONS
+    ******************************************************/
+
+    .hero-card {
+        animation: heroFade .8s ease;
+    }
+
+    .dashboard-card {
+        animation: zoomCard .6s ease;
+    }
+
+    .memory-card {
+        animation: cardAppear .45s ease;
+    }
+
+    @@keyframes heroFade {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(35px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+   @@keyframes zoomCard {
+        from
+
+    {
+        opacity: 0;
+        transform: scale(.92);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    }
+
+    @@keyframes cardAppear {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /******************************************************
+                DROPDOWNS
+    ******************************************************/
+
+    .dropdown-menu {
+        border: none;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 18px 40px rgba(0,0,0,.12);
+    }
+
+    .dropdown-item {
+        padding: 12px 20px;
+    }
+
+        .dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+    /******************************************************
+                SCROLLBAR
+    ******************************************************/
+
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 30px;
+    }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+    /******************************************************
+                RESPONSIVE
+    ******************************************************/
+
+    @@media (max-width:1200px) {
+        .hero-content
+
+    {
+        padding: 50px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    }
+
+    @@media (max-width:992px) {
+        .hero-image
+
+    {
+        min-height: 320px;
+    }
+
+    .hero-content {
+        text-align: center;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .timeline-container {
+        padding-left: 20px;
+    }
+
+        .timeline-container::before {
+            display: none;
+        }
+
+    .memory-card::before {
+        display: none;
+    }
+
+    }
+
+    @@media (max-width:768px) {
+        .memory-card-header
+
+    {
+        flex-direction: column;
+    }
+
+    .memory-date {
+        width: 65px;
+        height: 65px;
+    }
+
+    .hero-content {
+        padding: 35px;
+    }
+
+        .hero-content h1 {
+            font-size: 2rem;
+        }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .dashboard-card {
+        padding: 22px;
+    }
+
+    .gallery {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    }
+
+    @@media (max-width:576px) {
+        .memory-card-body
+
+    {
+        padding: 20px;
+    }
+
+    .memory-card-footer {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .hero-image {
+        min-height: 250px;
+    }
+
+    .hero-pill {
+        font-size: .85rem;
+    }
+
+    .timeline-empty {
+        padding: 50px 20px;
+    }
+
+    }
+</style>
+
+@section Scripts {
+
+    <script src="~/js/gratitude-journal.js"></script>
+
+}

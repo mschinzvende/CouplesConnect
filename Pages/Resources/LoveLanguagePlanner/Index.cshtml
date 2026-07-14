@@ -1,0 +1,1378 @@
+﻿@page
+@model CouplesConnect.Pages.Resources.LoveLanguagePlanner.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Love Language Planner";
+}
+
+
+<div class="container-fluid py-4">
+
+    <!-- HERO -->
+
+    <section class="ll-hero">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+
+                <span class="ll-tag">
+
+                    Couples Connect Resource
+
+                </span>
+
+                <h1>
+
+                    Love Language Planner
+
+                </h1>
+
+                <p>
+
+                    Transform your partner's love language into practical daily actions that strengthen your relationship through consistency and intentional care.
+
+                </p>
+
+                <div class="ll-badges">
+
+                    <span>
+
+                        <i class="mdi mdi-heart-multiple"></i>
+
+                        Love Languages
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-calendar-check"></i>
+
+                        Weekly Planning
+
+                    </span>
+
+                    <span>
+
+                        <i class="mdi mdi-star-circle"></i>
+
+                        Intentional Love
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 text-center">
+
+                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80"
+                     class="img-fluid rounded-4 shadow-lg" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="ll-layout mt-4">
+
+        <!-- SIDEBAR -->
+
+        <aside class="ll-sidebar">
+
+            <h5>
+
+                Weekly Planner
+
+            </h5>
+
+            <div class="ll-progress">
+
+                <div id="progressBar"></div>
+
+            </div>
+
+            <div class="ll-step active">
+
+                <span>1</span>
+
+                Love Language
+
+            </div>
+
+            <div class="ll-step">
+
+                <span>2</span>
+
+                Weekly Actions
+
+            </div>
+
+            <div class="ll-step">
+
+                <span>3</span>
+
+                Intention
+
+            </div>
+
+            <div class="ll-step">
+
+                <span>4</span>
+
+                Reflection
+
+            </div>
+
+            <div class="ll-step">
+
+                <span>5</span>
+
+                Review
+
+            </div>
+
+            <div class="ll-tip">
+
+                <h6>
+
+                    Relationship Tip
+
+                </h6>
+
+                <p id="plannerTip">
+
+                    Love grows through consistent intentional actions, not occasional grand gestures.
+
+                </p>
+
+            </div>
+
+        </aside>
+
+        <main>
+
+            <!-- STEP 1 -->
+
+            <div class="ll-card active-step">
+
+                <div class="ll-header">
+
+                    <div class="ll-number">
+
+                        1
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Choose Your Partner's Love Language
+
+                        </h2>
+
+                        <p>
+
+                            Select the primary way your partner feels most loved.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="language-grid">
+
+                    <div class="language-card"
+                         data-language="Words of Affirmation">
+
+                        💬
+
+                        <span>
+
+                            Words of Affirmation
+
+                        </span>
+
+                    </div>
+
+                    <div class="language-card"
+                         data-language="Quality Time">
+
+                        ⏳
+
+                        <span>
+
+                            Quality Time
+
+                        </span>
+
+                    </div>
+
+                    <div class="language-card"
+                         data-language="Acts of Service">
+
+                        🤝
+
+                        <span>
+
+                            Acts of Service
+
+                        </span>
+
+                    </div>
+
+                    <div class="language-card"
+                         data-language="Receiving Gifts">
+
+                        🎁
+
+                        <span>
+
+                            Receiving Gifts
+
+                        </span>
+
+                    </div>
+
+                    <div class="language-card"
+                         data-language="Physical Touch">
+
+                        ❤️
+
+                        <span>
+
+                            Physical Touch
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STEP 2 -->
+
+            <div class="ll-card">
+
+                <div class="ll-header">
+
+                    <div class="ll-number">
+
+                        2
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Generate Your Weekly Action Plan
+
+                        </h2>
+
+                        <p>
+
+                            Choose how many intentional actions you would like to complete this week.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="planner-options">
+
+                    <div class="planner-option">
+
+                        <label class="form-label">
+
+                            Number of Weekly Actions
+
+                        </label>
+
+                        <select id="actionCount"
+                                class="form-select">
+
+                            <option value="3">
+
+                                3 Actions
+
+                            </option>
+
+                            <option value="5"
+                                    selected>
+
+                                5 Actions
+
+                            </option>
+
+                            <option value="7">
+
+                                7 Actions
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="text-end mb-4">
+
+                    <button type="button"
+                            id="btnGeneratePlan"
+                            class="btn btn-gradient">
+
+                        <i class="mdi mdi-auto-fix"></i>
+
+                        Generate Weekly Plan
+
+                    </button>
+
+                </div>
+
+                <div id="planContainer"
+                     class="plan-list">
+                </div>
+
+            </div>
+
+            <!-- STEP 3 -->
+
+            <div class="ll-card">
+
+                <div class="ll-header">
+
+                    <div class="ll-number">
+
+                        3
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Weekly Intention
+
+                        </h2>
+
+                        <p>
+
+                            What is the main attitude or goal you want to carry into this week?
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <textarea id="weeklyIntention"
+                          class="ll-textarea"
+                          placeholder="Example: I will intentionally make my partner feel appreciated every day through thoughtful actions."></textarea>
+
+            </div>
+
+            <!-- STEP 4 -->
+
+            <div class="ll-card">
+
+                <div class="ll-header">
+
+                    <div class="ll-number">
+
+                        4
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Reflection Notes
+
+                        </h2>
+
+                        <p>
+
+                            Record what you noticed throughout the week.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <textarea id="reflectionNotes"
+                          class="ll-textarea"
+                          placeholder="How did your partner respond? What worked well? What would you like to improve next week?"></textarea>
+
+            </div>
+
+            <!-- STEP 5 -->
+
+            <div class="ll-card">
+
+                <div class="ll-header">
+
+                    <div class="ll-number">
+
+                        5
+
+                    </div>
+
+                    <div>
+
+                        <h2>
+
+                            Weekly Review
+
+                        </h2>
+
+                        <p>
+
+                            Review your personalised love language plan before finishing.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="review-card">
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Love Language
+
+                        </h6>
+
+                        <p id="reviewLanguage">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Weekly Intention
+
+                        </h6>
+
+                        <p id="reviewIntention">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                    <div class="review-item">
+
+                        <h6>
+
+                            Reflection Notes
+
+                        </h6>
+
+                        <p id="reviewReflection">
+
+                            -
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ACTION BAR -->
+
+            <div class="ll-actionbar">
+
+                <div>
+
+                    <button type="button"
+                            id="btnPrevious"
+                            class="btn btn-outline-secondary">
+
+                        <i class="mdi mdi-arrow-left"></i>
+
+                        Previous
+
+                    </button>
+
+                </div>
+
+                <div class="ll-status">
+
+                    <div class="ll-status-dot"></div>
+
+                    <div>
+
+                        <strong id="saveStatus">
+
+                            Ready
+
+                        </strong>
+
+                        <small>
+
+                            Your planner is automatically saved
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <button type="button"
+                            id="btnSave"
+                            class="btn btn-outline-success me-2">
+
+                        <i class="mdi mdi-content-save"></i>
+
+                        Save
+
+                    </button>
+
+                    <button type="button"
+                            id="btnDownload"
+                            class="btn btn-outline-primary me-2">
+
+                        <i class="mdi mdi-download"></i>
+
+                        Download
+
+                    </button>
+
+                    <button type="button"
+                            id="btnNext"
+                            class="btn btn-gradient">
+
+                        Next
+
+                        <i class="mdi mdi-arrow-right"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- COMPLETION -->
+
+    <div id="completionScreen"
+         class="ll-complete"
+         style="display:none;">
+
+        <i class="mdi mdi-heart-multiple"></i>
+
+        <h2>
+
+            Weekly Love Plan Complete
+
+        </h2>
+
+        <p>
+
+            Consistently speaking your partner's love language strengthens trust, connection and intimacy. Revisit your plan each week and celebrate your progress together.
+
+        </p>
+
+        <button type="button"
+                id="btnDownloadComplete"
+                class="btn btn-gradient btn-lg">
+
+            Download My Weekly Plan
+
+        </button>
+
+    </div>
+
+</div>
+
+<style>
+    /*==================================================
+        Couples Connect - Love Language Planner
+    ==================================================*/
+
+    :root {
+        --primary: #2563EB;
+        --secondary: #EC4899;
+        --success: #22C55E;
+        --warning: #F59E0B;
+        --danger: #EF4444;
+        --text: #111827;
+        --muted: #6B7280;
+        --border: #E5E7EB;
+        --bg: #F5F7FB;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    /*==================================================
+    HERO
+    ==================================================*/
+
+    .ll-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        padding: 30px 40px;
+        background: linear-gradient(135deg,#2563EB,#EC4899);
+        color: #fff;
+        box-shadow: 0 20px 45px rgba(37,99,235,.18);
+    }
+
+        .ll-hero::before {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            right: -120px;
+            top: -120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+        }
+
+        .ll-hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            left: -60px;
+            bottom: -60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.06);
+        }
+
+        .ll-hero > * {
+            position: relative;
+            z-index: 2;
+        }
+
+    .ll-tag {
+        display: inline-flex;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(10px);
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .ll-hero h1 {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .ll-hero p {
+        max-width: 650px;
+        line-height: 1.8;
+        font-size: 16px;
+    }
+
+    .ll-hero img {
+        width: 100%;
+        max-height: 220px;
+        object-fit: cover;
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,.25);
+    }
+
+    .ll-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+        .ll-badges span {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            backdrop-filter: blur(10px);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+    /*==================================================
+    LAYOUT
+    ==================================================*/
+
+    .ll-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+    }
+
+    @@media(max - width:992px) {
+        .ll-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    /*==================================================
+    SIDEBAR
+    ==================================================*/
+
+    .ll-sidebar {
+        position: sticky;
+        top: 90px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 15px 35px rgba(15,23,42,.08);
+    }
+
+        .ll-sidebar h5 {
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+    .ll-progress {
+        height: 8px;
+        background: #E5E7EB;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    #progressBar {
+        width: 20%;
+        height: 100%;
+        background: linear-gradient(135deg,#2563EB,#EC4899);
+        transition: .35s;
+    }
+
+    .ll-step {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        border-radius: 14px;
+        color: #6B7280;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .ll-step span {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #E5E7EB;
+            margin-right: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .ll-step.active {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+
+            .ll-step.active span {
+                background: #2563EB;
+                color: #fff;
+            }
+
+    .ll-tip {
+        margin-top: 22px;
+        padding: 16px;
+        border-radius: 16px;
+        background: #EFF6FF;
+        border-left: 4px solid #2563EB;
+    }
+
+        .ll-tip h6 {
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .ll-tip p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+    /*==================================================
+    CONTENT CARDS
+    ==================================================*/
+
+    .ll-card {
+        display: none;
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 15px 40px rgba(15,23,42,.06);
+        animation: fadeCard .35s ease;
+    }
+
+        .ll-card.active-step {
+            display: block;
+        }
+
+    @@keyframes fadeCard {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+
+    /*==================================================
+    HEADER
+    ==================================================*/
+
+    .ll-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .ll-number {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg,#2563EB,#EC4899);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        margin-right: 18px;
+        box-shadow: 0 12px 24px rgba(37,99,235,.25);
+    }
+
+    .ll-header h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 800;
+        color: #111827;
+    }
+
+    .ll-header p {
+        margin: 6px 0 0;
+        color: #6B7280;
+        font-size: 15px;
+    }
+
+    /*==================================================
+    LOVE LANGUAGE CARDS
+    ==================================================*/
+
+    .language-grid {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 18px;
+    }
+
+    .language-card {
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 24px;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: .25s;
+        font-size: 42px;
+    }
+
+        .language-card:hover {
+            transform: translateY(-5px);
+            border-color: #2563EB;
+            box-shadow: 0 15px 30px rgba(37,99,235,.15);
+        }
+
+        .language-card.active {
+            background: #EFF6FF;
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+
+        .language-card span {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+    /*==================================================
+    PLAN OPTIONS
+    ==================================================*/
+
+    .planner-options {
+        display: grid;
+        grid-template-columns: 320px;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .planner-option {
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+        .planner-option label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+    .form-select {
+        height: 52px;
+        border-radius: 14px;
+        border: 2px solid #E5E7EB;
+    }
+
+        .form-select:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 5px rgba(37,99,235,.10);
+        }
+
+    /*==================================================
+    ACTION PLAN
+    ==================================================*/
+
+    .plan-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .plan-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        background: #F8FAFC;
+        border: 2px solid #E5E7EB;
+        border-radius: 18px;
+        padding: 22px;
+        transition: .25s;
+    }
+
+        .plan-item.completed {
+            background: #ECFDF5;
+            border-color: #22C55E;
+        }
+
+    .plan-check {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #CBD5E1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: .25s;
+    }
+
+    .plan-item.completed .plan-check {
+        background: #22C55E;
+        color: #fff;
+        border-color: #22C55E;
+    }
+
+    .plan-content {
+        flex: 1;
+    }
+
+        .plan-content h5 {
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .plan-content p {
+            margin: 0;
+            color: #6B7280;
+            line-height: 1.8;
+        }
+
+    .plan-status {
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #EFF6FF;
+        color: #2563EB;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .plan-item.completed .plan-status {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    /*==================================================
+    TEXTAREA
+    ==================================================*/
+
+    .ll-textarea {
+        width: 100%;
+        height: 190px;
+        resize: none;
+        border-radius: 18px;
+        border: 2px solid #E5E7EB;
+        padding: 18px;
+        font-size: 15px;
+        line-height: 1.8;
+        transition: .25s;
+    }
+
+        .ll-textarea:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 5px rgba(37,99,235,.10);
+        }
+
+    /*==================================================
+    REVIEW
+    ==================================================*/
+
+    .review-card {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 18px;
+    }
+
+    .review-item {
+        background: #F8FAFC;
+        border-left: 5px solid #2563EB;
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+        .review-item h6 {
+            margin-bottom: 10px;
+            color: #2563EB;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-size: 13px;
+        }
+
+        .review-item p {
+            margin: 0;
+            color: #374151;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+    /*==================================================
+    ACTION BAR
+    ==================================================*/
+
+    .ll-actionbar {
+        position: sticky;
+        bottom: 15px;
+        z-index: 999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-top: 25px;
+        padding: 15px 20px;
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #EEF2F7;
+        box-shadow: 0 18px 45px rgba(15,23,42,.12);
+    }
+
+        .ll-actionbar > div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+    .ll-status {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #F8FAFC;
+        border-radius: 14px;
+        padding: 10px 18px;
+    }
+
+    .ll-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22C55E;
+        animation: llPulse 2s infinite;
+    }
+
+    @@keyframes llPulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(34,197,94,.60);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34,197,94,0);
+    }
+
+    }
+
+    .ll-status strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .ll-status small {
+        display: block;
+        color: #6B7280;
+        font-size: 12px;
+    }
+
+    /*==================================================
+    BUTTONS
+    ==================================================*/
+
+    .ll-actionbar .btn {
+        height: 46px;
+        padding: 0 22px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: .25s;
+    }
+
+        .ll-actionbar .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-gradient {
+        background: linear-gradient(135deg,#2563EB,#EC4899);
+        border: none;
+        color: #fff;
+    }
+
+        .btn-gradient:hover {
+            color: #fff;
+            box-shadow: 0 12px 25px rgba(37,99,235,.35);
+        }
+
+    .btn-outline-primary {
+        border: 2px solid #2563EB;
+    }
+
+        .btn-outline-primary:hover {
+            background: #2563EB;
+            color: #fff;
+        }
+
+    .btn-outline-success {
+        border: 2px solid #22C55E;
+    }
+
+        .btn-outline-success:hover {
+            background: #22C55E;
+            color: #fff;
+        }
+
+    /*==================================================
+    COMPLETION SCREEN
+    ==================================================*/
+
+    .ll-complete {
+        background: #fff;
+        border-radius: 24px;
+        padding: 70px 45px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(15,23,42,.08);
+        animation: fadeCard .35s ease;
+    }
+
+        .ll-complete i {
+            font-size: 90px;
+            color: #2563EB;
+            margin-bottom: 22px;
+        }
+
+        .ll-complete h2 {
+            font-size: 42px;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 15px;
+        }
+
+        .ll-complete p {
+            max-width: 700px;
+            margin: 0 auto 35px;
+            color: #6B7280;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+    /*==================================================
+    SCROLLBAR
+    ==================================================*/
+
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 20px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #F8FAFC;
+    }
+
+    /*==================================================
+    RESPONSIVE
+    ==================================================*/
+
+    @@media(max - width:1200px) {
+        .ll-layout
+
+    {
+        grid-template-columns: 250px 1fr;
+    }
+
+    }
+
+    @@media(max - width:992px) {
+        .ll-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .ll-sidebar {
+        position: relative;
+        top: auto;
+        margin-bottom: 20px;
+    }
+
+    .language-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .review-card {
+        grid-template-columns: 1fr;
+    }
+
+    .planner-options {
+        grid-template-columns: 1fr;
+    }
+
+    .ll-actionbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+        .ll-actionbar > div {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ll-actionbar .btn {
+            width: 100%;
+        }
+
+    }
+
+    @@media(max - width:768px) {
+        .ll-hero
+
+    {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .ll-hero h1 {
+        font-size: 34px;
+    }
+
+    .ll-card {
+        padding: 22px;
+    }
+
+    .ll-header {
+        align-items: flex-start;
+    }
+
+        .ll-header h2 {
+            font-size: 24px;
+        }
+
+    .language-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .plan-item {
+        flex-direction: column;
+    }
+
+    .plan-check {
+        margin-bottom: 10px;
+    }
+
+    .review-card {
+        grid-template-columns: 1fr;
+    }
+
+    .ll-textarea {
+        height: 160px;
+    }
+
+</style>
+
+@section Scripts {
+
+    <script src="~/js/love-language-planner.js"></script>
+
+}

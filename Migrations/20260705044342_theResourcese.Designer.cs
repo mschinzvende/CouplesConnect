@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260502102404_DatabaseUpdate")]
-    partial class DatabaseUpdate
+    [Migration("20260705044342_theResourcese")]
+    partial class theResourcese
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -293,34 +293,6 @@ namespace CouplesConnect.Migrations
                     b.ToTable("ReflectionNotes");
                 });
 
-            modelBuilder.Entity("CouplesConnect.Data.Models.Resource", b =>
-                {
-                    b.Property<Guid>("ResourceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool?>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ResourceType")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("ResourceId");
-
-                    b.ToTable("Resources");
-                });
-
             modelBuilder.Entity("CouplesConnect.Data.Models.SupportTicket", b =>
                 {
                     b.Property<Guid>("TicketId")
@@ -534,12 +506,14 @@ namespace CouplesConnect.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsRejected")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Qualifications")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Specializations")
-                        .IsRequired()
+                    b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("YearsOfExperience")
@@ -604,6 +578,93 @@ namespace CouplesConnect.Migrations
                     b.HasKey("PlatformSettingId");
 
                     b.ToTable("PlatformSettings");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.Resource", b =>
+                {
+                    b.Property<Guid>("ResourceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EstimatedDuration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HtmlPage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Thumbnail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("ResourceId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Resources");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ResourceCategory", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("ResourceCategories");
                 });
 
             modelBuilder.Entity("CouplesConnect.Models.Service", b =>
@@ -1005,6 +1066,17 @@ namespace CouplesConnect.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.Resource", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.ResourceCategory", "Category")
+                        .WithMany("Resources")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.Service", b =>
                 {
                     b.HasOne("CouplesConnect.Models.ServiceType", "ServiceType")
@@ -1107,6 +1179,11 @@ namespace CouplesConnect.Migrations
                 {
                     b.Navigation("CounselorProfile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ResourceCategory", b =>
+                {
+                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("CouplesConnect.Models.Session", b =>

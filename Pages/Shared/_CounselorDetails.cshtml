@@ -113,6 +113,45 @@
 
 </div>
 
+<hr />
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+
+    @if (!Model.IsApproved && !Model.IsRejected)
+    {
+        <button class="btn btn-danger"
+                onclick="openReject('@Model.UserId')">
+
+            <i class="bi bi-x-circle me-1"></i>
+            Reject Application
+
+        </button>
+
+        <button class="btn btn-success"
+                onclick="openApprove('@Model.UserId')">
+
+            <i class="bi bi-check-circle me-1"></i>
+            Approve Application
+
+        </button>
+    }
+    else if (Model.IsApproved)
+    {
+        <span class="badge bg-success fs-6 p-2">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            Approved
+        </span>
+    }
+    else
+    {
+        <span class="badge bg-danger fs-6 p-2">
+            <i class="bi bi-x-circle-fill me-1"></i>
+            Rejected
+        </span>
+    }
+
+</div>
+
 <style>
     .counselor-wrapper {
         font-size: 12.5px;

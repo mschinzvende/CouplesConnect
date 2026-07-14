@@ -64,18 +64,7 @@
                                     View
                                 </button>
 
-                                @if (c.IsApproved)
-                                {
-                                    <span class="badge bg-success">Approved</span>
-                                }
-                                else if (c.IsRejected)
-                                {
-                                    <span class="badge bg-danger">Rejected</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                }
+                               
 
                             </td>
 
@@ -247,15 +236,22 @@
 
 <script>
 
-    function openReject(id) {
-        document.getElementById("rejectId").value = id;
-        new bootstrap.Modal(document.getElementById("rejectModal")).show();
+        function openApprove(id) {
+
+        bootstrap.Modal.getInstance(document.getElementById("viewModal"))?.hide();
+
+        document.getElementById("approveId").value = id;
+
+        new bootstrap.Modal(document.getElementById("approveModal")).show();
     }
 
+    function openReject(id) {
 
-    function openApprove(id) {
-        document.getElementById("approveId").value = id;
-        new bootstrap.Modal(document.getElementById("approveModal")).show();
+        bootstrap.Modal.getInstance(document.getElementById("viewModal"))?.hide();
+
+        document.getElementById("rejectId").value = id;
+
+        new bootstrap.Modal(document.getElementById("rejectModal")).show();
     }
 
     function openView(id) {

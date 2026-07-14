@@ -39,6 +39,8 @@ namespace CouplesConnect.Data
 
         public DbSet<Resource> Resources { get; set; }
 
+        public DbSet<ResourceCategory> ResourceCategories { get; set; }
+
         public DbSet<SupportTicket> SupportTickets { get; set; }
 
         public DbSet<UserSubscription> UserSubscriptions { get; set; }

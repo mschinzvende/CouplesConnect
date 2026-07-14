@@ -1,0 +1,1172 @@
+﻿@page
+@model CouplesConnect.Pages.Resources.ConflictRepair.IndexModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Conflict Repair";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Hero -->
+
+    <section class="cr-hero mb-4">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-8">
+
+                <span class="cr-tag">
+
+                    Couples Connect Resource
+
+                </span>
+
+                <h1>
+
+                    Conflict Repair
+
+                </h1>
+
+                <p>
+
+                    Work through disagreements together using a structured six-step reflection exercise designed by relationship professionals.
+
+                </p>
+
+                <div class="cr-hero-stats">
+
+                    <div class="mt-3">
+
+                        <span class="badge bg-light text-dark me-2">
+
+                            ⏱ 10 Minutes
+
+                        </span>
+
+                        <span class="badge bg-light text-dark me-2">
+
+                            📝 6 Guided Steps
+
+                        </span>
+
+                        <span class="badge bg-light text-dark">
+
+                            🔒 Private
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 text-center">
+
+                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80"
+                     class="img-fluid rounded-4 shadow-lg" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="row">
+
+        <!-- LEFT -->
+
+        <div class="col-lg-3">
+
+            <div class="cr-sidebar">
+
+                <h5>
+
+                    Your Journey
+
+                </h5>
+
+                <div class="cr-progress">
+
+                    <div id="progressBar"></div>
+
+                </div>
+
+                <div class="cr-step active" data-step="1">
+
+                    <span>1</span>
+
+                    What Happened?
+
+                </div>
+
+                <div class="cr-step" data-step="2">
+
+                    <span>2</span>
+
+                    My Feelings
+
+                </div>
+
+                <div class="cr-step" data-step="3">
+
+                    <span>3</span>
+
+                    My Needs
+
+                </div>
+
+                <div class="cr-step" data-step="4">
+
+                    <span>4</span>
+
+                    My Responsibility
+
+                </div>
+
+                <div class="cr-step" data-step="5">
+
+                    <span>5</span>
+
+                    Repair
+
+                </div>
+
+                <div class="cr-step" data-step="6">
+
+                    <span>6</span>
+
+                    Moving Forward
+
+                </div>
+
+                <div class="cr-tip">
+
+                    <h6>
+
+                        Reflection Tip
+
+                    </h6>
+
+                    <p id="reflectionTip">
+
+                        Describe only what happened.
+
+                        Avoid assigning blame.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="col-lg-9">
+
+            <!-- STEP 1 -->
+
+            <div class="cr-card active-step">
+
+                <div class="cr-number">
+
+                    1
+
+                </div>
+
+                <h2>
+
+                    What happened?
+
+                </h2>
+
+                <p>
+
+                    Describe the disagreement objectively.
+
+                </p>
+
+                <textarea id="s1"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <!-- STEP 2 -->
+
+            <div class="cr-card">
+
+                <div class="cr-number">
+
+                    2
+
+                </div>
+
+                <h2>
+
+                    What did I feel?
+
+                </h2>
+
+                <p>
+
+                    Name the emotions you experienced.
+
+                </p>
+
+                <textarea id="s2"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <!-- STEP 3 -->
+
+            <div class="cr-card">
+
+                <div class="cr-number">
+
+                    3
+
+                </div>
+
+                <h2>
+
+                    What did I need?
+
+                </h2>
+
+                <p>
+
+                    Identify the need behind those emotions.
+
+                </p>
+
+                <textarea id="s3"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <!-- STEP 4 -->
+
+            <div class="cr-card">
+
+                <div class="cr-number">
+
+                    4
+
+                </div>
+
+                <h2>
+
+                    What part do I own?
+
+                </h2>
+
+                <p>
+
+                    Reflect on your own contribution.
+
+                </p>
+
+                <textarea id="s4"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <!-- STEP 5 -->
+
+            <div class="cr-card">
+
+                <div class="cr-number">
+
+                    5
+
+                </div>
+
+                <h2>
+
+                    Repair
+
+                </h2>
+
+                <p>
+
+                    Write a meaningful apology.
+
+                </p>
+
+                <textarea id="s5"
+                          class="form-control"></textarea>
+
+            </div>
+
+            <!-- STEP 6 -->
+
+            <div class="cr-card">
+
+                <div class="cr-number">
+
+                    6
+
+                </div>
+
+                <h2>
+
+                    Moving Forward
+
+                </h2>
+
+                <p>
+
+                    Agree on practical next steps.
+
+                </p>
+
+                <textarea id="s6"
+                          class="form-control"></textarea>
+
+            </div>
+            <!-- ACTION BAR -->
+
+            <div class="cr-actionbar">
+
+                <div>
+
+                    <button type="button"
+                            id="btnPrevious"
+                            class="btn btn-light btn-lg"
+                            >
+
+                        <i class="mdi mdi-arrow-left"></i>
+
+                        Previous
+
+                    </button>
+
+                </div>
+
+                <div class="text-center">
+
+                    <span class="badge bg-success px-3 py-2"
+                          id="saveStatus">
+
+                        Autosaved
+
+                    </span>
+
+                    <div class="small text-muted mt-2">
+
+                        Step
+
+                        <span id="currentStep">
+
+                            1
+
+                        </span>
+
+                        of
+
+                        <span>
+
+                            6
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <button type="button"
+                            class="btn btn-outline-primary btn-lg me-2"
+                            onclick="downloadRepair()">
+
+                        <i class="mdi mdi-download"></i>
+
+                        Download
+
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-danger btn-lg me-2"
+                            onclick="resetRepair()">
+
+                        <i class="mdi mdi-refresh"></i>
+
+                        Reset
+
+                    </button>
+
+                    <button type="button"
+                            id="btnNext"
+                            class="btn btn-primary btn-lg"
+                            >
+
+                        Next
+
+                        <i class="mdi mdi-arrow-right"></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    /*==================================================
+        Couples Connect - Conflict Repair
+    ==================================================*/
+
+    :root {
+        --primary: #5B5CEB;
+        --primary-dark: #4338CA;
+        --secondary: #8B5CF6;
+        --success: #22C55E;
+        --danger: #EF4444;
+        --warning: #F59E0B;
+        --text: #111827;
+        --muted: #6B7280;
+        --border: #E5E7EB;
+        --bg: #F5F7FB;
+        --card: #FFFFFF;
+    }
+
+    body {
+        background: var(--bg);
+    }
+
+    /*==================================================
+     HERO
+    ==================================================*/
+
+    .cr-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg,#5B5CEB,#7C3AED);
+        border-radius: 24px;
+        padding: 28px 40px;
+        margin-bottom: 25px;
+        color: #fff;
+        box-shadow: 0 25px 60px rgba(91,92,235,.20);
+    }
+
+        .cr-hero::before {
+            content: "";
+            position: absolute;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            right: -140px;
+            top: -120px;
+        }
+
+        .cr-hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.05);
+            left: -60px;
+            bottom: -80px;
+        }
+
+        .cr-hero > * {
+            position: relative;
+            z-index: 2;
+        }
+
+    .cr-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(12px);
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .cr-hero h1 {
+        font-size: 42px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .cr-hero p {
+        font-size: 16px;
+        line-height: 1.7;
+        opacity: .95;
+        max-width: 650px;
+        margin-bottom: 15px;
+    }
+
+    .cr-hero img {
+        width: 100%;
+        max-height: 210px;
+        object-fit: cover;
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(0,0,0,.25);
+    }
+
+    .cr-hero-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+        .cr-hero-badges span {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.16);
+            backdrop-filter: blur(12px);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+    /*==================================================
+    LAYOUT
+    ==================================================*/
+
+    .cr-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+    }
+
+    @@media(max - width:992px) {
+        .cr-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    /*==================================================
+    SIDEBAR
+    ==================================================*/
+
+    .cr-sidebar {
+        position: sticky;
+        top: 90px;
+        background: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+        .cr-sidebar h5 {
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+    /*==================================================
+    PROGRESS
+    ==================================================*/
+
+    .cr-progress {
+        width: 100%;
+        height: 8px;
+        background: #ECEEF5;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 22px;
+    }
+
+    #progressBar {
+        width: 16.6%;
+        height: 100%;
+        background: linear-gradient(90deg,#5B5CEB,#7C3AED);
+        transition: .35s;
+    }
+
+    /*==================================================
+    STEP LIST
+    ==================================================*/
+
+    .cr-step {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        margin-bottom: 6px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: .3s;
+        font-size: 14px;
+        font-weight: 600;
+        color: #6B7280;
+    }
+
+        .cr-step:hover {
+            background: #F8FAFC;
+        }
+
+        .cr-step span {
+            width: 30px;
+            height: 30px;
+            margin-right: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #E5E7EB;
+            font-size: 13px;
+            font-weight: 700;
+            transition: .3s;
+        }
+
+        .cr-step.active {
+            background: #EEF2FF;
+            color: #5B5CEB;
+        }
+
+            .cr-step.active span {
+                background: #5B5CEB;
+                color: #fff;
+                box-shadow: 0 8px 18px rgba(91,92,235,.25);
+            }
+
+    /*==================================================
+    TIP
+    ==================================================*/
+
+    .cr-tip {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 16px;
+        background: #EEF4FF;
+        border-left: 4px solid #5B5CEB;
+    }
+
+        .cr-tip h6 {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .cr-tip p {
+            margin: 0;
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+    /*==================================================
+    QUESTION CARD
+    ==================================================*/
+
+    .cr-card {
+        display: none;
+        background: #fff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 15px 40px rgba(15,23,42,.06);
+        animation: fadeCard .35s ease;
+        position: relative;
+    }
+
+        .cr-card.active-step {
+            display: block;
+        }
+
+    @@keyframes fadeCard {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+
+    /*==================================================
+    QUESTION HEADER
+    ==================================================*/
+
+    .cr-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .cr-number {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: linear-gradient(135deg,#5B5CEB,#7C3AED);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 700;
+        margin-right: 18px;
+        box-shadow: 0 10px 20px rgba(91,92,235,.25);
+    }
+
+    .cr-title {
+        flex: 1;
+    }
+
+        .cr-title h2 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+            color: #111827;
+        }
+
+        .cr-title p {
+            margin: 4px 0 0;
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+    /*==================================================
+    REFLECTION BOX
+    ==================================================*/
+
+    .cr-reflection {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        background: #F8FAFF;
+        border-left: 5px solid var(--primary);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+        .cr-reflection i {
+            font-size: 26px;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .cr-reflection strong {
+            display: block;
+            font-size: 15px;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+
+        .cr-reflection p {
+            margin: 0;
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+    /*==================================================
+    TEXT AREA
+    ==================================================*/
+
+    .cr-card textarea {
+        width: 100%;
+        height: 170px;
+        border-radius: 18px;
+        border: 2px solid #E5E7EB;
+        padding: 18px;
+        font-size: 15px;
+        line-height: 1.8;
+        resize: none;
+        transition: .25s;
+        background: #fff;
+    }
+
+        .cr-card textarea:focus {
+            border-color: #5B5CEB;
+            outline: none;
+            box-shadow: 0 0 0 5px rgba(91,92,235,.10);
+        }
+
+    /*==================================================
+    COUNTER
+    ==================================================*/
+
+    .cr-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .cr-counter {
+        color: #9CA3AF;
+        font-size: 13px;
+    }
+
+    .cr-save {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #22C55E;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .cr-save-dot {
+        width: 8px;
+        height: 8px;
+        background: #22C55E;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34,197,94,0);
+    }
+
+    }
+
+    /*==================================================
+    QUOTE CARD
+    ==================================================*/
+
+    .cr-quote {
+        margin-top: 20px;
+        background: linear-gradient(135deg,#EEF2FF,#F5F3FF);
+        border-radius: 18px;
+        padding: 18px;
+        display: flex;
+        gap: 15px;
+    }
+
+        .cr-quote i {
+            font-size: 28px;
+            color: #5B5CEB;
+        }
+
+        .cr-quote p {
+            margin: 0;
+            color: #4B5563;
+            font-size: 14px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+    /*==================================================
+    SUCCESS INDICATOR
+    ==================================================*/
+
+    .cr-complete-indicator {
+        position: absolute;
+        right: 25px;
+        top: 25px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ECFDF5;
+        color: #22C55E;
+        opacity: 0;
+        transform: scale(.8);
+        transition: .3s;
+    }
+
+    .cr-card.completed .cr-complete-indicator {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /*==================================================
+    STICKY ACTION BAR
+    ==================================================*/
+
+    .cr-actionbar {
+        position: sticky;
+        bottom: 15px;
+        z-index: 999;
+        background: #fff;
+        border-radius: 20px;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 18px 45px rgba(15,23,42,.12);
+        margin-top: 25px;
+        border: 1px solid #EEF2F7;
+    }
+
+    .cr-action-left,
+    .cr-action-center,
+    .cr-action-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cr-action-center {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .cr-actionbar .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        height: 46px;
+        padding: 0 22px;
+        transition: .25s;
+    }
+
+        .cr-actionbar .btn i {
+            font-size: 18px;
+        }
+
+        .cr-actionbar .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-gradient {
+        background: linear-gradient(135deg,#5B5CEB,#7C3AED);
+        color: #fff;
+        border: none;
+    }
+
+        .btn-gradient:hover {
+            color: #fff;
+            box-shadow: 0 12px 25px rgba(91,92,235,.35);
+        }
+
+    /*==================================================
+    SAVE STATUS
+    ==================================================*/
+
+    .cr-status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 14px;
+        background: #F8FAFC;
+    }
+
+    .cr-status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22C55E;
+        animation: statusPulse 2s infinite;
+    }
+
+    @@keyframes statusPulse {
+        0%
+
+    {
+        box-shadow: 0 0 0 0 rgba(34,197,94,.6);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34,197,94,0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34,197,94,0);
+    }
+
+    }
+
+    .cr-status strong {
+        display: block;
+        font-size: 14px;
+    }
+
+    .cr-status small {
+        color: #6B7280;
+        display: block;
+    }
+
+    /*==================================================
+    PROGRESS PILL
+    ==================================================*/
+
+    .cr-progress-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: #EEF2FF;
+        color: #5B5CEB;
+        font-weight: 700;
+    }
+
+    /*==================================================
+    BUTTON IMPROVEMENTS
+    ==================================================*/
+
+    .btn-outline-primary {
+        border: 2px solid #5B5CEB;
+    }
+
+        .btn-outline-primary:hover {
+            background: #5B5CEB;
+        }
+
+    .btn-outline-danger {
+        border: 2px solid #EF4444;
+    }
+
+        .btn-outline-danger:hover {
+            background: #EF4444;
+        }
+
+    /*==================================================
+    SCROLLBAR
+    ==================================================*/
+
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    textarea::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 20px;
+    }
+
+    textarea::-webkit-scrollbar-track {
+        background: #F8FAFC;
+    }
+
+    /*==================================================
+    SMOOTH FADE
+    ==================================================*/
+
+    .fade-enter {
+        animation: fadeIn .3s ease;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+
+    }
+
+    /*==================================================
+    RESPONSIVE
+    ==================================================*/
+
+    @@media(max - width:1200px) {
+        .cr-layout
+
+    {
+        grid-template-columns: 250px 1fr;
+    }
+
+    }
+
+    @@media(max - width:992px) {
+        .cr-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .cr-sidebar {
+        position: relative;
+        top: auto;
+        margin-bottom: 20px;
+    }
+
+    .cr-actionbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .cr-action-left,
+    .cr-action-center,
+    .cr-action-right {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .cr-actionbar .btn {
+        width: 100%;
+    }
+
+    }
+
+    @@media(max - width:768px) {
+        .cr-hero
+
+    {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .cr-hero h1 {
+        font-size: 34px;
+    }
+
+    .cr-hero p {
+        font-size: 15px;
+    }
+
+    .cr-card {
+        padding: 20px;
+    }
+
+    .cr-title h2 {
+        font-size: 24px;
+    }
+
+    .cr-card textarea {
+        height: 150px;
+        font-size: 14px;
+    }
+
+    .cr-reflection {
+        padding: 12px;
+    }
+
+    .cr-sidebar {
+        padding: 16px;
+    }
+
+    }
+
+</style>
+
+
+
+    <script src="~/js/conflict-repair.js"></script>
+

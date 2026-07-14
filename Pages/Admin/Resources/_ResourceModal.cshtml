@@ -1,0 +1,201 @@
+﻿@model CouplesConnect.ViewModels.ResourceViewModel
+
+<div class="modal fade" id="resourceModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <form method="post"
+                  asp-page-handler="Save"
+                  enctype="multipart/form-data">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Add Resource
+                    </h5>
+
+                    <button class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input asp-for="ResourceId" type="hidden" />
+                    <input asp-for="ExistingThumbnail" type="hidden" />
+
+                    <div class="row">
+
+                        <!-- LEFT -->
+
+                        <div class="col-lg-8">
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Title
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control cc-input" />
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    Description
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          rows="4"
+                                          class="form-control cc-input"></textarea>
+
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Category
+                                    </label>
+
+                                    <select asp-for="CategoryId"
+                                            asp-items="Model.Categories"
+                                            class="form-select cc-input">
+
+                                        <option value="">
+                                            Select Category
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        HTML Page
+                                    </label>
+
+                                    <input asp-for="HtmlPage"
+                                           class="form-control cc-input"
+                                           placeholder="daily-check-in/index.html" />
+
+                                </div>
+
+                            </div>
+
+                            <div class="row mt-3">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Estimated Duration
+                                    </label>
+
+                                    <input asp-for="EstimatedDuration"
+                                           class="form-control cc-input"
+                                           placeholder="10 mins" />
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Display Order
+                                    </label>
+
+                                    <input asp-for="DisplayOrder"
+                                           type="number"
+                                           class="form-control cc-input" />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+
+                        <div class="col-lg-4">
+
+                            <label class="form-label fw-semibold">
+
+                                Thumbnail
+
+                            </label>
+
+                            <div class="upload-area">
+
+                                <img id="thumbnailPreview"
+                                     src="~/images/no-image.png"
+                                     class="img-fluid rounded mb-3" />
+
+                                <input asp-for="ThumbnailFile"
+                                       type="file"
+                                       accept="image/*"
+                                       class="form-control"
+                                       id="thumbnailFile" />
+
+                            </div>
+
+                            <hr />
+
+                            <div class="form-check mb-2">
+
+                                <input asp-for="IsFeatured"
+                                       class="form-check-input" />
+
+                                <label class="form-check-label">
+
+                                    Featured Resource
+
+                                </label>
+
+                            </div>
+
+                            <div class="form-check">
+
+                                <input asp-for="IsActive"
+                                       class="form-check-input" />
+
+                                <label class="form-check-label">
+
+                                    Active
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal"
+                            type="button">
+
+                        Cancel
+
+                    </button>
+
+                    <button class="btn btn-primary">
+
+                        Save Resource
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
