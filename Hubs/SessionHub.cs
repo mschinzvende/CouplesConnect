@@ -4,26 +4,55 @@ namespace CouplesConnect.Hubs
 {
     public class SessionHub : Hub
     {
-        // Active participants inside session
-        private static readonly Dictionary<string, HashSet<string>> ActiveSessions = new();
-
-        // Waiting users (not yet admitted)
-        private static readonly Dictionary<string, HashSet<string>> WaitingRooms = new();
-
-        // ================= DISCONNECT =================
-        public override async Task OnDisconnectedAsync(Exception exception)
+        private readonly ILogger<SessionHub> _logger;
+        public SessionHub(ILogger<SessionHub> logger)
         {
-            // Remove from active sessions
+            _logger = logger;
+        }
+        // ==========================================
+        // Active Participants
+        // ==========================================
+
+        private static readonly Dictionary<int, HashSet<string>>
+            ActiveSessions = new();
+
+        // ==========================================
+        // Waiting Room
+        // ==========================================
+
+        private static readonly Dictionary<int, HashSet<string>>
+            WaitingRooms = new();
+
+        // ==========================================
+        // Disconnect
+        // ==========================================
+
+
+        public string Ping()
+        {
+            return "Pong";
+        }
+
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
             foreach (var session in ActiveSessions)
             {
                 if (session.Value.Remove(Context.ConnectionId))
                 {
-                    await Clients.Group(session.Key)
-                        .SendAsync("UserLeft", Context.ConnectionId);
+                    await Clients.Group(session.Key.ToString())
+                        .SendAsync(
+                            "UserLeft",
+                            Context.ConnectionId
+                        );
+
+                    if (session.Value.Count == 0)
+                    {
+                        ActiveSessions.Remove(session.Key);
+                        break;
+                    }
                 }
             }
 
-            // Remove from waiting rooms
             foreach (var room in WaitingRooms)
             {
                 room.Value.Remove(Context.ConnectionId);
@@ -32,75 +61,108 @@ namespace CouplesConnect.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        // ================= WAITING ROOM =================
+        // ==========================================
+        // Waiting Room
+        // ==========================================
 
-        public async Task RequestJoin(string sessionId)
+        public async Task RequestJoin(int sessionId)
         {
             if (!WaitingRooms.ContainsKey(sessionId))
-                WaitingRooms[sessionId] = new HashSet<string>();
-
-            // prevent duplicate requests
-            WaitingRooms[sessionId].Add(Context.ConnectionId);
-
-            // Notify therapist (if already in session)
-            await Clients.Group(sessionId)
-                .SendAsync("UserWaiting", Context.ConnectionId);
-        }
-
-        public async Task AdmitUser(string sessionId, string connectionId)
-        {
-            if (!ActiveSessions.ContainsKey(sessionId))
-                ActiveSessions[sessionId] = new HashSet<string>();
-
-            // Move user from waiting → active
-            ActiveSessions[sessionId].Add(connectionId);
-
-            if (WaitingRooms.ContainsKey(sessionId))
             {
-                WaitingRooms[sessionId].Remove(connectionId);
+                WaitingRooms[sessionId] =
+                    new HashSet<string>();
             }
 
-            await Groups.AddToGroupAsync(connectionId, sessionId);
+            WaitingRooms[sessionId]
+                .Add(Context.ConnectionId);
 
-            // Notify admitted user
+            await Clients.Group(sessionId.ToString())
+                .SendAsync(
+                    "UserWaiting",
+                    Context.ConnectionId
+                );
+        }
+
+        // ==========================================
+        // Admit User
+        // ==========================================
+
+        public async Task AdmitUser(
+            int sessionId,
+            string connectionId)
+        {
+            if (WaitingRooms.ContainsKey(sessionId))
+            {
+                WaitingRooms[sessionId]
+                    .Remove(connectionId);
+            }
+
             await Clients.Client(connectionId)
                 .SendAsync("Admitted");
-
-            // Notify others
-            await Clients.Group(sessionId)
-                .SendAsync("UserJoined", connectionId);
         }
 
         // ================= JOIN SESSION =================
 
-        public async Task JoinSession(string sessionId)
+        
+
+        public async Task JoinSession(int sessionId)
         {
-            if (!ActiveSessions.ContainsKey(sessionId))
+            try
+            {
+                Console.WriteLine($"JoinSession: {sessionId}");
+
+                _logger.LogInformation(
+    "JoinSession called. SessionId={SessionId}, ConnectionId={ConnectionId}",
+    sessionId,
+    Context.ConnectionId);
+
+                if (!ActiveSessions.ContainsKey(sessionId))
                 ActiveSessions[sessionId] = new HashSet<string>();
 
-            // Add therapist (or already admitted user)
-            ActiveSessions[sessionId].Add(Context.ConnectionId);
+            if (!ActiveSessions[sessionId].Contains(Context.ConnectionId))
+            {
+                ActiveSessions[sessionId].Add(Context.ConnectionId);
+            }
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
 
-            // Send existing participants
+            if (WaitingRooms.ContainsKey(sessionId))
+            {
+                WaitingRooms[sessionId].Remove(Context.ConnectionId);
+            }
+
+            // Send existing participants to the joining client
             await Clients.Caller.SendAsync(
                 "ExistingParticipants",
-                ActiveSessions[sessionId].Where(x => x != Context.ConnectionId)
-            );
+                ActiveSessions[sessionId]
+                    .Where(x => x != Context.ConnectionId)
+                    .ToList());
 
-            // ✅ CRITICAL FIX: Send waiting users (no lost requests)
-            if (WaitingRooms.ContainsKey(sessionId))
+                _logger.LogInformation("Added to ActiveSessions");
+
+                // Send waiting users (for counselors)
+                if (WaitingRooms.ContainsKey(sessionId))
             {
                 foreach (var waitingUser in WaitingRooms[sessionId])
                 {
-                    await Clients.Caller.SendAsync("UserWaiting", waitingUser);
+                    await Clients.Caller.SendAsync(
+                        "UserWaiting",
+                        waitingUser);
                 }
             }
 
-            // Notify others
-            await Clients.OthersInGroup(sessionId)
-                .SendAsync("UserJoined", Context.ConnectionId);
+            // Notify everyone else only AFTER this client
+            // has successfully joined the SignalR group.
+            await Clients.OthersInGroup(sessionId.ToString())
+                .SendAsync(
+                    "UserJoined",
+                    Context.ConnectionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in JoinSession");
+                throw;
+            }
         }
 
         // ================= WEBRTC SIGNALING =================

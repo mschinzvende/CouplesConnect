@@ -59,13 +59,14 @@ namespace CouplesConnect.Pages.Sessions
             // ?? Apply 5-min rule ONLY to users
             if (!isCounselor)
             {
-                var minutesToStart = (booking.ScheduledStart - DateTime.UtcNow).TotalMinutes;
+                var minutesToStart = (booking.ScheduledStart - DateTime.Now).TotalMinutes;
 
+                /*Temporary Deactivate constraint
                 if (minutesToStart > 5)
                 {
                     TempData["Error"] = "Session can only be joined 5 minutes before start time.";
                     return Redirect("/User/Dashboard");
-                }
+                }*/
             }
 
             // ? Counselor logic (unchanged)
