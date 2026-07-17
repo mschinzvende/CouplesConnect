@@ -157,7 +157,7 @@ namespace CouplesConnect.Pages.User.Bookings
     int ServiceId,
     Guid CounselorId,
     DateTime ScheduledStart,
-    bool IsGroup,
+    bool isGroup,
     List<string> ParticipantPhones)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -190,7 +190,7 @@ namespace CouplesConnect.Pages.User.Bookings
                 ScheduledStart = ScheduledStart,
                 SessionId = session.SessionId,
                 SubscriptionId = sub.SubscriptionId,
-                IsGroup = IsGroup
+                IsGroup = isGroup
             };
 
             _context.Bookings.Add(booking);
@@ -202,7 +202,7 @@ namespace CouplesConnect.Pages.User.Bookings
             
 
             // GROUP PARTICIPANTS
-            if (IsGroup && ParticipantPhones != null)
+            if (isGroup && ParticipantPhones != null)
             {
                 foreach (var phone in ParticipantPhones.Where(x => !string.IsNullOrEmpty(x)))
                 {

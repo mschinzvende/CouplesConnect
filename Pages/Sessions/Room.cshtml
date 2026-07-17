@@ -317,7 +317,7 @@
     window.roomConfig = {
         sessionId: @Model.SessionId,
         isCounselor: @(Model.IsCounselor.ToString().ToLower()),
-        returnUrl: "@(Model.IsCounselor ? "/User/Dashboard" : "/User/Dashboard")"
+        returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")"
     };
 </script>
 
