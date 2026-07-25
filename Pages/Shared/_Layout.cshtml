@@ -4,6 +4,12 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @RenderSection("Styles", required: false)
+
+@{
+    var currentUser = SignInManager.IsSignedIn(User)
+        ? await UserManager.GetUserAsync(User)
+        : null;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,9 +56,16 @@
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center">
                 @if (SignInManager.IsSignedIn(User))
+                {
+                   
+
+                    if (currentUser != null)
                     {
-                <h5 class="mb-0 font-weight-medium d-none d-lg-flex">Welcome @UserManager.GetUserAsync(User).Result.FullName</h5>
+                        <h5 class="mb-0 font-weight-medium d-none d-lg-flex">
+                            Welcome @currentUser.FullName
+                        </h5>
                     }
+                }
                 <ul class="navbar-nav navbar-nav-right">
                     <form class="search-form d-none d-md-block" action="#">
                         <i class="icon-magnifier"></i>
@@ -71,7 +84,7 @@
                                  src="~/theme/images/faces/face8.jpg" alt="Profile">
 
                             <span class="fw-semibold small text-dark">
-                                @UserManager.GetUserAsync(User).Result.FullName
+                               @currentUser?.FullName
                             </span>
                         </a>
 
@@ -83,11 +96,11 @@
                                      src="~/theme/images/faces/face8.jpg" alt="Profile">
 
                                 <div class="fw-semibold">
-                                    @UserManager.GetUserAsync(User).Result.FullName
+                                    @currentUser?.FullName
                                 </div>
 
                                 <div class="text-muted small">
-                                    @UserManager.GetUserAsync(User).Result.Email
+                                    @currentUser?.Email
                                 </div>
                             </div>
 
@@ -133,8 +146,8 @@
                             </div>
                             <div class="text-wrapper">
                                 <p class="profile-name">
-                                    
-                                        @UserManager.GetUserAsync(User).Result.FullName
+
+                                    @currentUser?.FullName
                                     
                                 </p>
                                 
@@ -265,6 +278,12 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Settings">
+                                <span class="menu-title">System Setings</span>
+                                <i class="icon-list menu-icon"></i>
+                            </a>
+                        </li>
                       
                     }
 

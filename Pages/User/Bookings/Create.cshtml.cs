@@ -2,6 +2,7 @@ using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
 using CouplesConnect.Services;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,14 +17,16 @@ namespace CouplesConnect.Pages.User.Bookings
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SubscriptionService _subscriptionService;
+        private readonly INotificationService _notification;
 
         public CreateModel(ApplicationDbContext context,
                            UserManager<ApplicationUser> userManager,
-                           SubscriptionService subscriptionService)
+                           SubscriptionService subscriptionService, INotificationService notification)
         {
             _context = context;
             _userManager = userManager;
             _subscriptionService = subscriptionService;
+            _notification = notification;
         }
 
         public List<Service> Services { get; set; }
@@ -199,7 +202,7 @@ namespace CouplesConnect.Pages.User.Bookings
 
             await _context.SaveChangesAsync();
 
-            
+            await _notification.NotifyBookingCreatedAsync(booking.BookingId);
 
             // GROUP PARTICIPANTS
             if (isGroup && ParticipantPhones != null)
@@ -217,9 +220,15 @@ namespace CouplesConnect.Pages.User.Bookings
 
                     _context.BookingParticipants.Add(participant);
 
+                    await _context.SaveChangesAsync();
+
                     var link = $"{Request.Scheme}://{Request.Host}/User/Bookings/Accept?token={token}";
 
                     // TODO: integrate WhatsApp send here
+
+                    await _notification.NotifyInvitationAsync(participant.Id);
+
+
                 }
             }
 

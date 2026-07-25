@@ -27,6 +27,9 @@ namespace CouplesConnect.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
         public class InputModel
         {
             [Required]
@@ -106,6 +109,11 @@ namespace CouplesConnect.Pages.Account
                 await _context.SaveChangesAsync();
 
                 await _signInManager.SignInAsync(user, false);
+
+                if (!string.IsNullOrEmpty(ReturnUrl))
+                {
+                    return LocalRedirect(ReturnUrl);
+                }
 
                 return Redirect("/User/Dashboard");
             }

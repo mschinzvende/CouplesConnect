@@ -62,7 +62,7 @@
         <!-- LINK -->
         <div class="text-center mt-4 small">
             Don’t have an account?
-            <a href="/signup" class="fw-semibold">Create one</a>
+            <a href="/signup?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")" class="fw-semibold">Create one</a>
         </div>
 
     </form>

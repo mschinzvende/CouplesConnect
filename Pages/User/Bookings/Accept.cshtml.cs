@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using CouplesConnect.Services.Interfaces;
 
 
 namespace CouplesConnect.Pages.User.Bookings
@@ -15,15 +16,19 @@ namespace CouplesConnect.Pages.User.Bookings
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AcceptModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        private readonly INotificationService _notification;
+
+        public AcceptModel(ApplicationDbContext context, UserManager<ApplicationUser> userManager, INotificationService notification)
         {
             _context = context;
             _userManager = userManager;
+            _notification = notification;
         }
 
         public async Task<IActionResult> OnGetAsync(string token)
         {
-            var user = await _userManager.GetUserAsync(User);
+            if (string.IsNullOrWhiteSpace(token))
+                return NotFound();
 
             var participant = await _context.BookingParticipants
                 .FirstOrDefaultAsync(x => x.InviteToken == token);
@@ -31,12 +36,22 @@ namespace CouplesConnect.Pages.User.Bookings
             if (participant == null)
                 return NotFound();
 
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Challenge(); // Redirects to login
+            }
+
             participant.UserId = user.Id;
             participant.Status = "Accepted";
 
             await _context.SaveChangesAsync();
 
-            return Redirect("/User/Bookings");
+            await _notification.NotifyInvitationAcceptedAsync(
+    participant.Id);
+
+            return RedirectToPage("/User/Bookings/Index");
         }
     }
 }

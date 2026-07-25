@@ -3,6 +3,7 @@ using CouplesConnect.Data.Seed;
 using CouplesConnect.Hubs;
 using CouplesConnect.Models;
 using CouplesConnect.Services;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,8 +19,8 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-var connectionString = Environment.GetEnvironmentVariable("LV_CH_BTE");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//var connectionString = Environment.GetEnvironmentVariable("LV_CH_BTE");
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -31,12 +32,32 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/signin";           // Your custom login page
+    options.AccessDeniedPath = "/signin";
+});
+
 builder.Services.AddScoped<SubscriptionService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddHttpClient();
+
+builder.Services.AddDataProtection();
+
+builder.Services.AddScoped<EncryptionService>();
 builder.Services.AddScoped<MessagingService>();
 builder.Services.AddScoped<EmailTemplateService>();
+
+
+
+
+builder.Services.AddScoped<SettingsService>();
+
+
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddHostedService<NotificationBackgroundService>();
 
 var app = builder.Build();
 
@@ -54,7 +75,7 @@ using (var scope = app.Services.CreateScope())
             CounselorCommissionPercent = 70
         });
 
-
+        
 
         context.SaveChanges();
     }

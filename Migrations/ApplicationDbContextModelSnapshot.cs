@@ -41,14 +41,32 @@ namespace CouplesConnect.Migrations
                     b.Property<bool>("IsGroup")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("ReminderSent")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ReminderSentDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("ScheduledStart")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SessionCompletedNotificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SessionCompletedNotificationSent")
+                        .HasColumnType("bit");
+
                     b.Property<int>("SessionId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("SessionStartedNotificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SessionStartedNotificationSent")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("SubscriptionId")
                         .HasColumnType("int");
@@ -521,6 +539,120 @@ namespace CouplesConnect.Migrations
                     b.ToTable("CounselorProfiles");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReadDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("IsRead");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.NotificationLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ProviderResponse")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("SentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Channel");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("NotificationLogs");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.Package", b =>
                 {
                     b.Property<int>("PackageId")
@@ -557,14 +689,58 @@ namespace CouplesConnect.Migrations
 
             modelBuilder.Entity("CouplesConnect.Models.PlatformSetting", b =>
                 {
-                    b.Property<int>("PlatformSettingId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PlatformSettingId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CounselorCommissionPercent")
+                    b.Property<string>("BaseUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("CounselorCommissionPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EnableSSL")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("NotifyCounsellorOnSessionStart")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PaynowIntegrationId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaynowIntegrationKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmtpPassword")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SmtpPort")
                         .HasColumnType("int");
+
+                    b.Property<string>("SmtpServer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmtpUsername")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TrialDurationDays")
                         .HasColumnType("int");
@@ -572,7 +748,22 @@ namespace CouplesConnect.Migrations
                     b.Property<int>("TrialSessions")
                         .HasColumnType("int");
 
-                    b.HasKey("PlatformSettingId");
+                    b.Property<string>("WhatsAppAccessToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WhatsAppApiUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WhatsAppBusinessAccountId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WhatsAppPhoneNumberId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WhatsAppVerifyToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
 
                     b.ToTable("PlatformSettings");
                 });
@@ -1057,6 +1248,17 @@ namespace CouplesConnect.Migrations
                     b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
                         .WithOne("CounselorProfile")
                         .HasForeignKey("CouplesConnect.Models.CounselorProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.Notification", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

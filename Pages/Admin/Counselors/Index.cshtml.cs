@@ -59,16 +59,8 @@ namespace CouplesConnect.Pages.Admin.Counselors
 
                 await _context.SaveChangesAsync();
 
-                // ? EMAIL
-                var body = _template.BuildTemplate(
-    "Application Update",
-    $"Hi {profile.FullName},<br/><br/>" +
-    "Unfortunately, your application was not approved at this time.<br/><br/>" +
-    $"<strong>Reason:</strong> {reason}<br/><br/>" +
-    "You are welcome to reapply after making improvements."
-);
-
-                await _messaging.SendEmailAsync(profile.User.Email, "Application Status", body);
+                // Send notifications here
+               
 
                 TempData["Success"] = "Application rejected";
             }
@@ -132,18 +124,8 @@ namespace CouplesConnect.Pages.Admin.Counselors
 
                 await _context.SaveChangesAsync();
 
-                // ? EMAIL
-                var body = _template.BuildTemplate(
-    "Application Approved ??",
-    $"Hi {profile.FullName},<br/><br/>" +
-    "Congratulations! Your counselor application has been approved. " +
-    "You can now start receiving bookings on CouplesConnect.",
-    "Go to Dashboard",
-    "https://yourdomain.com/counselor/dashboard"
-);
-
-                await _messaging.SendEmailAsync(profile.User.Email, "You're Approved!", body);
-
+                // Send Notifications Here
+                
                 TempData["Success"] = "Counselor approved";
             }
             catch

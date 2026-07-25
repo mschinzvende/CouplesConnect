@@ -31,5 +31,17 @@ namespace CouplesConnect.Data.Models
         public ICollection<BookingParticipant> Participants { get; set; } = new List<BookingParticipant>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public bool ReminderSent { get; set; }
+
+        public DateTime? ReminderSentDate { get; set; }
+
+        public bool SessionStartedNotificationSent { get; set; }
+
+        public DateTime? SessionStartedNotificationDate { get; set; }
+
+        public bool SessionCompletedNotificationSent { get; set; }
+
+        public DateTime? SessionCompletedNotificationDate { get; set; }
     }
 }

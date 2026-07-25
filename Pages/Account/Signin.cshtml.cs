@@ -18,6 +18,9 @@ namespace CouplesConnect.Pages.Account
         [BindProperty]
         public InputModel Input { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
         public class InputModel
         {
             [Required]

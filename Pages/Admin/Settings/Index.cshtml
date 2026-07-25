@@ -1,0 +1,494 @@
+﻿@page
+@model CouplesConnect.Pages.Admin.Settings.IndexModel
+
+@{
+    ViewData["Title"] = "Platform Settings";
+}
+
+<div class="row">
+
+    <div class="col-lg-3">
+
+        <div class="card">
+
+            <div class="card-body">
+
+                <h4 class="card-title mb-4">
+                    <i class="icon-settings"></i>
+                    Settings
+                </h4>
+
+                <div class="list-group" id="settings-tabs" role="tablist">
+
+                    <a class="list-group-item list-group-item-action active"
+                       data-bs-toggle="list"
+                       href="#general">
+                        <i class="icon-home me-2"></i>
+                        General
+                    </a>
+
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#whatsapp">
+                        <i class="icon-bubble me-2"></i>
+                        WhatsApp
+                    </a>
+
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#email">
+                        <i class="icon-envelope me-2"></i>
+                        Email
+                    </a>
+
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#subscription">
+                        <i class="icon-star me-2"></i>
+                        Subscription
+                    </a>
+
+                    <a class="list-group-item list-group-item-action"
+                       data-bs-toggle="list"
+                       href="#payments">
+                        <i class="icon-credit-card me-2"></i>
+                        Payments
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-9">
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+
+                @TempData["Error"]
+
+            </div>
+        }
+
+        <form method="post">
+
+            <input asp-for="Settings.Id" type="hidden" />
+
+            <div class="tab-content">
+
+                <!-- GENERAL -->
+
+                <div class="tab-pane fade show active"
+                     id="general">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h4>General Settings</h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Settings.CompanyName"></label>
+
+                                    <input asp-for="Settings.CompanyName"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Settings.CompanyEmail"></label>
+
+                                    <input asp-for="Settings.CompanyEmail"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Settings.CompanyPhone"></label>
+
+                                    <input asp-for="Settings.CompanyPhone"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Currency</label>
+
+                                    <input asp-for="Settings.Currency"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-3 mb-3">
+
+                                    <label>Time Zone</label>
+
+                                    <input asp-for="Settings.TimeZone"
+                                           class="form-control" />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- WHATSAPP -->
+
+                <div class="tab-pane fade"
+                     id="whatsapp">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h4>
+
+                                WhatsApp Cloud API
+
+                            </h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="mb-3">
+
+                                <label>BASE URL</label>
+
+                                <input asp-for="Settings.BaseUrl"
+                                       class="form-control" />
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>API URL</label>
+
+                                <input asp-for="Settings.WhatsAppApiUrl"
+                                       class="form-control" />
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <label>Access Token</label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="Settings.WhatsAppAccessToken"
+                                           
+                                           id="token"
+                                           class="form-control" />
+
+                                    <button class="btn btn-outline-secondary"
+                                            type="button"
+                                            onclick="togglePassword('token')">
+
+                                        Show
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+
+                                    <label>Phone Number ID</label>
+
+                                    <input asp-for="Settings.WhatsAppPhoneNumberId"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label>Business Account ID</label>
+
+                                    <input asp-for="Settings.WhatsAppBusinessAccountId"
+                                           class="form-control" />
+
+                                </div>
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <label>Webhook Verify Token</label>
+
+                                <input asp-for="Settings.WhatsAppVerifyToken"
+                                       class="form-control" />
+
+                            </div>
+
+                            <button class="btn btn-info mt-4"
+                                    asp-page-handler="TestWhatsApp">
+
+                                Test Connection
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- EMAIL -->
+
+                <div class="tab-pane fade"
+                     id="email">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h4>Email Settings</h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label>SMTP Server</label>
+
+                                    <input asp-for="Settings.SmtpServer"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-2 mb-3">
+
+                                    <label>Port</label>
+
+                                    <input asp-for="Settings.SmtpPort"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+
+                                    <label>Username</label>
+
+                                    <input asp-for="Settings.SmtpUsername"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label>Password</label>
+
+                                    <div class="input-group">
+
+                                        <input asp-for="Settings.SmtpPassword"
+                                               id="smtpPassword"
+                                               type="password"
+                                               class="form-control" />
+
+                                        <button type="button"
+                                                class="btn btn-outline-secondary"
+                                                onclick="togglePassword('smtpPassword')">
+
+                                            Show
+
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-3 mt-4">
+
+                                    <div class="form-check">
+
+                                        <input asp-for="Settings.EnableSSL"
+                                               class="form-check-input" />
+
+                                        <label asp-for="Settings.EnableSSL"
+                                               class="form-check-label">
+
+                                            Enable SSL
+
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- SUBSCRIPTION -->
+
+                <div class="tab-pane fade"
+                     id="subscription">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h4>Subscription Settings</h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-4">
+
+                                    <label>Trial Sessions</label>
+
+                                    <input asp-for="Settings.TrialSessions"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label>Trial Days</label>
+
+                                    <input asp-for="Settings.TrialDurationDays"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label>Counsellor Commission %</label>
+
+                                    <input asp-for="Settings.CounselorCommissionPercent"
+                                           class="form-control" />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- PAYMENTS -->
+
+                <div class="tab-pane fade"
+                     id="payments">
+
+                    <div class="card">
+
+                        <div class="card-header">
+
+                            <h4>Payment Gateway</h4>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+
+                                    <label>Paynow Integration ID</label>
+
+                                    <input asp-for="Settings.PaynowIntegrationId"
+                                           class="form-control" />
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label>Integration Key</label>
+
+                                    <input asp-for="Settings.PaynowIntegrationKey"
+                                           class="form-control" />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card mt-4">
+
+                <div class="card-body text-end">
+
+                    <button class="btn btn-success btn-lg">
+
+                        <i class="icon-check"></i>
+
+                        Save Settings
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <script>
+
+        function togglePassword(id){
+
+            var input=document.getElementById(id);
+
+            if(input.type==="password")
+                input.type="text";
+            else
+                input.type="password";
+
+        }
+
+    </script>
+
+}

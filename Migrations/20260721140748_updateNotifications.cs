@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CouplesConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class ResourceModule : Migration
+    public partial class updateNotifications : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -151,6 +151,30 @@ namespace CouplesConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "NotificationLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Channel = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    NotificationType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Recipient = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Subject = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    ProviderResponse = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SentDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NotificationLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Packages",
                 columns: table => new
                 {
@@ -190,15 +214,34 @@ namespace CouplesConnect.Migrations
                 name: "PlatformSettings",
                 columns: table => new
                 {
-                    PlatformSettingId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CompanyEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CompanyPhone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Currency = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TimeZone = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TrialSessions = table.Column<int>(type: "int", nullable: false),
                     TrialDurationDays = table.Column<int>(type: "int", nullable: false),
-                    CounselorCommissionPercent = table.Column<int>(type: "int", nullable: false)
+                    CounselorCommissionPercent = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    WhatsAppApiUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WhatsAppAccessToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WhatsAppPhoneNumberId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WhatsAppBusinessAccountId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WhatsAppVerifyToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpServer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpPort = table.Column<int>(type: "int", nullable: false),
+                    SmtpUsername = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SmtpPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EnableSSL = table.Column<bool>(type: "bit", nullable: false),
+                    PaynowIntegrationId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PaynowIntegrationKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BaseUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NotifyCounsellorOnSessionStart = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PlatformSettings", x => x.PlatformSettingId);
+                    table.PrimaryKey("PK_PlatformSettings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,7 +259,7 @@ namespace CouplesConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ResourceCategory",
+                name: "ResourceCategories",
                 columns: table => new
                 {
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -228,7 +271,7 @@ namespace CouplesConnect.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ResourceCategory", x => x.CategoryId);
+                    table.PrimaryKey("PK_ResourceCategories", x => x.CategoryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -454,6 +497,32 @@ namespace CouplesConnect.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    Link = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReadDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notifications_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserSubscriptions",
                 columns: table => new
                 {
@@ -484,11 +553,12 @@ namespace CouplesConnect.Migrations
                 {
                     ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(600)", maxLength: 600, nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Thumbnail = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
-                    HtmlPage = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    EstimatedDuration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Thumbnail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HtmlPage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EstimatedDuration = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsFeatured = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     DisplayOrder = table.Column<int>(type: "int", nullable: false),
@@ -498,9 +568,9 @@ namespace CouplesConnect.Migrations
                 {
                     table.PrimaryKey("PK_Resources", x => x.ResourceId);
                     table.ForeignKey(
-                        name: "FK_Resources_ResourceCategory_CategoryId",
+                        name: "FK_Resources_ResourceCategories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "ResourceCategory",
+                        principalTable: "ResourceCategories",
                         principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -586,7 +656,13 @@ namespace CouplesConnect.Migrations
                     BookingStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsGroup = table.Column<bool>(type: "bit", nullable: false),
                     SessionId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReminderSent = table.Column<bool>(type: "bit", nullable: false),
+                    ReminderSentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SessionStartedNotificationSent = table.Column<bool>(type: "bit", nullable: false),
+                    SessionStartedNotificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SessionCompletedNotificationSent = table.Column<bool>(type: "bit", nullable: false),
+                    SessionCompletedNotificationDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -720,6 +796,36 @@ namespace CouplesConnect.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_NotificationLogs_Channel",
+                table: "NotificationLogs",
+                column: "Channel");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationLogs_CreatedDate",
+                table: "NotificationLogs",
+                column: "CreatedDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NotificationLogs_Status",
+                table: "NotificationLogs",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_CreatedDate",
+                table: "Notifications",
+                column: "CreatedDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_IsRead",
+                table: "Notifications",
+                column: "IsRead");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_UserId",
+                table: "Notifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Resources_CategoryId",
                 table: "Resources",
                 column: "CategoryId");
@@ -791,6 +897,12 @@ namespace CouplesConnect.Migrations
                 name: "Messages");
 
             migrationBuilder.DropTable(
+                name: "NotificationLogs");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
@@ -824,7 +936,7 @@ namespace CouplesConnect.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "ResourceCategory");
+                name: "ResourceCategories");
 
             migrationBuilder.DropTable(
                 name: "Packages");

@@ -58,6 +58,10 @@ namespace CouplesConnect.Data
 
         public DbSet<CounselorService> CounselorServices { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
+        public DbSet<NotificationLog> NotificationLogs { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -90,7 +94,29 @@ namespace CouplesConnect.Data
                 .HasForeignKey(b => b.ServiceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Notification>()
+    .HasIndex(x => x.UserId);
+
+            builder.Entity<Notification>()
+                .HasIndex(x => x.IsRead);
+
+            builder.Entity<Notification>()
+                .HasIndex(x => x.CreatedDate);
+
+            builder.Entity<NotificationLog>()
+                .HasIndex(x => x.CreatedDate);
+
+            builder.Entity<NotificationLog>()
+                .HasIndex(x => x.Channel);
+
+            builder.Entity<NotificationLog>()
+                .HasIndex(x => x.Status);
         }
     }
 }

@@ -74,9 +74,16 @@ namespace CouplesConnect.Pages.User.Dashboard
             // Next session
             NextSession = await _context.Bookings
                 .Include(x => x.Session)
-                .Where(x => x.UserId == user.Id && x.BookingStatus == "Scheduled")
+                .Include(x => x.Participants)
+                .Where(x =>
+                    x.BookingStatus == "Scheduled" &&
+                    (
+                        x.UserId == user.Id ||
+                        x.Participants.Any(p => p.UserId == user.Id)
+                    ))
                 .OrderBy(x => x.ScheduledStart)
                 .FirstOrDefaultAsync();
+
 
             // Chart (mock for now)
             var months = new List<string> { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };

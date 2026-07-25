@@ -1,71 +1,445 @@
-﻿namespace CouplesConnect.Services
+﻿using CouplesConnect.Models;
+
+namespace CouplesConnect.Services
 {
     public class EmailTemplateService
     {
-        public string BuildTemplate(string title, string message, string ctaText = null, string ctaUrl = null)
+        private readonly SettingsService _settings;
+
+        public EmailTemplateService(SettingsService settings)
         {
+            _settings = settings;
+        }
+
+        public async Task<string> BuildTemplateAsync(
+            string title,
+            string message,
+            string? ctaText = null,
+            string? ctaUrl = null)
+        {
+            var settings = await _settings.GetAsync();
+
+            var companyName = settings.CompanyName ?? "Couples Connect";
+            var companyEmail = settings.CompanyEmail ?? "";
+            var companyPhone = settings.CompanyPhone ?? "";
+
             return $@"
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+<meta name='viewport'
+      content='width=device-width, initial-scale=1.0'>
+
 </head>
 
-<body style='margin:0;padding:0;background:#f4f6f8;font-family:Arial,sans-serif;'>
+<body style='margin:0;
+             padding:0;
+             background:#f4f6f8;
+             font-family:Segoe UI,Arial,sans-serif;'>
 
-    <table width='100%' cellpadding='0' cellspacing='0'>
-        <tr>
-            <td align='center'>
+<table width='100%'
+       cellpadding='0'
+       cellspacing='0'>
 
-                <table width='600' cellpadding='0' cellspacing='0' style='background:#ffffff;margin-top:30px;border-radius:10px;overflow:hidden;'>
+<tr>
 
-                    <!-- HEADER -->
-                    <tr>
-                        <td style='background:#4f46e5;color:#ffffff;padding:20px;text-align:center;font-size:20px;font-weight:bold;'>
-                            CouplesConnect
-                        </td>
-                    </tr>
+<td align='center'>
 
-                    <!-- BODY -->
-                    <tr>
-                        <td style='padding:30px;color:#111827;font-size:14px;line-height:1.6;'>
+<table width='650'
+       cellpadding='0'
+       cellspacing='0'
+       style='background:#ffffff;
+              margin:30px auto;
+              border-radius:10px;
+              overflow:hidden;
+              box-shadow:0 4px 20px rgba(0,0,0,.08);'>
 
-                            <h2 style='margin-top:0;color:#111827;'>{title}</h2>
+<!-- HEADER -->
 
-                            <p>{message}</p>
+<tr>
 
-                            {(string.IsNullOrEmpty(ctaText) ? "" : $@"
-                                <div style='margin-top:25px;text-align:center;'>
-                                    <a href='{ctaUrl}'
-                                       style='background:#4f46e5;color:#ffffff;padding:12px 20px;
-                                              text-decoration:none;border-radius:6px;font-weight:600;'>
-                                        {ctaText}
-                                    </a>
-                                </div>
-                            ")}
+<td style='background:#4f46e5;
+           color:#ffffff;
+           text-align:center;
+           padding:30px;'>
 
-                        </td>
-                    </tr>
+<h1 style='margin:0;font-size:28px;'>
 
-                    <!-- FOOTER -->
-                    <tr>
-                        <td style='background:#f9fafb;padding:20px;text-align:center;font-size:12px;color:#6b7280;'>
+{companyName}
 
-                            <p style='margin:0;'>© {DateTime.UtcNow.Year} CouplesConnect</p>
-                            <p style='margin:5px 0;'>Helping couples build stronger relationships</p>
+</h1>
 
-                        </td>
-                    </tr>
+</td>
 
-                </table>
+</tr>
 
-            </td>
-        </tr>
-    </table>
+<!-- BODY -->
+
+<tr>
+
+<td style='padding:40px;'>
+
+<h2 style='margin-top:0;
+           color:#111827;'>
+
+{title}
+
+</h2>
+
+<p style='font-size:15px;
+          color:#374151;
+          line-height:1.8;'>
+
+{message}
+
+</p>
+
+{(string.IsNullOrWhiteSpace(ctaText)
+? ""
+: $@"
+
+<div style='text-align:center;
+            margin-top:35px;'>
+
+<a href='{ctaUrl}'
+
+style='display:inline-block;
+background:#4f46e5;
+color:white;
+padding:14px 28px;
+border-radius:6px;
+text-decoration:none;
+font-weight:bold;'>
+
+{ctaText}
+
+</a>
+
+</div>
+
+")}
+
+</td>
+
+</tr>
+
+<!-- FOOTER -->
+
+<tr>
+
+<td style='background:#f9fafb;
+padding:25px;
+text-align:center;
+font-size:13px;
+color:#6b7280;'>
+
+<div>
+
+<strong>{companyName}</strong>
+
+</div>
+
+{(!string.IsNullOrWhiteSpace(companyEmail)
+? $"<div>{companyEmail}</div>"
+: "")}
+
+{(!string.IsNullOrWhiteSpace(companyPhone)
+? $"<div>{companyPhone}</div>"
+: "")}
+
+<div style='margin-top:15px;'>
+
+© {DateTime.Now.Year} {companyName}
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</td>
+
+</tr>
+
+</table>
 
 </body>
+
 </html>";
         }
+
+
+
+        public async Task<EmailMessage> BuildBookingConfirmationAsync(
+    string customerName,
+    string counselorName,
+    DateTime sessionDate,
+    string bookingUrl)
+        {
+            var body = $@"
+<p>Dear <strong>{customerName}</strong>,</p>
+
+<p>
+Your counselling session has been successfully booked.
+</p>
+
+<table style='width:100%;border-collapse:collapse;'>
+
+<tr>
+    <td style='padding:8px;'><strong>Counsellor</strong></td>
+    <td style='padding:8px;'>{counselorName}</td>
+</tr>
+
+<tr>
+    <td style='padding:8px;'><strong>Date</strong></td>
+    <td style='padding:8px;'>{sessionDate:dddd, dd MMMM yyyy}</td>
+</tr>
+
+<tr>
+    <td style='padding:8px;'><strong>Time</strong></td>
+    <td style='padding:8px;'>{sessionDate:h:mm tt}</td>
+</tr>
+
+</table>
+
+<p>
+Please arrive a few minutes before your scheduled session.
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Booking Confirmed",
+                HtmlBody = await BuildTemplateAsync(
+                    "Booking Confirmed",
+                    body,
+                    "View My Bookings",
+                    bookingUrl)
+            };
+        }
+
+
+
+        public async Task<EmailMessage> BuildBookingReminderAsync(
+    string customerName,
+    string counselorName,
+    DateTime sessionDate,
+    string joinUrl)
+        {
+            var body = $@"
+<p>Dear <strong>{customerName}</strong>,</p>
+
+<p>
+This is a friendly reminder that your counselling session is coming up soon.
+</p>
+
+<table style='width:100%;border-collapse:collapse;'>
+
+<tr>
+    <td style='padding:8px;'><strong>Counsellor</strong></td>
+    <td style='padding:8px;'>{counselorName}</td>
+</tr>
+
+<tr>
+    <td style='padding:8px;'><strong>Date</strong></td>
+    <td style='padding:8px;'>{sessionDate:dddd, dd MMMM yyyy}</td>
+</tr>
+
+<tr>
+    <td style='padding:8px;'><strong>Time</strong></td>
+    <td style='padding:8px;'>{sessionDate:h:mm tt}</td>
+</tr>
+
+</table>
+
+<p>
+Please click the button below when it is time to join your session.
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Session Reminder",
+                HtmlBody = await BuildTemplateAsync(
+                    "Session Reminder",
+                    body,
+                    "Join Session",
+                    joinUrl)
+            };
+        }
+
+        public async Task<EmailMessage> BuildInvitationAsync(
+    string invitedBy,
+    string acceptUrl)
+        {
+            var body = $@"
+<p>Hello,</p>
+
+<p>
+
+<strong>{invitedBy}</strong>
+
+has invited you to participate in a counselling session on Couples Connect.
+
+</p>
+
+<p>
+
+Accept the invitation to join the session.
+
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Counselling Invitation",
+                HtmlBody = await BuildTemplateAsync(
+                    "You're Invited",
+                    body,
+                    "Accept Invitation",
+                    acceptUrl)
+            };
+        }
+
+        public async Task<EmailMessage> BuildInvitationAcceptedAsync(
+    string participantName)
+        {
+            var body = $@"
+<p>Hello,</p>
+
+<p>
+
+<strong>{participantName}</strong>
+
+has accepted your counselling invitation.
+
+</p>
+
+<p>
+
+You can now proceed with the scheduled counselling session.
+
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Invitation Accepted",
+                HtmlBody = await BuildTemplateAsync(
+                    "Invitation Accepted",
+                    body)
+            };
+        }
+
+        public async Task<EmailMessage> BuildSessionStartedAsync(
+    string customerName,
+    string joinUrl)
+        {
+            var body = $@"
+<p>Dear {customerName},</p>
+
+<p>
+
+Your counselling session has started.
+
+</p>
+
+<p>
+
+Click below to join immediately.
+
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Session Started",
+                HtmlBody = await BuildTemplateAsync(
+                    "Session Started",
+                    body,
+                    "Join Session",
+                    joinUrl)
+            };
+        }
+
+        public async Task<EmailMessage> BuildSessionCompletedAsync(
+    string customerName)
+        {
+            var body = $@"
+<p>Dear {customerName},</p>
+
+<p>
+
+Thank you for attending your counselling session.
+
+</p>
+
+<p>
+
+We appreciate your trust in Couples Connect.
+
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Thank You",
+                HtmlBody = await BuildTemplateAsync(
+                    "Session Completed",
+                    body)
+            };
+        }
+
+        public async Task<EmailMessage> BuildWelcomeAsync(
+    string customerName)
+        {
+            var body = $@"
+<p>
+
+Welcome <strong>{customerName}</strong>!
+
+</p>
+
+<p>
+
+Thank you for joining Couples Connect.
+
+</p>
+
+<p>
+
+You can now browse counsellors and schedule sessions.
+
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Welcome to Couples Connect",
+                HtmlBody = await BuildTemplateAsync(
+                    "Welcome",
+                    body,
+                    "Book Your First Session",
+                    "/User/Bookings/Index")
+            };
+        }
+
+        public async Task<EmailMessage> BuildGeneralNotificationAsync(
+    string subject,
+    string message,
+    string? buttonText = null,
+    string? buttonUrl = null)
+        {
+            return new EmailMessage
+            {
+                Subject = subject,
+                HtmlBody = await BuildTemplateAsync(
+                    subject,
+                    message,
+                    buttonText,
+                    buttonUrl)
+            };
+        }
+
+
     }
 }
