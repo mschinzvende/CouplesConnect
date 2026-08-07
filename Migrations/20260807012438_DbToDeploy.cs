@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace CouplesConnect.Migrations
 {
     /// <inheritdoc />
-    public partial class updateNotifications : Migration
+    public partial class DbToDeploy : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,7 @@ namespace CouplesConnect.Migrations
                     Alias = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RelationshipStage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PrivacyLevel = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

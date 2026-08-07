@@ -15,6 +15,8 @@ namespace CouplesConnect.Services.Interfaces
 
         Task NotifyBookingCreatedAsync(Guid bookingId);
 
+
+        Task NotifyCounselorBookingCreatedAsync(Guid bookingId);
         Task NotifyBookingReminderAsync(Guid bookingId);
 
         Task NotifyInvitationAsync(int participantId);

@@ -15,14 +15,27 @@ public class NotificationBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await ProcessNotifications();
 
-            await Task.Delay(
-                TimeSpan.FromMinutes(1),
-                stoppingToken);
+        try
+        {
+
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await ProcessNotifications();
+
+                await Task.Delay(
+                    TimeSpan.FromMinutes(1),
+                    stoppingToken);
+            }
         }
+
+        catch (Exception ex)
+
+        {
+            Console.WriteLine(ex.ToString());
+        }
+
     }
 
     private async Task ProcessNotifications()

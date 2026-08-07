@@ -13,6 +13,8 @@ namespace CouplesConnect.Models
 
         public string? PrivacyLevel { get; set; }
 
+        public string? Phone { get ; set; } 
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public CounselorProfile CounselorProfile { get; set; }

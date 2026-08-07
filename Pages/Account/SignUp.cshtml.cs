@@ -40,6 +40,8 @@ namespace CouplesConnect.Pages.Account
             public string? RelationshipStage { get; set; }
 
             public string? PrivacyLevel { get; set; }
+            [Required]
+            public string? Phone { get; set; }
 
             [Required]
             [EmailAddress]
@@ -65,11 +67,21 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/");
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Redirect("/User/Dashboard");
+                if (returnUrl != null)
+                {
+                    return Redirect(returnUrl);
+                }
+
+                else
+                {
+                    return Redirect("/User/Dashboard");
+                }
+               
             }
 
             if (!ModelState.IsValid)
@@ -84,7 +96,8 @@ namespace CouplesConnect.Pages.Account
                 PrivacyLevel = Input.PrivacyLevel,
                 UserName = Input.Email,
                 Email = Input.Email,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Phone= Input.Phone
             };
 
             var result = await _userManager.CreateAsync(user, Input.Password);

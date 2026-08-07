@@ -202,7 +202,13 @@ namespace CouplesConnect.Pages.User.Bookings
 
             await _context.SaveChangesAsync();
 
+            //Notify the client about the booking.
+
             await _notification.NotifyBookingCreatedAsync(booking.BookingId);
+
+            //Notify therapist about the booking.
+
+            await _notification.NotifyCounselorBookingCreatedAsync(booking.BookingId);
 
             // GROUP PARTICIPANTS
             if (isGroup && ParticipantPhones != null)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouplesConnect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260721140748_updateNotifications")]
-    partial class updateNotifications
+    [Migration("20260807012438_DbToDeploy")]
+    partial class DbToDeploy
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -408,6 +408,9 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")

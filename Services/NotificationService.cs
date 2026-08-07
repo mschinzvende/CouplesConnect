@@ -122,7 +122,7 @@ namespace CouplesConnect.Services
     string message,
     EmailMessage? email = null,
     string? link = null,
-    bool sendWhatsApp = true)
+    bool sendWhatsApp = false)
         {
             await CreateNotification(
                 user.Id,
@@ -155,10 +155,10 @@ namespace CouplesConnect.Services
             }
 
             if (sendWhatsApp &&
-                !string.IsNullOrWhiteSpace(user.PhoneNumber))
+                !string.IsNullOrWhiteSpace(user.Phone))
             {
                 var sent = await _messaging.SendWhatsAppAsync(
-                   user.PhoneNumber,"general_notification",
+                   user.Phone,"general_notification",
                     message);
 
                 var log = CreateLog(
@@ -166,14 +166,14 @@ namespace CouplesConnect.Services
                     type,
                     user.Id,
                     bookingId,
-                    user.PhoneNumber,
+                    user.Phone,
                     title,
                     message);
 
                log.Status = sent ? "Sent" : "Failed";
 
                if (sent)
-                 log.SentDate = DateTime.UtcNow;
+                 log.SentDate = DateTime.Now;
 
                 _context.NotificationLogs.Add(log);
             }
@@ -300,7 +300,58 @@ $@"Your counselling session has been confirmed.
                 title,
                 message,
                 email,
-                bookingUrl);
+                bookingUrl, false);
+
+            await _messaging.SendWhatsAppToClientAsync(booking.User.Phone, "notify_client",
+                booking.User.FullName, booking.Counselor.FullName, booking.Service.Name, $"{booking.ScheduledStart:h: mm tt}",
+                $"{booking.ScheduledStart:dddd, dd MMM yyyy}");
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task NotifyCounselorBookingCreatedAsync(Guid bookingId)
+        {
+            var booking = await _context.Bookings
+                .Include(x => x.User)
+                .Include(x => x.Counselor)
+                .Include(x => x.Service)
+                .Include(x => x.Session)
+                .FirstOrDefaultAsync(x => x.BookingId == bookingId);
+
+            if (booking == null)
+                return;
+
+            var settings = await _settings.GetAsync();
+
+            var bookingUrl =
+    $"{await GetBaseUrl()}/Counselor/Sessions/Index";
+
+            var title = "Booking Confirmed";
+
+            var message =
+$@"You have a new booking.
+
+{BuildCounsellorBookingSummary(booking)}";
+
+            var email =
+                await _templates.BuildBookingConfirmationAsync(
+                    booking.User.FullName,
+                    booking.Counselor.FullName,
+                    booking.ScheduledStart,
+                    bookingUrl);
+
+            await NotifyUserAsync(
+                booking.Counselor,
+                booking.BookingId,
+                NotificationType.BookingCreated,
+                title,
+                message,
+                email,
+                bookingUrl, false);
+
+            await _messaging.SendWhatsAppToCounselorAsync(booking.Counselor.Phone, "notify_counselor",
+                booking.Counselor.FullName, booking.User.FullName, booking.Service.Name, $"{booking.ScheduledStart:h: mm tt}",
+                $"{booking.ScheduledStart:dddd, dd MMM yyyy}");
 
             await _context.SaveChangesAsync();
         }
@@ -655,6 +706,19 @@ We'd appreciate your feedback.";
         {
             return
         $@"Counsellor: {booking.Counselor.FullName}
+
+Service: {booking.Service.Name}
+
+Date: {booking.ScheduledStart:dddd, dd MMM yyyy}
+
+Time: {booking.ScheduledStart:h:mm tt}";
+        }
+
+
+        private string BuildCounsellorBookingSummary(Booking booking)
+        {
+            return
+        $@"Client: {booking.User.FullName}
 
 Service: {booking.Service.Name}
 

@@ -176,6 +176,10 @@ color:#6b7280;'>
 
 
 
+
+
+
+
         public async Task<EmailMessage> BuildBookingConfirmationAsync(
     string customerName,
     string counselorName,

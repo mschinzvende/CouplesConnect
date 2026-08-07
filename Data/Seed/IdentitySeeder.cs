@@ -25,6 +25,7 @@ namespace CouplesConnect.Data.Seed
 
             string adminEmail = "admin@couplesconnect.com";
             string adminPassword = "Admin@12345";
+            string adminPhone = "263775017240";
 
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -37,7 +38,8 @@ namespace CouplesConnect.Data.Seed
                     Email = adminEmail,
                     FullName = "System Administrator",
                     EmailConfirmed = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    Phone = adminPhone
                 };
 
                 var result = await userManager.CreateAsync(adminUser, adminPassword);

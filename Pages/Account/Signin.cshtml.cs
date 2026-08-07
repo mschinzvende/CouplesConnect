@@ -44,11 +44,22 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            returnUrl ??= Url.Content("~/");
+
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Redirect("/DashboardRedirect");
+                if (returnUrl != null)
+                {
+                    return Redirect(returnUrl);
+                }
+
+                else
+                {
+                    return Redirect("/DashboardRedirect");
+                }
+                
             }
 
             if (!ModelState.IsValid)
@@ -62,7 +73,15 @@ namespace CouplesConnect.Pages.Account
 
             if (result.Succeeded)
             {
-                return Redirect("/DashboardRedirect");
+                if (returnUrl != null)
+                {
+                    return Redirect(returnUrl);
+                }
+
+                else
+                {
+                    return Redirect("/DashboardRedirect");
+                }
             }
 
             ModelState.AddModelError("", "Invalid login attempt");
