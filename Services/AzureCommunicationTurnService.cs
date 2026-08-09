@@ -19,6 +19,11 @@ public sealed class AzureCommunicationTurnService
         {
             _relayClient = new CommunicationRelayClient(connectionString);
         }
+        else
+        {
+            _logger.LogWarning(
+                "Azure Communication Services TURN is not configured. Set AzureCommunication__ConnectionString in the host environment.");
+        }
     }
 
     public async Task<IReadOnlyList<WebRtcIceServer>> GetIceServersAsync()
