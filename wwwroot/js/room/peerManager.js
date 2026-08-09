@@ -5,15 +5,23 @@
 
 export default class PeerManager {
 
-    constructor(mediaManager) {
+    constructor(mediaManager, iceServers = []) {
 
         this.media = mediaManager;
+
+        this.iceServers = iceServers;
 
         this.connection = null;
 
         this.peers = new Map();
 
         this.pendingCandidates = new Map();
+
+        this.iceRestartAttempts = new Map();
+
+        this.iceRestartTimers = new Map();
+
+        this.offerers = new Set();
 
         this.onRemoteStream = null;
 
@@ -75,16 +83,7 @@ export default class PeerManager {
 
         const pc = new RTCPeerConnection({
 
-            iceServers: [
-
-                {
-                    urls: [
-                        "stun:stun.l.google.com:19302",
-                        "stun:stun1.l.google.com:19302"
-                    ]
-                }
-
-            ]
+            iceServers: this.iceServers
 
         });
 
@@ -144,15 +143,35 @@ export default class PeerManager {
                 "[ICE] Sending candidate"
             );
 
-            await this.connection.invoke(
+            try {
 
-                "SendIceCandidate",
+                await this.connection.invoke(
 
+                    "SendIceCandidate",
+
+                    connectionId,
+
+                    JSON.stringify(event.candidate)
+
+                );
+
+            }
+            catch (err) {
+
+                console.error("[ICE] Could not send candidate", err);
+
+            }
+
+        };
+
+        pc.onicecandidateerror = event => {
+
+            console.error("[ICE] Candidate gathering failed", {
                 connectionId,
-
-                JSON.stringify(event.candidate)
-
-            );
+                errorCode: event.errorCode,
+                errorText: event.errorText,
+                url: event.url
+            });
 
         };
 
@@ -180,17 +199,25 @@ export default class PeerManager {
                         "[Peer] Connected"
                     );
 
+                    this.clearIceRecovery(connectionId);
+
                     break;
 
                 case "disconnected":
 
+                    this.scheduleIceRestart(connectionId, 3000);
+
+                    break;
+
                 case "failed":
+
+                    this.scheduleIceRestart(connectionId, 0);
+
+                    break;
 
                 case "closed":
 
-                    this.removePeer(
-                        connectionId
-                    );
+                    this.removePeer(connectionId);
 
                     break;
 
@@ -214,6 +241,25 @@ export default class PeerManager {
 
             );
 
+            if (
+                pc.iceConnectionState === "connected" ||
+                pc.iceConnectionState === "completed"
+            ) {
+
+                this.clearIceRecovery(connectionId);
+
+            }
+            else if (pc.iceConnectionState === "disconnected") {
+
+                this.scheduleIceRestart(connectionId, 3000);
+
+            }
+            else if (pc.iceConnectionState === "failed") {
+
+                this.scheduleIceRestart(connectionId, 0);
+
+            }
+
         };
 
        
@@ -232,6 +278,8 @@ export default class PeerManager {
 
         if (!pc)
             return;
+
+        this.offerers.add(connectionId);
 
         console.log("[Peer] Creating Offer");
 
@@ -279,12 +327,18 @@ export default class PeerManager {
                 JSON.parse(offerJson)
             );
 
-        if (
-            !pc.currentRemoteDescription &&
-            pc.signalingState === "stable"
-        ) {
-            await pc.setRemoteDescription(offer);
+        if (pc.signalingState !== "stable") {
+
+            console.warn(
+                "[Peer] Ignoring offer while negotiation is in progress:",
+                connectionId
+            );
+
+            return;
+
         }
+
+        await pc.setRemoteDescription(offer);
 
         //--------------------------------------------------
         // Flush queued ICE candidates
@@ -496,6 +550,70 @@ export default class PeerManager {
         );
 
     }
+
+    // ==========================================
+    // ICE Recovery
+    // ==========================================
+
+    scheduleIceRestart(connectionId, delay) {
+
+        if (!this.offerers.has(connectionId) ||
+            this.iceRestartTimers.has(connectionId)) {
+
+            return;
+
+        }
+
+        const attempts = this.iceRestartAttempts.get(connectionId) ?? 0;
+
+        if (attempts >= 2) {
+
+            console.error(
+                "[ICE] Connection could not be recovered:",
+                connectionId
+            );
+
+            return;
+
+        }
+
+        const timer = window.setTimeout(async () => {
+
+            this.iceRestartTimers.delete(connectionId);
+
+            try {
+
+                await this.restartIce(connectionId);
+                this.iceRestartAttempts.set(connectionId, attempts + 1);
+
+            }
+            catch (err) {
+
+                console.error("[ICE] Restart failed", err);
+
+            }
+
+        }, delay);
+
+        this.iceRestartTimers.set(connectionId, timer);
+
+    }
+
+    clearIceRecovery(connectionId) {
+
+        const timer = this.iceRestartTimers.get(connectionId);
+
+        if (timer) {
+
+            window.clearTimeout(timer);
+            this.iceRestartTimers.delete(connectionId);
+
+        }
+
+        this.iceRestartAttempts.delete(connectionId);
+
+    }
+
     // ==========================================
     // Remove Peer
     // ==========================================
@@ -513,6 +631,7 @@ export default class PeerManager {
 
             pc.ontrack = null;
             pc.onicecandidate = null;
+            pc.onicecandidateerror = null;
             pc.onconnectionstatechange = null;
             pc.oniceconnectionstatechange = null;
 
@@ -528,6 +647,10 @@ export default class PeerManager {
         this.peers.delete(connectionId);
 
         this.pendingCandidates.delete(connectionId);
+
+        this.clearIceRecovery(connectionId);
+
+        this.offerers.delete(connectionId);
 
         if (this.onPeerDisconnected)
             this.onPeerDisconnected(connectionId);
@@ -596,6 +719,12 @@ export default class PeerManager {
         this.connection = null;
 
         this.pendingCandidates.clear();
+
+        this.iceRestartAttempts.clear();
+
+        this.iceRestartTimers.clear();
+
+        this.offerers.clear();
 
     }
 

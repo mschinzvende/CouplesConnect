@@ -44,13 +44,13 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string returnUrl = "")
         {
             returnUrl ??= Url.Content("~/");
 
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                if (returnUrl != null)
+                if (returnUrl != "")
                 {
                     return Redirect(returnUrl);
                 }
@@ -73,7 +73,7 @@ namespace CouplesConnect.Pages.Account
 
             if (result.Succeeded)
             {
-                if (returnUrl != null)
+                if (returnUrl != "")
                 {
                     return Redirect(returnUrl);
                 }

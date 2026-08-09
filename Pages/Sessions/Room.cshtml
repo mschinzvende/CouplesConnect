@@ -317,10 +317,12 @@
     window.roomConfig = {
         sessionId: @Model.SessionId,
         isCounselor: @(Model.IsCounselor.ToString().ToLower()),
-        returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")"
+        returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")",
+        iceServers: @Html.Raw(Model.IceServersJson),
+        hasTurnServer: @(Model.HasTurnServer.ToString().ToLower())
     };
 </script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@@8.0.24/dist/browser/signalr.min.js"></script>
 
 <script type="module" src="~/js/room/room.js"></script>

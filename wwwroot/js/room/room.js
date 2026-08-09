@@ -38,7 +38,15 @@ const isCounselor = window.roomConfig.isCounselor;
 
 const media = new MediaManager();
 
-const peer = new PeerManager(media);
+const peer = new PeerManager(media, window.roomConfig.iceServers);
+
+if (!window.roomConfig.hasTurnServer) {
+
+    console.warn(
+        "[WebRTC] No TURN server is configured. Calls may fail on restrictive networks."
+    );
+
+}
 
 const participants = new ParticipantManager();
 
