@@ -13,11 +13,7 @@ public sealed class AzureCommunicationTurnService
     {
         _logger = logger;
 
-        //var connectionString = configuration["AzureCommunication:ConnectionString"];
-
-        var connectionString = "endpoint=https://couplesconnectcommunicationservice.unitedstates.communication.azure.com/;accesskey=ABFlquupWhyMz1W3TnXj2v6KlIHJnVFezPE5cgNhj1mFzNb69ADuJQQJ99CHACULyCp1q6gyAAAAAZCSz4aA";
-
-        
+        var connectionString = configuration["AzureCommunication:ConnectionString"];
 
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
