@@ -37,7 +37,13 @@ public sealed class AzureCommunicationTurnService
 
         try
         {
-            var relayConfiguration = await _relayClient.GetRelayConfigurationAsync();
+            // Explicitly use the current relay-issuance operation's recommended route and
+            // a one-hour credential lifetime. The default overload can target an older
+            // operation on legacy SDKs.
+            var relayConfiguration = await _relayClient.GetRelayConfigurationAsync(
+                communicationUser: null,
+                routeType: RouteType.Any,
+                ttl: 3600);
 
             var iceServers = relayConfiguration.Value.IceServers
                 .Select(server => new WebRtcIceServer
