@@ -9,12 +9,22 @@ const statusDot = document.getElementById("statusDot");
 const connectionText = document.getElementById("connectionText");
 const waitingUsers = new Set();
 const notes = new NotesManager(sessionId);
+let alertTimer = null;
+let audioContext = null;
+
+document.addEventListener("pointerdown", () => {
+    audioContext ??= new AudioContext();
+    audioContext.resume().catch(() => {});
+}, { once: true });
 
 const call = new AcsCallManager({
     token: azureCallToken,
     groupId: azureCallGroupId,
     onStateChanged: state => {
         connectionText.innerText = state === "Connected" ? "In call" : `Call ${state}`;
+    },
+    onRaisedHandsChanged: hands => {
+        if (isCounselor && hands.length) showRoomAlert(`${hands.length} participant${hands.length === 1 ? "" : "s"} raised a hand.`);
     }
 });
 
@@ -46,7 +56,33 @@ signal.onAdmitted = async () => {
 signal.onUserWaiting = connectionId => {
     waitingUsers.add(connectionId);
     renderWaitingUsers();
+    showRoomAlert("A participant is waiting to be admitted.");
 };
+
+function showRoomAlert(message) {
+    if (!isCounselor) return;
+    const alert = document.getElementById("roomAlert");
+    if (!alert) return;
+    alert.textContent = message;
+    alert.classList.remove("d-none");
+    playNotificationTone();
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => alert.classList.add("d-none"), 7000);
+}
+
+function playNotificationTone() {
+    if (!audioContext || audioContext.state !== "running") return;
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.frequency.setValueAtTime(740, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(988, audioContext.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.3);
+}
 
 function renderWaitingUsers() {
     const panel = document.getElementById("waitingPanel");

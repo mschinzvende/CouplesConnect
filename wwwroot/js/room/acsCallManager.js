@@ -7,10 +7,11 @@ import { Features } from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default class AcsCallManager {
-    constructor({ token, groupId, onStateChanged }) {
+    constructor({ token, groupId, onStateChanged, onRaisedHandsChanged }) {
         this.token = token;
         this.groupId = groupId;
         this.onStateChanged = onStateChanged;
+        this.onRaisedHandsChanged = onRaisedHandsChanged;
         this.call = null;
         this.callAgent = null;
         this.localVideoStream = null;
@@ -47,6 +48,9 @@ export default class AcsCallManager {
             event.removed.forEach(participant => this.removeRemoteParticipant(participant));
         });
         this.call.on("isScreenSharingOnChanged", () => this.onScreenSharingChanged?.(this.call.isScreenSharingOn));
+        this.raiseHandFeature = this.call.feature(Features.RaiseHand);
+        this.raiseHandFeature.on("raisedHandEvent", () => this.notifyRaisedHandsChanged());
+        this.raiseHandFeature.on("loweredHandEvent", () => this.notifyRaisedHandsChanged());
 
         if (this.localVideoStream) await this.renderLocalVideo();
         this.call.remoteParticipants.forEach(participant => this.addRemoteParticipant(participant));
@@ -63,6 +67,7 @@ export default class AcsCallManager {
         if (!id || this.participants.has(id)) return;
 
         this.participants.set(id, participant);
+        this.updateParticipantCount();
         participant.on("videoStreamsUpdated", event => {
             event.added.forEach(stream => this.watchRemoteVideo(id, stream));
             event.removed.forEach(stream => this.removeVideoCard(`${id}:${stream.id}`));
@@ -75,6 +80,7 @@ export default class AcsCallManager {
         const id = participant.identifier?.communicationUserId || participant.identifier?.rawId;
         if (!id) return;
         this.participants.delete(id);
+        this.updateParticipantCount();
         [...this.views.keys()]
             .filter(key => key.startsWith(`${id}:`))
             .forEach(key => this.removeVideoCard(key));
@@ -112,7 +118,7 @@ export default class AcsCallManager {
         grid.appendChild(card);
 
         this.views.set(key, { view, card });
-        document.getElementById("participantCount").innerText = this.views.size;
+        this.updateParticipantCount();
     }
 
     setFeaturedVideo(key, view) {
@@ -121,7 +127,7 @@ export default class AcsCallManager {
         stage.appendChild(view.target);
         this.views.set(key, { view, card: null });
         this.featuredKey = key;
-        document.getElementById("participantCount").innerText = this.views.size;
+        this.updateParticipantCount();
     }
 
     removeVideoCard(key) {
@@ -140,7 +146,7 @@ export default class AcsCallManager {
             empty.innerHTML = "<span class='video-empty-icon'>◉</span><strong>Waiting for participant video</strong><small>Your video appears in the tile below.</small>";
             document.getElementById("mainStage").appendChild(empty);
         }
-        document.getElementById("participantCount").innerText = this.views.size;
+        this.updateParticipantCount();
     }
 
     async toggleMute() {
@@ -168,11 +174,20 @@ export default class AcsCallManager {
 
     async toggleRaiseHand() {
         if (!this.call) return false;
-        const feature = this.call.feature(Features.RaiseHand);
-        if (this.handRaised) await feature.lowerHand();
-        else await feature.raiseHand();
+        if (this.handRaised) await this.raiseHandFeature.lowerHand();
+        else await this.raiseHandFeature.raiseHand();
         this.handRaised = !this.handRaised;
+        this.notifyRaisedHandsChanged();
         return this.handRaised;
+    }
+
+    notifyRaisedHandsChanged() {
+        this.onRaisedHandsChanged?.(this.raiseHandFeature.getRaisedHands());
+    }
+
+    updateParticipantCount() {
+        const counter = document.getElementById("participantCount");
+        if (counter) counter.innerText = String(this.participants.size + 1);
     }
 
     async leave() {
