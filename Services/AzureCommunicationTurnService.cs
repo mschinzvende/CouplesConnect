@@ -71,6 +71,16 @@ public sealed class AzureCommunicationTurnService
                 iceServers,
                 "Azure returned no usable TURN relay URLs. Check the App Service Log stream for the ACS response details.");
         }
+        catch (Azure.RequestFailedException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to retrieve temporary TURN credentials from Azure Communication Services.");
+
+            return new AzureTurnConfigurationResult(
+                Array.Empty<WebRtcIceServer>(),
+                $"Azure TURN request failed (HTTP {exception.Status}, error code {exception.ErrorCode ?? "unknown"}).");
+        }
         catch (Exception exception)
         {
             _logger.LogError(
@@ -79,7 +89,7 @@ public sealed class AzureCommunicationTurnService
 
             return new AzureTurnConfigurationResult(
                 Array.Empty<WebRtcIceServer>(),
-                "Azure TURN credentials could not be retrieved. Check the App Service Log stream.");
+                $"Azure TURN request failed ({exception.GetType().Name}).");
         }
     }
 }
