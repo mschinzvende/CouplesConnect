@@ -43,7 +43,7 @@ builder.Services.AddScoped<SubscriptionService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<AzureCommunicationTurnService>();
+builder.Services.AddSingleton<AzureCommunicationCallService>();
 
 builder.Services.AddDataProtection();
 

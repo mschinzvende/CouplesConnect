@@ -318,12 +318,12 @@
         sessionId: @Model.SessionId,
         isCounselor: @(Model.IsCounselor.ToString().ToLower()),
         returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")",
-        iceServers: @Html.Raw(Model.IceServersJson),
-        hasTurnServer: @(Model.HasTurnServer.ToString().ToLower()),
-        turnStatus: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TurnStatus))
+        azureCallToken: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallToken)),
+        azureCallTokenExpiresOn: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallTokenExpiresOn)),
+        azureCallGroupId: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallGroupId))
     };
 </script>
 
 <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
 
-<script type="module" src="~/js/room/room.js"></script>
+<script type="module" src="~/js/room/room.bundle.js"></script>

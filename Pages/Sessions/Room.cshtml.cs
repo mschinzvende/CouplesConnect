@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace CouplesConnect.Pages.Sessions
 {
@@ -17,20 +15,17 @@ namespace CouplesConnect.Pages.Sessions
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly AzureCommunicationTurnService _turnService;
+        private readonly AzureCommunicationCallService _callService;
 
 
         public RoomModel(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration,
-            AzureCommunicationTurnService turnService)
+            AzureCommunicationCallService callService)
         {
             _context = context;
             _userManager = userManager;
-            _configuration = configuration;
-            _turnService = turnService;
+            _callService = callService;
         }
 
         public int SessionId { get; set; }
@@ -41,16 +36,13 @@ namespace CouplesConnect.Pages.Sessions
         public DateTime? NextSessionTime { get; set; }
 
         public DateTime SessionStartTime { get; set; }
-        public string IceServersJson { get; private set; } = "[]";
-        public bool HasTurnServer { get; private set; }
-        public string TurnStatus { get; private set; } = "TURN configuration has not been loaded.";
+        public string? AzureCallToken { get; private set; }
+        public string? AzureCallTokenExpiresOn { get; private set; }
+        public string AzureCallGroupId { get; private set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync(int sessionId)
         {
             SessionId = sessionId;
-            await ConfigureIceServersAsync();
-            
-
             var user = await _userManager.GetUserAsync(User);
 
             // ?? Get booking tied to session
@@ -58,19 +50,27 @@ namespace CouplesConnect.Pages.Sessions
                 .Include(b => b.Session)
                 .FirstOrDefaultAsync(b => b.Session.SessionId == sessionId);
 
-            SessionStartTime = booking.ScheduledStart;
-
             if (booking == null)
                 return NotFound();
 
             var isOwner = booking.UserId == user.Id;
             var isCounselor = booking.CounselorId == user.Id;
 
-            /* ?? Access control
             if (!isOwner && !isCounselor)
-                return Forbid();*/
+                return Forbid();
 
             IsCounselor = isCounselor;
+            SessionStartTime = booking.ScheduledStart;
+
+            var callToken = await _callService.CreateVoipTokenAsync();
+            if (callToken is null)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
+
+            AzureCallToken = callToken.Token;
+            AzureCallTokenExpiresOn = callToken.ExpiresOn.ToString("O");
+            AzureCallGroupId = CreateGroupId(sessionId).ToString();
 
             // ?? Apply 5-min rule ONLY to users
             if (!isCounselor)
@@ -109,62 +109,12 @@ namespace CouplesConnect.Pages.Sessions
             return Page();
         }
 
-        private async Task ConfigureIceServersAsync()
+        private static Guid CreateGroupId(int sessionId)
         {
-            var relayConfiguration = await _turnService.GetIceServersAsync();
-            var iceServers = relayConfiguration.IceServers.ToList();
-
-            TurnStatus = relayConfiguration.Status;
-
-            HasTurnServer = iceServers.Any(server =>
-                server.Urls.Any(url => url.StartsWith("turn:", StringComparison.OrdinalIgnoreCase) ||
-                                       url.StartsWith("turns:", StringComparison.OrdinalIgnoreCase)));
-
-            if (iceServers.Count == 0)
-            {
-                var stunUrls = GetConfiguredUrls("WebRtc:StunUrls");
-
-                if (stunUrls.Count > 0)
-                {
-                    iceServers.Add(new WebRtcIceServer { Urls = stunUrls });
-                }
-
-                var turnUrls = GetConfiguredUrls("WebRtc:Turn:Urls");
-                var username = _configuration["WebRtc:Turn:Username"];
-                var credential = _configuration["WebRtc:Turn:Credential"];
-
-                if (turnUrls.Count > 0 &&
-                    !string.IsNullOrWhiteSpace(username) &&
-                    !string.IsNullOrWhiteSpace(credential))
-                {
-                    iceServers.Add(new WebRtcIceServer
-                    {
-                        Urls = turnUrls,
-                        Username = username,
-                        Credential = credential
-                    });
-
-                    HasTurnServer = true;
-                }
-            }
-
-            IceServersJson = JsonSerializer.Serialize(
-                iceServers,
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-                });
+            var bytes = new byte[16];
+            BitConverter.GetBytes(sessionId).CopyTo(bytes, 12);
+            return new Guid(bytes);
         }
-
-        private List<string> GetConfiguredUrls(string sectionName) =>
-            _configuration
-                .GetSection(sectionName)
-                .GetChildren()
-                .Select(item => item.Value)
-                .Where(value => !string.IsNullOrWhiteSpace(value))
-                .Cast<string>()
-                .ToList();
 
         public async Task<IActionResult> OnPostSaveNotesAsync(SaveNotesDto dto)
         {
