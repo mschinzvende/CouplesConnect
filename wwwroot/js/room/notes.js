@@ -23,6 +23,8 @@ export default class NotesManager {
         this.lastSaved = "";
 
         this.saving = false;
+        this.saveButton = document.getElementById("saveNotesButton");
+        this.debounce = null;
 
     }
 
@@ -38,12 +40,13 @@ export default class NotesManager {
         this.lastSaved =
             this.notesBox.value;
 
-        this.interval =
-            setInterval(() => {
+        this.notesBox.addEventListener("input", () => {
+            this.setStatus("Unsaved changes", "saving");
+            clearTimeout(this.debounce);
+            this.debounce = setTimeout(() => this.autoSave(), 1200);
+        });
 
-                this.autoSave();
-
-            }, 5000);
+        this.interval = setInterval(() => this.autoSave(), 10000);
 
     }
 
@@ -73,8 +76,8 @@ export default class NotesManager {
             return;
 
         this.saving = true;
-
-        this.setStatus("Saving...");
+        this.saveButton?.setAttribute("disabled", "disabled");
+        this.setStatus("Saving…", "saving");
 
         try {
 
@@ -112,31 +115,31 @@ export default class NotesManager {
                     }
                 );
 
-            const result =
-                await response.json();
+            if (!response.ok) throw new Error(`Save failed: ${response.status}`);
+            const result = await response.json();
 
             if (result.success) {
 
                 this.lastSaved =
                     this.notesBox.value;
 
-                this.setStatus("Saved");
+                this.setStatus(`Saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, "saved");
 
             }
             else {
 
-                this.setStatus("Save failed");
+                this.setStatus("Could not save — retry", "error");
 
             }
 
         }
         catch {
-
-            this.setStatus("Connection error");
+            this.setStatus("Could not save — retry", "error");
 
         }
 
         this.saving = false;
+        this.saveButton?.removeAttribute("disabled");
 
     }
 
@@ -144,13 +147,14 @@ export default class NotesManager {
     // Status
     // ==========================================
 
-    setStatus(text) {
+    setStatus(text, state = "") {
 
         if (!this.saveState)
             return;
 
         this.saveState.innerText =
             text;
+        this.saveState.className = `save-state ${state}`;
 
     }
 
@@ -165,6 +169,7 @@ export default class NotesManager {
             clearInterval(
                 this.interval
             );
+        clearTimeout(this.debounce);
 
     }
 

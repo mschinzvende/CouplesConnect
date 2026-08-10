@@ -3,6 +3,7 @@ import {
     LocalVideoStream,
     VideoStreamRenderer
 } from "@azure/communication-calling";
+import { Features } from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default class AcsCallManager {
@@ -17,6 +18,8 @@ export default class AcsCallManager {
         this.renderers = new Map();
         this.views = new Map();
         this.participants = new Map();
+        this.featuredKey = null;
+        this.handRaised = false;
     }
 
     async join() {
@@ -43,6 +46,7 @@ export default class AcsCallManager {
             event.added.forEach(participant => this.addRemoteParticipant(participant));
             event.removed.forEach(participant => this.removeRemoteParticipant(participant));
         });
+        this.call.on("isScreenSharingOnChanged", () => this.onScreenSharingChanged?.(this.call.isScreenSharingOn));
 
         if (this.localVideoStream) await this.renderLocalVideo();
         this.call.remoteParticipants.forEach(participant => this.addRemoteParticipant(participant));
@@ -83,7 +87,8 @@ export default class AcsCallManager {
             const renderer = new VideoStreamRenderer(stream);
             const view = await renderer.createView();
             this.renderers.set(key, renderer);
-            this.addVideoCard(key, view, false);
+            if (!this.featuredKey) this.setFeaturedVideo(key, view);
+            else this.addVideoCard(key, view, false);
         };
 
         stream.on("isAvailableChanged", () => {
@@ -110,14 +115,31 @@ export default class AcsCallManager {
         document.getElementById("participantCount").innerText = this.views.size;
     }
 
+    setFeaturedVideo(key, view) {
+        const stage = document.getElementById("mainStage");
+        document.getElementById("videoEmptyState")?.remove();
+        stage.appendChild(view.target);
+        this.views.set(key, { view, card: null });
+        this.featuredKey = key;
+        document.getElementById("participantCount").innerText = this.views.size;
+    }
+
     removeVideoCard(key) {
         const item = this.views.get(key);
         if (!item) return;
         item.view.dispose();
-        item.card.remove();
+        item.card?.remove();
         this.views.delete(key);
         this.renderers.get(key)?.dispose();
         this.renderers.delete(key);
+        if (this.featuredKey === key) {
+            this.featuredKey = null;
+            const empty = document.createElement("div");
+            empty.id = "videoEmptyState";
+            empty.className = "video-empty-state";
+            empty.innerHTML = "<span class='video-empty-icon'>◉</span><strong>Waiting for participant video</strong><small>Your video appears in the tile below.</small>";
+            document.getElementById("mainStage").appendChild(empty);
+        }
         document.getElementById("participantCount").innerText = this.views.size;
     }
 
@@ -130,10 +152,27 @@ export default class AcsCallManager {
 
     async toggleVideo() {
         if (!this.call || !this.localVideoStream) return false;
-        const enabled = this.call.localVideoStreams.includes(this.localVideoStream);
+        const enabled = this.call.isLocalVideoStarted;
         if (enabled) await this.call.stopVideo(this.localVideoStream);
         else await this.call.startVideo(this.localVideoStream);
         return !enabled;
+    }
+
+    async toggleScreenShare() {
+        if (!this.call) return false;
+        const wasSharing = this.call.isScreenSharingOn;
+        if (wasSharing) await this.call.stopScreenSharing();
+        else await this.call.startScreenSharing();
+        return !wasSharing;
+    }
+
+    async toggleRaiseHand() {
+        if (!this.call) return false;
+        const feature = this.call.feature(Features.RaiseHand);
+        if (this.handRaised) await feature.lowerHand();
+        else await feature.raiseHand();
+        this.handRaised = !this.handRaised;
+        return this.handRaised;
     }
 
     async leave() {

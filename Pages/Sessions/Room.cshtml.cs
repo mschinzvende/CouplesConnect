@@ -126,6 +126,15 @@ namespace CouplesConnect.Pages.Sessions
                 }
 
                 var user = await _userManager.GetUserAsync(User);
+                if (user is null)
+                    return new UnauthorizedResult();
+
+                var booking = await _context.Bookings
+                    .FirstOrDefaultAsync(booking => booking.SessionId == dto.SessionId);
+
+                if (booking is null || booking.CounselorId != user.Id)
+                    return new ForbidResult();
+
                 var userId = user.Id;
 
                 var existing = await _context.SessionNotes

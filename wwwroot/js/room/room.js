@@ -71,14 +71,20 @@ function renderWaitingUsers() {
 
 window.toggleMute = async () => {
     const enabled = await call.toggleMute();
-    document.getElementById("btnMic").classList.toggle("active", enabled);
+    setControlState("btnMic", enabled, "Mute microphone", "Unmute microphone");
 };
 window.toggleVideo = async () => {
     const enabled = await call.toggleVideo();
-    document.getElementById("btnCam").classList.toggle("active", enabled);
+    setControlState("btnCam", enabled, "Turn camera off", "Turn camera on");
 };
-window.shareScreen = () => alert("Screen sharing is not enabled in this first ACS Calling migration.");
-window.raiseHand = async () => signal.raiseHand();
+window.shareScreen = async () => {
+    const sharing = await call.toggleScreenShare();
+    setControlState("btnShare", sharing, "Stop sharing", "Share screen", "is-active");
+};
+window.raiseHand = async () => {
+    const raised = await call.toggleRaiseHand();
+    setControlState("btnHand", raised, "Lower hand", "Raise hand", "is-active");
+};
 window.saveNotes = async show => notes.save(show);
 window.leaveSession = async () => {
     if (!confirm("Are you sure you want to leave this session?")) return;
@@ -90,6 +96,15 @@ window.leaveSession = async () => {
         window.location.href = window.roomConfig.returnUrl;
     }
 };
+
+function setControlState(id, enabled, onLabel, offLabel, activeClass = "is-on") {
+    const button = document.getElementById(id);
+    button.classList.toggle(activeClass, enabled);
+    button.classList.toggle("is-off", !enabled && (id === "btnMic" || id === "btnCam"));
+    button.title = enabled ? onLabel : offLabel;
+    button.setAttribute("aria-label", button.title);
+    button.setAttribute("aria-pressed", String(enabled));
+}
 
 const started = new Date();
 setInterval(() => {
