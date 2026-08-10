@@ -43,7 +43,7 @@ const peer = new PeerManager(media, window.roomConfig.iceServers);
 if (!window.roomConfig.hasTurnServer) {
 
     console.warn(
-        "[WebRTC] No TURN server is configured. Calls may fail on restrictive networks."
+        `[WebRTC] No TURN server is configured. ${window.roomConfig.turnStatus}`
     );
 
 }

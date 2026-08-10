@@ -319,7 +319,8 @@
         isCounselor: @(Model.IsCounselor.ToString().ToLower()),
         returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")",
         iceServers: @Html.Raw(Model.IceServersJson),
-        hasTurnServer: @(Model.HasTurnServer.ToString().ToLower())
+        hasTurnServer: @(Model.HasTurnServer.ToString().ToLower()),
+        turnStatus: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TurnStatus))
     };
 </script>
 

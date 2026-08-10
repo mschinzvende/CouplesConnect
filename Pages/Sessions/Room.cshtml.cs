@@ -43,6 +43,7 @@ namespace CouplesConnect.Pages.Sessions
         public DateTime SessionStartTime { get; set; }
         public string IceServersJson { get; private set; } = "[]";
         public bool HasTurnServer { get; private set; }
+        public string TurnStatus { get; private set; } = "TURN configuration has not been loaded.";
 
         public async Task<IActionResult> OnGetAsync(int sessionId)
         {
@@ -110,7 +111,10 @@ namespace CouplesConnect.Pages.Sessions
 
         private async Task ConfigureIceServersAsync()
         {
-            var iceServers = (await _turnService.GetIceServersAsync()).ToList();
+            var relayConfiguration = await _turnService.GetIceServersAsync();
+            var iceServers = relayConfiguration.IceServers.ToList();
+
+            TurnStatus = relayConfiguration.Status;
 
             HasTurnServer = iceServers.Any(server =>
                 server.Urls.Any(url => url.StartsWith("turn:", StringComparison.OrdinalIgnoreCase) ||
