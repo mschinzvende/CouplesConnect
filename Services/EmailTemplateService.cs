@@ -495,6 +495,24 @@ If you did not request a password reset, you can safely ignore this email. Your 
             };
         }
 
+        public async Task<EmailMessage> BuildCounselorApplicationReceivedAsync(string adminName, string applicantName, string applicantEmail, int yearsOfExperience, string reviewUrl)
+        {
+            var body = $@"<p>Hello <strong>{adminName}</strong>,</p><p><strong>{applicantName}</strong> has submitted a counselor application for review.</p><p>Email: {applicantEmail}<br/>Experience: {yearsOfExperience} year(s)</p>";
+            return new EmailMessage { Subject = "New counselor application", HtmlBody = await BuildTemplateAsync("Counselor application received", body, "Review application", reviewUrl) };
+        }
+
+        public async Task<EmailMessage> BuildCounselorApplicationApprovedAsync(string applicantName, string dashboardUrl)
+        {
+            var body = $@"<p>Hello <strong>{applicantName}</strong>,</p><p>Your Couples Connect counselor application has been approved. You can now access the counselor tools from your account.</p>";
+            return new EmailMessage { Subject = "Your counselor application was approved", HtmlBody = await BuildTemplateAsync("Application approved", body, "Open dashboard", dashboardUrl) };
+        }
+
+        public async Task<EmailMessage> BuildCounselorApplicationRejectedAsync(string applicantName, string reason)
+        {
+            var body = $@"<p>Hello <strong>{applicantName}</strong>,</p><p>We are unable to approve your counselor application at this time.</p><p><strong>Reason:</strong> {reason}</p>";
+            return new EmailMessage { Subject = "Update on your counselor application", HtmlBody = await BuildTemplateAsync("Application update", body) };
+        }
+
         public async Task<EmailMessage> BuildGeneralNotificationAsync(
     string subject,
     string message,

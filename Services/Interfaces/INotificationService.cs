@@ -27,6 +27,10 @@ namespace CouplesConnect.Services.Interfaces
 
         Task SendPasswordChangedAlertAsync(ApplicationUser user);
 
+        Task NotifyCounselorApplicationSubmittedAsync(Guid counselorUserId);
+        Task NotifyCounselorApplicationApprovedAsync(Guid counselorUserId);
+        Task NotifyCounselorApplicationRejectedAsync(Guid counselorUserId, string reason);
+
         Task NotifyBookingCreatedAsync(Guid bookingId);
 
 

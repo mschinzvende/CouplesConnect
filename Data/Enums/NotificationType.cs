@@ -26,6 +26,12 @@
 
         PasswordReset,
 
-        PasswordChanged
+        PasswordChanged,
+
+        CounselorApplicationSubmitted,
+
+        CounselorApplicationApproved,
+
+        CounselorApplicationRejected
     }
 }

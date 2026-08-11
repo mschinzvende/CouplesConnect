@@ -1,6 +1,7 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,12 +12,18 @@ namespace CouplesConnect.Pages.Account
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notifications;
+        private readonly ILogger<RegisterCounselorModel> _logger;
 
         public RegisterCounselorModel(ApplicationDbContext context,
-                                      UserManager<ApplicationUser> userManager)
+                                      UserManager<ApplicationUser> userManager,
+                                      INotificationService notifications,
+                                      ILogger<RegisterCounselorModel> logger)
         {
             _context = context;
             _userManager = userManager;
+            _notifications = notifications;
+            _logger = logger;
         }
 
         public List<Service> Services { get; set; } = new();
@@ -144,6 +151,15 @@ namespace CouplesConnect.Pages.Account
                     }
 
                     await _context.SaveChangesAsync();
+                }
+
+                try
+                {
+                    await _notifications.NotifyCounselorApplicationSubmittedAsync(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unable to notify administrators about counselor application {CounselorUserId}", user.Id);
                 }
 
                 TempData["Success"] = "Application submitted. Await approval.";

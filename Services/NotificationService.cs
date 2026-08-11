@@ -3,6 +3,7 @@ using CouplesConnect.Data.Models;
 using CouplesConnect.Enums;
 using CouplesConnect.Models;
 using CouplesConnect.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CouplesConnect.Services
@@ -13,17 +14,20 @@ namespace CouplesConnect.Services
         private readonly MessagingService _messaging;
         private readonly EmailTemplateService _templates;
         private readonly SettingsService _settings;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public NotificationService(
             ApplicationDbContext context,
             MessagingService messaging,
             EmailTemplateService templates,
-            SettingsService settings)
+            SettingsService settings,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _messaging = messaging;
             _templates = templates;
             _settings = settings;
+            _userManager = userManager;
         }
 
         public async Task NotifyAsync(
@@ -209,6 +213,89 @@ namespace CouplesConnect.Services
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        public async Task NotifyCounselorApplicationSubmittedAsync(Guid counselorUserId)
+        {
+            var profile = await _context.CounselorProfiles.Include(item => item.User)
+                .FirstOrDefaultAsync(item => item.UserId == counselorUserId);
+            if (profile is null) return;
+
+            var reviewUrl = $"{await GetBaseUrl()}/Admin/Counselors";
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            const string title = "New counselor application";
+            var message = $"{profile.FullName} submitted a counselor application for review.";
+
+            foreach (var admin in admins)
+            {
+                await CreateNotification(admin.Id, NotificationType.CounselorApplicationSubmitted, title, message, reviewUrl);
+                if (!string.IsNullOrWhiteSpace(admin.Email))
+                {
+                    var email = await _templates.BuildCounselorApplicationReceivedAsync(admin.FullName, profile.FullName, profile.User.Email ?? "Not provided", profile.YearsOfExperience, reviewUrl);
+                    await SendEmail(admin, NotificationType.CounselorApplicationSubmitted, email.Subject, message, email);
+                }
+                await SendCounselorWhatsAppAsync(admin, NotificationType.CounselorApplicationSubmitted, title, message,
+                    "counselor_application_received", profile.FullName, profile.User.Email ?? "Not provided", profile.YearsOfExperience.ToString());
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task NotifyCounselorApplicationApprovedAsync(Guid counselorUserId)
+        {
+            var profile = await _context.CounselorProfiles.Include(item => item.User)
+                .FirstOrDefaultAsync(item => item.UserId == counselorUserId);
+            if (profile is null) return;
+
+            const string title = "Counselor application approved";
+            const string message = "Your counselor application has been approved. You can now access counselor tools in your account.";
+            var dashboardUrl = $"{await GetBaseUrl()}/DashboardRedirect";
+            await CreateNotification(profile.UserId, NotificationType.CounselorApplicationApproved, title, message, dashboardUrl);
+            if (!string.IsNullOrWhiteSpace(profile.User.Email))
+            {
+                var email = await _templates.BuildCounselorApplicationApprovedAsync(profile.FullName, dashboardUrl);
+                await SendEmail(profile.User, NotificationType.CounselorApplicationApproved, email.Subject, message, email);
+            }
+            await SendCounselorWhatsAppAsync(profile.User, NotificationType.CounselorApplicationApproved, title, message,
+                "counselor_application_approved", profile.FullName);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task NotifyCounselorApplicationRejectedAsync(Guid counselorUserId, string reason)
+        {
+            var profile = await _context.CounselorProfiles.Include(item => item.User)
+                .FirstOrDefaultAsync(item => item.UserId == counselorUserId);
+            if (profile is null) return;
+
+            const string title = "Counselor application update";
+            var message = $"Your counselor application was not approved. Reason: {reason}";
+            await CreateNotification(profile.UserId, NotificationType.CounselorApplicationRejected, title, message);
+            if (!string.IsNullOrWhiteSpace(profile.User.Email))
+            {
+                var email = await _templates.BuildCounselorApplicationRejectedAsync(profile.FullName, reason);
+                await SendEmail(profile.User, NotificationType.CounselorApplicationRejected, email.Subject, message, email);
+            }
+            await SendCounselorWhatsAppAsync(profile.User, NotificationType.CounselorApplicationRejected, title, message,
+                "counselor_application_rejected", profile.FullName, reason);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SendCounselorWhatsAppAsync(ApplicationUser user, NotificationType type, string title, string message, string templateName, params string[] parameters)
+        {
+            if (string.IsNullOrWhiteSpace(user.Phone)) return;
+            var log = CreateLog(NotificationChannel.WhatsApp, type, user.Id, null, user.Phone, title, message);
+            try
+            {
+                var sent = await _messaging.SendWhatsAppTemplateAsync(user.Phone, templateName, parameters);
+                log.Status = sent ? "Sent" : "Failed";
+                if (sent) log.SentDate = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                log.Status = "Failed";
+                log.ErrorMessage = ex.Message;
+            }
+            _context.NotificationLogs.Add(log);
         }
 
         private Task CreateNotification(

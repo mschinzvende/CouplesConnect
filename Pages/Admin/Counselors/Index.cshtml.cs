@@ -1,7 +1,7 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
-using CouplesConnect.Services;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,18 +16,18 @@ namespace CouplesConnect.Pages.Admin.Counselors
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly MessagingService _messaging;
-        private readonly EmailTemplateService _template;
+        private readonly INotificationService _notifications;
+        private readonly ILogger<IndexModel> _logger;
 
         public IndexModel(ApplicationDbContext context,
                           UserManager<ApplicationUser> userManager,
-                           MessagingService messaging,
-                           EmailTemplateService template)
+                           INotificationService notifications,
+                           ILogger<IndexModel> logger)
         {
             _context = context;
             _userManager = userManager;
-            _messaging = messaging;
-            _template = template;
+            _notifications = notifications;
+            _logger = logger;
         }
 
         public List<CounselorProfile> Counselors { get; set; }
@@ -53,16 +53,26 @@ namespace CouplesConnect.Pages.Admin.Counselors
                     return RedirectToPage();
                 }
 
+                reason = string.IsNullOrWhiteSpace(reason)
+                    ? "The application did not meet the current approval requirements."
+                    : reason.Trim();
+
                 profile.IsApproved = false;
                 profile.IsRejected = true;
                 profile.RejectionReason = reason;
 
                 await _context.SaveChangesAsync();
 
-                // Send notifications here
-               
+                try
+                {
+                    await _notifications.NotifyCounselorApplicationRejectedAsync(profile.UserId, reason);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unable to notify counselor {CounselorUserId} of application rejection", profile.UserId);
+                }
 
-                TempData["Success"] = "Application rejected";
+                TempData["Success"] = "Application rejected and the applicant has been notified.";
             }
             catch
             {
@@ -124,9 +134,16 @@ namespace CouplesConnect.Pages.Admin.Counselors
 
                 await _context.SaveChangesAsync();
 
-                // Send Notifications Here
-                
-                TempData["Success"] = "Counselor approved";
+                try
+                {
+                    await _notifications.NotifyCounselorApplicationApprovedAsync(profile.UserId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unable to notify counselor {CounselorUserId} of application approval", profile.UserId);
+                }
+
+                TempData["Success"] = "Counselor approved and the applicant has been notified.";
             }
             catch
             {

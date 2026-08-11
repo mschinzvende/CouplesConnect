@@ -513,6 +513,49 @@ namespace CouplesConnect.Services
             }
         }
 
+        public async Task<bool> SendWhatsAppTemplateAsync(
+            string phoneNumber,
+            string templateName,
+            params string[] bodyParameters)
+        {
+            try
+            {
+                var config = await _settings.GetAsync();
+                var url = $"{config.WhatsAppApiUrl}/{config.WhatsAppPhoneNumberId}/messages";
+
+                _http.DefaultRequestHeaders.Clear();
+                _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", config.WhatsAppAccessToken);
+
+                var messageData = new
+                {
+                    messaging_product = "whatsapp",
+                    to = phoneNumber,
+                    type = "template",
+                    template = new
+                    {
+                        name = templateName,
+                        language = new { code = "en" },
+                        components = new object[]
+                        {
+                            new
+                            {
+                                type = "body",
+                                parameters = bodyParameters.Select(value => (object)new { type = "text", text = value }).ToArray()
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(messageData), Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync(url, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> SendWhatsAppPasswordResetAsync(
             string phoneNumber,
             string customerName,
