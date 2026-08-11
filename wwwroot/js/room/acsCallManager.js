@@ -69,7 +69,7 @@ export default class AcsCallManager {
         if (this.views.has("local")) this.removeVideoCard("local");
         this.localRenderer?.dispose();
         this.localRenderer = new VideoStreamRenderer(this.localVideoStream);
-        const view = await this.localRenderer.createView();
+        const view = await this.localRenderer.createView({ scalingMode: "Fit" });
         this.addVideoCard("local", view, true);
     }
 
@@ -102,7 +102,9 @@ export default class AcsCallManager {
         const render = async () => {
             if (!stream.isAvailable || this.views.has(key)) return;
             const renderer = new VideoStreamRenderer(stream);
-            const view = await renderer.createView();
+            // ACS defaults to Crop, which cuts off portrait phone cameras in a
+            // landscape counselor view. Fit preserves the complete frame.
+            const view = await renderer.createView({ scalingMode: "Fit" });
             this.renderers.set(key, renderer);
             if (!this.featuredKey) this.setFeaturedVideo(key, view);
             else this.addVideoCard(key, view, false);
