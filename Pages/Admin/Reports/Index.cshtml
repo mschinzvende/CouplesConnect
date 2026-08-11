@@ -3,32 +3,12 @@
 @model CouplesConnect.Pages.Admin.Reports.IndexModel
 @attribute [Authorize(Roles = "Admin")]
 
-<h3>Reports</h3>
-
-<div class="row">
-
-    <div class="col-md-3">
-        <div class="card p-3">
-            Total Users: @Model.TotalUsers
-        </div>
+<div class="admin-page">
+    <div class="admin-page-header"><div><span class="admin-eyebrow">Business intelligence</span><h3>Platform Reports</h3><p>A consolidated view of clients, service delivery, and financial performance.</p></div><a class="btn btn-outline-primary" href="/Admin/Dashboard"><i class="icon-speedometer"></i> Dashboard</a></div>
+    <div class="row g-3">
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon indigo"><i class="icon-people"></i></div><span>Total users</span><strong>@Model.TotalUsers.ToString("N0")</strong><small>@Model.TotalCounselors approved counselors</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon amber"><i class="icon-calendar"></i></div><span>Total bookings</span><strong>@Model.TotalBookings.ToString("N0")</strong><small>@Model.TotalSessions sessions created</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon blue"><i class="icon-wallet"></i></div><span>Subscription revenue</span><strong>$@Model.TotalRevenue.ToString("N2")</strong><small>Paid package subscriptions</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon green"><i class="icon-graph"></i></div><span>Counselor earnings</span><strong>$@Model.TotalEarnings.ToString("N2")</strong><small>Recorded payout amount</small></div></div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card p-3">
-            Total Sessions: @Model.TotalSessions
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card p-3">
-            Revenue: $@Model.TotalRevenue
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card p-3">
-            Counselor Earnings: $@Model.TotalEarnings
-        </div>
-    </div>
-
 </div>

@@ -3,60 +3,24 @@
 @model CouplesConnect.Pages.Admin.Dashboard.IndexModel
 @attribute [Authorize(Roles = "Admin")]
 
-<h3 class="mb-4">Platform Analytics</h3>
-
-<div class="row g-4 mb-4">
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Users</div>
-                <h3>@Model.TotalUsers</h3>
-            </div>
-        </div>
+<div class="admin-page">
+    <div class="admin-page-header">
+        <div><span class="admin-eyebrow">Platform overview</span><h3>Admin Dashboard</h3><p>Live operational and financial performance across Couples Connect.</p></div>
+        <a class="btn btn-primary" href="/Admin/Reports"><i class="icon-chart"></i> View reports</a>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Counselors</div>
-                <h3>@Model.TotalCounselors</h3>
-            </div>
-        </div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon indigo"><i class="icon-people"></i></div><span>Total users</span><strong>@Model.TotalUsers.ToString("N0")</strong><small>@Model.NewUsersThisMonth new this month</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon green"><i class="icon-user-follow"></i></div><span>Approved counselors</span><strong>@Model.ApprovedCounselors.ToString("N0")</strong><small>@Model.PendingCounselors pending review</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon amber"><i class="icon-calendar"></i></div><span>Total bookings</span><strong>@Model.TotalBookings.ToString("N0")</strong><small>@Model.BookingsThisMonth booked this month</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon blue"><i class="icon-wallet"></i></div><span>Confirmed revenue</span><strong>$@Model.TotalRevenue.ToString("N2")</strong><small>$@Model.RevenueThisMonth.ToString("N2") this month</small></div></div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Sessions</div>
-                <h3>@Model.TotalSessions</h3>
-            </div>
-        </div>
+    <div class="row g-4">
+        <div class="col-xl-8"><section class="card admin-card"><div class="card-header"><div><h5>User growth</h5><span>New accounts created over the last six months</span></div></div><div class="card-body chart-container"><canvas id="growthChart"></canvas></div></section></div>
+        <div class="col-xl-4"><section class="card admin-card"><div class="card-header"><div><h5>Booking mix</h5><span>@Model.LiveSessions live session@(Model.LiveSessions == 1 ? "" : "s") now</span></div></div><div class="card-body chart-container"><canvas id="bookingStatusChart"></canvas></div></section></div>
+        <div class="col-12"><section class="card admin-card"><div class="card-header"><div><h5>Recent bookings</h5><span>The latest booking activity on the platform</span></div><a href="/Admin/Reports" class="btn btn-sm btn-outline-primary">Reporting</a></div><div class="table-responsive"><table class="table admin-table mb-0"><thead><tr><th>Client</th><th>Counselor</th><th>Service</th><th>Scheduled for</th><th>Status</th></tr></thead><tbody>@if (Model.RecentBookings.Any()) { @foreach (var booking in Model.RecentBookings) { <tr><td class="fw-semibold">@booking.ClientName</td><td>@booking.CounselorName</td><td>@booking.ServiceName</td><td>@booking.ScheduledStart.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td><td><span class="admin-status">@booking.Status</span></td></tr> } } else { <tr><td colspan="5" class="admin-empty-state">No bookings have been created yet.</td></tr> }</tbody></table></div></section></div>
     </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="text-muted small">Revenue</div>
-                <h3>$@Model.TotalRevenue</h3>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<div class="card shadow-sm">
-
-    <div class="card-header bg-white">
-        Platform Growth
-    </div>
-
-    <div class="card-body">
-
-        <canvas id="growthChart"></canvas>
-
-    </div>
-
 </div>
 
 @section Scripts {
@@ -71,9 +35,15 @@
         labels: @Html.Raw(Model.ChartLabels),
         datasets: [{
         label: 'New Users',
-        data: @Html.Raw(Model.ChartData)
+        data: @Html.Raw(Model.ChartData),
+        borderColor: '#4f46e5', backgroundColor: 'rgba(79,70,229,.10)', fill: true, tension: .35, borderWidth: 2
         }]
-        }
+        }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+        });
+
+        new Chart(document.getElementById('bookingStatusChart'), {
+            type: 'doughnut', data: { labels: @Html.Raw(Model.BookingStatusLabels), datasets: [{ data: @Html.Raw(Model.BookingStatusData), backgroundColor: ['#4f46e5','#10b981','#f59e0b','#ef4444','#64748b'] }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom' } } }
         });
 
     </script>

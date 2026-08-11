@@ -12,6 +12,7 @@
     var profileImageUrl = string.IsNullOrWhiteSpace(currentUser?.ProfileImageUrl)
         ? Url.Content("~/theme/images/faces/face8.jpg")
         : currentUser.ProfileImageUrl;
+    var isAdminArea = Context.Request.Path.StartsWithSegments("/Admin");
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -39,10 +40,14 @@
     <link rel="stylesheet" href="~/theme/css/vertical-light-layout/style.css">
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true">
+    @if (isAdminArea)
+    {
+        <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
+    }
     <!-- End layout styles -->
     <link rel="shortcut icon" href="~/theme/images/favicon.png" />
 </head>
-<body>
+<body class="@(isAdminArea ? "admin-area" : "")">
     <div class="container-scroller">
 
         <!-- partial:partials/_navbar.html -->
@@ -257,6 +262,13 @@
                             <a class="nav-link" href="/Admin/ServiceTypes">
                                 <span class="menu-title">Service Types</span>
                                 <i class="icon-list menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/Resources">
+                                <span class="menu-title">Resources</span>
+                                <i class="icon-book-open menu-icon"></i>
                             </a>
                         </li>
 

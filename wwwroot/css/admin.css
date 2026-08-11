@@ -1,0 +1,31 @@
+/* Couples Connect admin workspace: aligns existing admin pages without replacing the application theme. */
+.admin-area .content-wrapper { padding: 30px 32px; }
+.admin-page, .admin-area .container-fluid { max-width: 1440px; margin: 0 auto; }
+.admin-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+.admin-page-header h3 { margin: 3px 0 4px; color: #0f172a; font-weight: 700; }
+.admin-page-header p { margin: 0; color: #64748b; }
+.admin-eyebrow { color: #4f46e5; font-size: 11px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.admin-area .card, .admin-area .admin-card { border: 1px solid #e7eaf0 !important; box-shadow: 0 7px 20px rgba(15,23,42,.045) !important; }
+.metric-card { position: relative; min-height: 148px; padding: 20px 18px 17px; border: 1px solid #e7eaf0; border-radius: 12px; background: #fff; box-shadow: 0 7px 20px rgba(15,23,42,.045); }
+.metric-card > span { display: block; margin: 12px 0 4px; color: #64748b; font-size: 13px; font-weight: 600; }
+.metric-card strong { display: block; color: #0f172a; font-size: 25px; letter-spacing: -.03em; }
+.metric-card small { display: block; margin-top: 5px; color: #64748b; font-size: 12px; }
+.metric-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 9px; font-size: 16px; }
+.metric-icon.indigo { color:#4338ca; background:#eef2ff; }.metric-icon.green { color:#047857; background:#ecfdf5; }.metric-icon.amber { color:#b45309; background:#fffbeb; }.metric-icon.blue { color:#0369a1; background:#eff6ff; }
+.admin-area .admin-card .card-header { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 20px; border-bottom:1px solid #eef0f4; background:#fff; }
+.admin-area .admin-card .card-header h5 { margin:0; color:#0f172a; font-weight:700; }.admin-area .admin-card .card-header span { color:#64748b; font-size:12px; }
+.chart-container { height: 300px; padding: 20px; }
+.admin-area .table { --bs-table-bg: transparent; margin-bottom: 0; }
+.admin-area .table thead th { padding: 13px 16px; border-bottom: 1px solid #e7eaf0; color: #64748b; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+.admin-area .table tbody td { padding: 15px 16px; border-color: #eef0f4; color: #334155; vertical-align: middle; }
+.admin-area .table tbody tr:hover { background: #fafaff; }
+.admin-status, .admin-area .badge { display:inline-flex; align-items:center; border-radius:999px; padding:5px 9px; font-size:11px; font-weight:700; }
+.admin-status { background:#eef2ff; color:#4338ca; }.admin-empty-state { padding:36px !important; color:#64748b !important; text-align:center; }
+.admin-area h3:not(.admin-page-header h3), .admin-area .container-fluid > h3 { color:#0f172a; font-weight:700; }
+.admin-area .card-header { padding:18px 20px; border-bottom:1px solid #eef0f4; background:#fff !important; }.admin-area .card-header h5 { margin:0; font-weight:700; }
+.admin-area .card-body { padding:20px; }.admin-area .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; background:#1e3a8a !important; border-color:#1e3a8a !important; color:#fff !important; box-shadow:none; }.admin-area .btn:hover, .admin-area .btn:focus { background:#172554 !important; border-color:#172554 !important; color:#fff !important; }.admin-area .btn-sm { height:34px; padding:0 11px; }
+.admin-area .btn-outline-primary, .admin-area .btn-outline-secondary, .admin-area .btn-outline-danger, .admin-area .btn-success, .admin-area .btn-info { background:#1e3a8a !important; border-color:#1e3a8a !important; color:#fff !important; }
+.admin-area .alert { display:flex; align-items:center; border-radius:10px; border:1px solid; font-size:14px; }.admin-area .form-control, .admin-area .form-select, .admin-area textarea { min-height:42px; border-color:#dce1ea; border-radius:8px; }.admin-area textarea { min-height:104px; resize:vertical; }.admin-area .form-control:focus, .admin-area .form-select:focus { border-color:#818cf8; box-shadow:0 0 0 3px rgba(79,70,229,.12); }
+.admin-area .modal-dialog { margin-top: 6vh; }.admin-area .modal-content { overflow:hidden; border:1px solid #e2e8f0; border-radius:14px; box-shadow:0 24px 60px rgba(15,23,42,.22); }.admin-area .modal-header { align-items:center; padding:18px 22px; border-bottom:1px solid #e9edf3; background:#fbfcfe; }.admin-area .modal-title, .admin-area .modal-header h5 { margin:0; color:#0f172a; font-weight:700; }.admin-area .modal-body { padding:22px; background:#fff; }.admin-area .modal-footer { gap:8px; padding:14px 22px; border-top:1px solid #e9edf3; background:#fbfcfe; }.admin-area .modal-body label, .admin-area .modal-body .form-label { margin-bottom:7px; color:#0f172a; font-size:13px; font-weight:700; }.admin-area .modal-body .form-control, .admin-area .modal-body .form-select, .admin-area .modal-body textarea { background:#fff !important; color:#0f172a !important; border-color:#cbd5e1 !important; }.admin-area .modal-body .form-control::placeholder, .admin-area .modal-body textarea::placeholder { color:#64748b !important; opacity:1; }.admin-area .modal-body .mb-2 { margin-bottom:16px !important; }
+.admin-area .list-group-item { border-color:#e9edf3; }.admin-area .nav-pills .nav-link, .admin-area .list-group-item-action { border-radius:8px; font-weight:600; }
+@media (max-width: 767px) { .admin-area .content-wrapper { padding:22px 16px; }.admin-page-header { flex-direction:column; }.admin-page-header .btn { width:100%; }.chart-container { height:260px; }.admin-area .modal-dialog { margin:12px; }.admin-area .modal-body { padding:18px; } }
