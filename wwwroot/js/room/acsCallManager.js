@@ -120,6 +120,17 @@ export default class AcsCallManager {
         const card = document.createElement("div");
         card.className = "participant-card";
         card.dataset.id = key;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", "Show this video in the main view");
+        const promote = () => this.promoteToFeatured(key);
+        card.addEventListener("click", promote);
+        card.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                promote();
+            }
+        });
         card.appendChild(view.target);
 
         const footer = document.createElement("div");
@@ -130,6 +141,21 @@ export default class AcsCallManager {
 
         this.views.set(key, { view, card });
         this.updateParticipantCount();
+    }
+
+    promoteToFeatured(key) {
+        if (key === this.featuredKey) return;
+        const next = this.views.get(key);
+        if (!next?.card) return;
+
+        const previousKey = this.featuredKey;
+        const previous = previousKey ? this.views.get(previousKey) : null;
+        next.card.remove();
+        this.setFeaturedVideo(key, next.view);
+
+        if (previous?.view) {
+            this.addVideoCard(previousKey, previous.view, previousKey === "local");
+        }
     }
 
     setFeaturedVideo(key, view) {

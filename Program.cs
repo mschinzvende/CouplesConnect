@@ -19,8 +19,8 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-var connectionString = Environment.GetEnvironmentVariable("LV_CH_BTE");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+//var connectionString = Environment.GetEnvironmentVariable("LV_CH_BTE");
 
 // Add services to the container.
 builder.Services.AddRazorPages();
