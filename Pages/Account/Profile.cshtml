@@ -15,11 +15,26 @@
 
     @if (TempData["ProfileStatus"] is string profileStatus)
     {
-        <div class="alert alert-success" role="status">@profileStatus</div>
+        <div class="profile-feedback profile-feedback-success" role="status" aria-live="polite">
+            <i class="icon-check"></i><span>@profileStatus</span>
+        </div>
     }
     @if (TempData["PasswordStatus"] is string passwordStatus)
     {
-        <div class="alert alert-success" role="status">@passwordStatus</div>
+        <div class="profile-feedback profile-feedback-success" role="status" aria-live="polite">
+            <i class="icon-check"></i><span>@passwordStatus</span>
+        </div>
+    }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        var errors = ViewData.ModelState.Values.SelectMany(value => value.Errors).Select(error => error.ErrorMessage).Where(message => !string.IsNullOrWhiteSpace(message)).Distinct().ToList();
+        if (errors.Count > 0)
+        {
+            <div class="profile-feedback profile-feedback-error" role="alert">
+                <i class="icon-exclamation"></i>
+                <div><strong>We could not save your changes.</strong><ul>@foreach (var error in errors) { <li>@error</li> }</ul></div>
+            </div>
+        }
     }
 
     <div class="row g-4">
@@ -68,14 +83,18 @@
                             <label asp-for="Input.RelationshipStage" class="form-label fw-semibold"></label>
                             <select asp-for="Input.RelationshipStage" class="form-select">
                                 <option value="">Select stage</option>
-                                <option>Dating</option><option>Engaged</option><option>Married</option><option>Complicated</option>
+                                <option value="Dating">Dating</option>
+                                <option value="Engaged">Engaged</option>
+                                <option value="Married">Married</option>
+                                <option value="Complicated">Complicated</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Input.PrivacyLevel" class="form-label fw-semibold"></label>
                             <select asp-for="Input.PrivacyLevel" class="form-select">
                                 <option value="">Select preference</option>
-                                <option>Default</option><option>Anonymous</option>
+                                <option value="Default">Default</option>
+                                <option value="Anonymous">Anonymous</option>
                             </select>
                         </div>
                     </div>

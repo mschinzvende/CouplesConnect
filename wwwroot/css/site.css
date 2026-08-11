@@ -397,6 +397,11 @@ input,
 .profile-avatar-editor { display: flex; align-items: center; gap: 18px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; background: #f8fafc; }
 .profile-avatar-large { width: 82px; height: 82px; flex: 0 0 auto; border: 3px solid #e0e7ff; border-radius: 50%; object-fit: cover; background: #fff; }
 .security-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 10px; background: #eef2ff; color: #4f46e5; font-size: 18px; }
+.profile-feedback { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; padding: 13px 16px; border: 1px solid; border-radius: 10px; font-size: 14px; }
+.profile-feedback i { margin-top: 2px; font-size: 16px; }
+.profile-feedback-success { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.profile-feedback-error { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+.profile-feedback-error ul { margin: 5px 0 0; padding-left: 18px; }
 
 @media (max-width: 767px) {
     .navbar-brand-wrapper { width: auto !important; padding: 0 12px; }
