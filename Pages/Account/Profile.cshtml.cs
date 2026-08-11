@@ -208,13 +208,13 @@ namespace CouplesConnect.Pages.Account
 
         private void RemovePasswordValidation()
         {
-            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Password.")))
+            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Password.")).ToList())
                 ModelState.Remove(key);
         }
 
         private void RemoveProfileValidation()
         {
-            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Input.") || key == nameof(ProfileImage)))
+            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Input.") || key == nameof(ProfileImage)).ToList())
                 ModelState.Remove(key);
         }
     }
