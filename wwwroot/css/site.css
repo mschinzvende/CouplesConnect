@@ -385,9 +385,12 @@ input,
 
 /* ===== SHARED NAVIGATION ===== */
 .navbar .navbar-brand-wrapper { padding: 0 24px !important; justify-content: space-between !important; }
+.navbar .navbar-brand-wrapper { border-bottom: 1px solid rgba(148, 163, 184, .16); }
 .navbar .navbar-brand-wrapper .navbar-brand.brand-logo { display: flex !important; align-items: center; width: 156px !important; }
 .navbar .navbar-brand-wrapper .navbar-brand .cc-brand-logo { width: 156px !important; height: 48px !important; max-width: 100%; object-fit: contain; }
 .navbar .navbar-brand-wrapper .navbar-toggler { margin-left: 0 !important; }
+.sidebar .nav { padding-top: 14px; }
+.sidebar .nav .nav-category:first-of-type { margin-top: 0; }
 .navbar .navbar-menu-wrapper .navbar-nav .nav-item .nav-link .cc-nav-avatar { width: 38px !important; height: 38px !important; min-width: 38px; min-height: 38px; object-fit: cover; border: 2px solid #e0e7ff; }
 .user-menu .cc-menu-avatar { width: 64px !important; height: 64px !important; object-fit: cover; border: 3px solid #e0e7ff; }
 .navbar-menu-wrapper { min-width: 0; padding-right: 18px; }
