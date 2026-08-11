@@ -69,8 +69,32 @@ export default class AcsCallManager {
         if (this.views.has("local")) this.removeVideoCard("local");
         this.localRenderer?.dispose();
         this.localRenderer = new VideoStreamRenderer(this.localVideoStream);
-        const view = await this.localRenderer.createView({ scalingMode: "Fit" });
+        const view = await this.createFitView(this.localRenderer);
         this.addVideoCard("local", view, true);
+    }
+
+    async createFitView(renderer) {
+        const view = await renderer.createView({ scalingMode: "Fit" });
+        // Explicitly update as well: some mobile browsers retain the renderer's
+        // previous default until the view has been attached to the page.
+        await view.updateScalingMode?.("Fit");
+        this.enforceContainedVideo(view.target);
+        return view;
+    }
+
+    enforceContainedVideo(target) {
+        target.classList.add("acs-video-target");
+        const apply = () => target.querySelectorAll("video").forEach(video => {
+            video.style.setProperty("width", "100%", "important");
+            video.style.setProperty("height", "100%", "important");
+            video.style.setProperty("max-width", "100%", "important");
+            video.style.setProperty("max-height", "100%", "important");
+            video.style.setProperty("object-fit", "contain", "important");
+            video.style.setProperty("object-position", "center", "important");
+        });
+        apply();
+        requestAnimationFrame(apply);
+        setTimeout(apply, 250);
     }
 
     addRemoteParticipant(participant) {
@@ -104,7 +128,7 @@ export default class AcsCallManager {
             const renderer = new VideoStreamRenderer(stream);
             // ACS defaults to Crop, which cuts off portrait phone cameras in a
             // landscape counselor view. Fit preserves the complete frame.
-            const view = await renderer.createView({ scalingMode: "Fit" });
+            const view = await this.createFitView(renderer);
             this.renderers.set(key, renderer);
             if (!this.featuredKey) this.setFeaturedVideo(key, view);
             else this.addVideoCard(key, view, false);
