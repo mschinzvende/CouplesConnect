@@ -24,6 +24,8 @@
 
         SessionCompleted,
 
-        PasswordReset
+        PasswordReset,
+
+        PasswordChanged
     }
 }

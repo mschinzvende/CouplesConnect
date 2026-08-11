@@ -479,6 +479,22 @@ If you did not request a password reset, you can safely ignore this email. Your 
             };
         }
 
+        public async Task<EmailMessage> BuildPasswordChangedAlertAsync(string customerName)
+        {
+            var body = $@"
+<p>Hello <strong>{customerName}</strong>,</p>
+
+<p>Your Couples Connect password was changed successfully.</p>
+
+<p>If you did not make this change, please reset your password immediately and contact support.</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Your Couples Connect password was changed",
+                HtmlBody = await BuildTemplateAsync("Password changed", body)
+            };
+        }
+
         public async Task<EmailMessage> BuildGeneralNotificationAsync(
     string subject,
     string message,

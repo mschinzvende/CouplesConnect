@@ -1,0 +1,118 @@
+@page "/account/profile"
+@model CouplesConnect.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_Layout";
+}
+
+<div class="profile-page">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+            <h3 class="mb-1">My Profile</h3>
+            <p class="text-muted mb-0">Manage your personal information and account security.</p>
+        </div>
+    </div>
+
+    @if (TempData["ProfileStatus"] is string profileStatus)
+    {
+        <div class="alert alert-success" role="status">@profileStatus</div>
+    }
+    @if (TempData["PasswordStatus"] is string passwordStatus)
+    {
+        <div class="alert alert-success" role="status">@passwordStatus</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <form method="post" asp-page-handler="SaveProfile" enctype="multipart/form-data" class="card profile-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h5 class="mb-1">Personal information</h5>
+                            <p class="text-muted small mb-0">These details are used across your Couples Connect experience.</p>
+                        </div>
+                    </div>
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                    <div class="profile-avatar-editor mb-4">
+                        <img src="@Model.ProfileImageUrl" alt="Your profile image" class="profile-avatar-large" />
+                        <div>
+                            <label asp-for="ProfileImage" class="form-label fw-semibold">Profile photo</label>
+                            <input asp-for="ProfileImage" class="form-control" accept="image/png,image/jpeg,image/webp" />
+                            <div class="form-text">JPG, PNG, or WebP. Maximum 5 MB.</div>
+                            <span asp-validation-for="ProfileImage" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Input.FullName" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.FullName" class="form-control" />
+                            <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.Alias" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Alias" class="form-control" placeholder="Optional" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Email" class="form-control" readonly />
+                            <div class="form-text">Your verified email is protected for account security.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.Phone" class="form-label fw-semibold"></label>
+                            <input asp-for="Input.Phone" class="form-control" placeholder="263xxxxxxxxx" />
+                            <span asp-validation-for="Input.Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.RelationshipStage" class="form-label fw-semibold"></label>
+                            <select asp-for="Input.RelationshipStage" class="form-select">
+                                <option value="">Select stage</option>
+                                <option>Dating</option><option>Engaged</option><option>Married</option><option>Complicated</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.PrivacyLevel" class="form-label fw-semibold"></label>
+                            <select asp-for="Input.PrivacyLevel" class="form-select">
+                                <option value="">Select preference</option>
+                                <option>Default</option><option>Anonymous</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top p-3 text-end">
+                    <button type="submit" class="btn btn-primary px-4">Save profile</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <form method="post" asp-page-handler="ChangePassword" class="card profile-card">
+                <div class="card-body p-4">
+                    <div class="security-icon mb-3"><i class="icon-lock"></i></div>
+                    <h5 class="mb-1">Password &amp; security</h5>
+                    <p class="text-muted small mb-4">Change your password. We’ll notify you by email and WhatsApp after a successful update.</p>
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                    <div class="mb-3">
+                        <label asp-for="Password.CurrentPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="Password.CurrentPassword" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password.CurrentPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password.NewPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="Password.NewPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password.NewPassword" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Password.ConfirmPassword" class="form-label fw-semibold"></label>
+                        <input asp-for="Password.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                        <span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary w-100">Change password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

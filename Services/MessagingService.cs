@@ -577,6 +577,54 @@ namespace CouplesConnect.Services
             }
         }
 
+        public async Task<bool> SendWhatsAppPasswordChangedAsync(
+            string phoneNumber,
+            string customerName)
+        {
+            try
+            {
+                var config = await _settings.GetAsync();
+                var url = $"{config.WhatsAppApiUrl}/{config.WhatsAppPhoneNumberId}/messages";
+
+                _http.DefaultRequestHeaders.Clear();
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", config.WhatsAppAccessToken);
+
+                // Meta template: password_changed
+                // Body: Hello {{1}}, your Couples Connect password was changed.
+                var messageData = new
+                {
+                    messaging_product = "whatsapp",
+                    to = phoneNumber,
+                    type = "template",
+                    template = new
+                    {
+                        name = "password_changed",
+                        language = new { code = "en" },
+                        components = new object[]
+                        {
+                            new
+                            {
+                                type = "body",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = customerName }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(messageData), Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync(url, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> SendNotificationAsync(
             string? emailAddress,
             string? phone,

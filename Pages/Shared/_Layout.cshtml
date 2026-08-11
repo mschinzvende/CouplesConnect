@@ -9,6 +9,9 @@
     var currentUser = SignInManager.IsSignedIn(User)
         ? await UserManager.GetUserAsync(User)
         : null;
+    var profileImageUrl = string.IsNullOrWhiteSpace(currentUser?.ProfileImageUrl)
+        ? Url.Content("~/theme/images/faces/face8.jpg")
+        : currentUser.ProfileImageUrl;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -45,16 +48,15 @@
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo" href="#">
-                    <img src="~/theme/images/logo.svg" style="height:36px;" />
-                    
+                <a class="navbar-brand brand-logo" href="/DashboardRedirect" aria-label="Couples Connect dashboard">
+                    <img class="cc-brand-logo" src="~/theme/images/logo.svg" alt="Couples Connect" />
                 </a>
                 <a class="navbar-brand brand-logo-mini" href="/User/Dashboard"><img src="~/theme/images/logo-mini.svg" alt="Couples Connect" /></a>
                 <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
                     <span class="icon-menu"></span>
                 </button>
             </div>
-            <div class="navbar-menu-wrapper d-flex align-items-center">
+            <div class="navbar-menu-wrapper d-flex align-items-center justify-content-between">
                 @if (SignInManager.IsSignedIn(User))
                 {
                    
@@ -73,15 +75,15 @@
                     </form>
                     
                     
-                    <li class="nav-item dropdown d-none d-xl-inline-flex user-dropdown">
+                    <li class="nav-item dropdown d-flex user-dropdown">
                         <a class="nav-link d-flex align-items-center gap-2"
                            id="UserDropdown"
                            href="#"
                            data-bs-toggle="dropdown"
                            aria-expanded="false">
 
-                            <img class="rounded-circle" width="32" height="32"
-                                 src="~/theme/images/faces/face8.jpg" alt="Profile">
+                            <img class="rounded-circle cc-nav-avatar"
+                                 src="@profileImageUrl" alt="@currentUser?.FullName profile image">
 
                             <span class="fw-semibold small text-dark">
                                @currentUser?.FullName
@@ -92,8 +94,8 @@
 
                             <!-- HEADER -->
                             <div class="text-center px-3 py-3 border-bottom">
-                                <img class="rounded-circle mb-2" width="64"
-                                     src="~/theme/images/faces/face8.jpg" alt="Profile">
+                                <img class="rounded-circle mb-2 cc-menu-avatar"
+                                     src="@profileImageUrl" alt="@currentUser?.FullName profile image">
 
                                 <div class="fw-semibold">
                                     @currentUser?.FullName
@@ -105,10 +107,9 @@
                             </div>
 
                             <!-- ITEMS -->
-                            <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                            <a class="dropdown-item d-flex align-items-center gap-2" href="/account/profile">
                                 <i class="icon-user text-muted"></i>
                                 <span>My Profile</span>
-                                <span class="badge bg-primary ms-auto">1</span>
                             </a>
 
                             <div class="dropdown-divider"></div>
@@ -139,9 +140,9 @@
                         <a class="nav-link navbar-brand brand-logo-mini" href="/User/Dashboard"><img src="~/theme/images/logo-mini.svg" alt="CC" /></a>
                     </li>
                     <li class="nav-item nav-profile">
-                        <a href="#" class="nav-link">
+                        <a href="/account/profile" class="nav-link">
                             <div class="profile-image">
-                                <img class="img-xs rounded-circle" src="~/theme/images/faces/face8.jpg" alt="profile image">
+                                <img class="img-xs rounded-circle" src="@profileImageUrl" alt="profile image">
                                 <div class="dot-indicator bg-success"></div>
                             </div>
                             <div class="text-wrapper">

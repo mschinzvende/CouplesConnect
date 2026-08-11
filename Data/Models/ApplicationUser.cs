@@ -15,6 +15,8 @@ namespace CouplesConnect.Models
 
         public string? Phone { get ; set; } 
 
+        public string? ProfileImageUrl { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public CounselorProfile CounselorProfile { get; set; }

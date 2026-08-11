@@ -25,6 +25,8 @@ namespace CouplesConnect.Services.Interfaces
             string resetUrl,
             string whatsAppButtonToken);
 
+        Task SendPasswordChangedAlertAsync(ApplicationUser user);
+
         Task NotifyBookingCreatedAsync(Guid bookingId);
 
 

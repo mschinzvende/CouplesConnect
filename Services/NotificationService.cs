@@ -168,6 +168,49 @@ namespace CouplesConnect.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task SendPasswordChangedAlertAsync(ApplicationUser user)
+        {
+            const string title = "Your password was changed";
+            const string message = "Your Couples Connect password was changed successfully. If this was not you, reset your password immediately.";
+
+            await CreateNotification(user.Id, NotificationType.PasswordChanged, title, message);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var email = await _templates.BuildPasswordChangedAlertAsync(user.FullName);
+                await SendEmail(user, NotificationType.PasswordChanged, email.Subject, message, email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Phone))
+            {
+                var log = CreateLog(
+                    NotificationChannel.WhatsApp,
+                    NotificationType.PasswordChanged,
+                    user.Id,
+                    null,
+                    user.Phone,
+                    title,
+                    message);
+
+                try
+                {
+                    var sent = await _messaging.SendWhatsAppPasswordChangedAsync(user.Phone, user.FullName);
+                    log.Status = sent ? "Sent" : "Failed";
+                    if (sent)
+                        log.SentDate = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    log.Status = "Failed";
+                    log.ErrorMessage = ex.Message;
+                }
+
+                _context.NotificationLogs.Add(log);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         private Task CreateNotification(
     Guid userId,
     NotificationType type,
