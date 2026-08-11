@@ -25,7 +25,10 @@ const call = new AcsCallManager({
     },
     onRaisedHandsChanged: hands => {
         if (isCounselor && hands.length) showRoomAlert(`${hands.length} participant${hands.length === 1 ? "" : "s"} raised a hand.`);
-    }
+    },
+    onVideoStateChanged: enabled => setControlState("btnCam", enabled, "Turn camera off", "Turn camera on"),
+    onMuteStateChanged: enabled => setControlState("btnMic", enabled, "Mute microphone", "Unmute microphone"),
+    onScreenSharingChanged: sharing => setControlState("btnShare", sharing, "Stop sharing", "Share screen", "is-active")
 });
 
 const signal = new SignalManager(sessionId, isCounselor);
@@ -105,22 +108,36 @@ function renderWaitingUsers() {
     panel.classList.toggle("d-none", waitingUsers.size === 0);
 }
 
-window.toggleMute = async () => {
+async function runControl(id, action) {
+    const button = document.getElementById(id);
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    try {
+        await action();
+    } catch (error) {
+        console.error(`[Room] ${id} action failed`, error);
+        alert("That control could not be updated. Please check your browser permissions and try again.");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+window.toggleMute = () => runControl("btnMic", async () => {
     const enabled = await call.toggleMute();
     setControlState("btnMic", enabled, "Mute microphone", "Unmute microphone");
-};
-window.toggleVideo = async () => {
+});
+window.toggleVideo = () => runControl("btnCam", async () => {
     const enabled = await call.toggleVideo();
     setControlState("btnCam", enabled, "Turn camera off", "Turn camera on");
-};
-window.shareScreen = async () => {
+});
+window.shareScreen = () => runControl("btnShare", async () => {
     const sharing = await call.toggleScreenShare();
     setControlState("btnShare", sharing, "Stop sharing", "Share screen", "is-active");
-};
-window.raiseHand = async () => {
+});
+window.raiseHand = () => runControl("btnHand", async () => {
     const raised = await call.toggleRaiseHand();
     setControlState("btnHand", raised, "Lower hand", "Raise hand", "is-active");
-};
+});
 window.saveNotes = async show => notes.save(show);
 window.leaveSession = async () => {
     if (!confirm("Are you sure you want to leave this session?")) return;

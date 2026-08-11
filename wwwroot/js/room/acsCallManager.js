@@ -7,13 +7,19 @@ import { Features } from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default class AcsCallManager {
-    constructor({ token, groupId, onStateChanged, onRaisedHandsChanged }) {
+    constructor({ token, groupId, onStateChanged, onRaisedHandsChanged, onVideoStateChanged, onMuteStateChanged, onScreenSharingChanged }) {
         this.token = token;
         this.groupId = groupId;
         this.onStateChanged = onStateChanged;
         this.onRaisedHandsChanged = onRaisedHandsChanged;
+        this.onVideoStateChanged = onVideoStateChanged;
+        this.onMuteStateChanged = onMuteStateChanged;
+        this.onScreenSharingChanged = onScreenSharingChanged;
         this.call = null;
         this.callAgent = null;
+        this.callClient = null;
+        this.deviceManager = null;
+        this.camera = null;
         this.localVideoStream = null;
         this.localRenderer = null;
         this.renderers = new Map();
@@ -26,18 +32,19 @@ export default class AcsCallManager {
     async join() {
         if (this.call) return;
 
-        const callClient = new CallClient();
+        this.callClient = new CallClient();
         const credential = new AzureCommunicationTokenCredential(this.token);
-        this.callAgent = await callClient.createCallAgent(credential);
+        this.callAgent = await this.callClient.createCallAgent(credential);
 
-        const deviceManager = await callClient.getDeviceManager();
-        await deviceManager.askDevicePermission({ audio: true, video: true });
+        this.deviceManager = await this.callClient.getDeviceManager();
+        await this.deviceManager.askDevicePermission({ audio: true, video: true });
 
-        const cameras = await deviceManager.getCameras();
+        const cameras = await this.deviceManager.getCameras();
         const callOptions = { audioOptions: { muted: false } };
 
         if (cameras.length) {
-            this.localVideoStream = new LocalVideoStream(cameras[0]);
+            this.camera = cameras[0];
+            this.localVideoStream = new LocalVideoStream(this.camera);
             callOptions.videoOptions = { localVideoStreams: [this.localVideoStream] };
         }
 
@@ -48,6 +55,8 @@ export default class AcsCallManager {
             event.removed.forEach(participant => this.removeRemoteParticipant(participant));
         });
         this.call.on("isScreenSharingOnChanged", () => this.onScreenSharingChanged?.(this.call.isScreenSharingOn));
+        this.call.on("isLocalVideoStartedChanged", () => this.onVideoStateChanged?.(this.call.isLocalVideoStarted));
+        this.call.on("isMutedChanged", () => this.onMuteStateChanged?.(!this.call.isMuted));
         this.raiseHandFeature = this.call.feature(Features.RaiseHand);
         this.raiseHandFeature.on("raisedHandEvent", () => this.notifyRaisedHandsChanged());
         this.raiseHandFeature.on("loweredHandEvent", () => this.notifyRaisedHandsChanged());
@@ -57,6 +66,8 @@ export default class AcsCallManager {
     }
 
     async renderLocalVideo() {
+        if (this.views.has("local")) this.removeVideoCard("local");
+        this.localRenderer?.dispose();
         this.localRenderer = new VideoStreamRenderer(this.localVideoStream);
         const view = await this.localRenderer.createView();
         this.addVideoCard("local", view, true);
@@ -157,10 +168,21 @@ export default class AcsCallManager {
     }
 
     async toggleVideo() {
-        if (!this.call || !this.localVideoStream) return false;
+        if (!this.call) return false;
         const enabled = this.call.isLocalVideoStarted;
-        if (enabled) await this.call.stopVideo(this.localVideoStream);
-        else await this.call.startVideo(this.localVideoStream);
+        if (enabled) {
+            const activeStream = this.call.localVideoStreams.find(stream => stream.mediaStreamType === "Video") ?? this.localVideoStream;
+            if (activeStream) await this.call.stopVideo(activeStream);
+        } else {
+            if (!this.camera) {
+                const cameras = await this.deviceManager.getCameras();
+                this.camera = cameras[0];
+            }
+            if (!this.camera) return false;
+            this.localVideoStream = new LocalVideoStream(this.camera);
+            await this.call.startVideo(this.localVideoStream);
+            await this.renderLocalVideo();
+        }
         return !enabled;
     }
 
