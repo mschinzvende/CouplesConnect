@@ -85,12 +85,16 @@ namespace CouplesConnect.Pages.User.Dashboard
                 .FirstOrDefaultAsync();
 
 
-            // Chart (mock for now)
-            var months = new List<string> { "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
-            var values = new List<int> { 2, 3, 1, 4, 2, 5 };
+            var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+            var months = Enumerable.Range(0, 6).Select(offset => monthStart.AddMonths(offset - 5)).ToList();
+            var bookingsByMonth = await _context.Bookings
+                .Where(booking => booking.UserId == user.Id && booking.CreatedAt >= months.First())
+                .GroupBy(booking => new { booking.CreatedAt.Year, booking.CreatedAt.Month })
+                .Select(group => new { group.Key.Year, group.Key.Month, Count = group.Count() })
+                .ToListAsync();
 
-            ChartLabels = JsonSerializer.Serialize(months);
-            ChartData = JsonSerializer.Serialize(values);
+            ChartLabels = JsonSerializer.Serialize(months.Select(month => month.ToString("MMM")));
+            ChartData = JsonSerializer.Serialize(months.Select(month => bookingsByMonth.FirstOrDefault(item => item.Year == month.Year && item.Month == month.Month)?.Count ?? 0));
         }
     }
 }

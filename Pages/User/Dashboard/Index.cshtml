@@ -167,12 +167,17 @@
         data: {
             labels: @Html.Raw(Model.ChartLabels),
             datasets: [{
-                label: 'Sessions',
+                label: 'Bookings',
                 data: @Html.Raw(Model.ChartData),
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79,70,229,.10)',
+                fill: true,
+                tension: .35,
                 borderWidth: 2
             }]
-        }
-    });
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+        });
 
     function updateJoinButton() {
         const btn = document.getElementById("joinBtn");

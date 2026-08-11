@@ -13,6 +13,7 @@
         ? Url.Content("~/theme/images/faces/face8.jpg")
         : currentUser.ProfileImageUrl;
     var isAdminArea = Context.Request.Path.StartsWithSegments("/Admin");
+    var isUserArea = Context.Request.Path.StartsWithSegments("/User");
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -44,10 +45,14 @@
     {
         <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true">
     }
+    @if (isUserArea)
+    {
+        <link rel="stylesheet" href="~/css/user.css" asp-append-version="true">
+    }
     <!-- End layout styles -->
     <link rel="shortcut icon" href="~/theme/images/favicon.png" />
 </head>
-<body class="@(isAdminArea ? "admin-area" : "")">
+<body class="@(isAdminArea ? "admin-area" : isUserArea ? "user-area" : "")">
     <div class="container-scroller">
 
         <!-- partial:partials/_navbar.html -->
