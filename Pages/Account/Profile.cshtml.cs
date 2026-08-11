@@ -94,7 +94,8 @@ namespace CouplesConnect.Pages.Account
 
         public async Task<IActionResult> OnPostSaveProfileAsync()
         {
-            RemovePasswordValidation();
+            ModelState.Clear();
+            TryValidateModel(Input, nameof(Input));
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
                 return Challenge();
@@ -149,7 +150,8 @@ namespace CouplesConnect.Pages.Account
 
         public async Task<IActionResult> OnPostChangePasswordAsync()
         {
-            RemoveProfileValidation();
+            ModelState.Clear();
+            TryValidateModel(Password, nameof(Password));
             var user = await _userManager.GetUserAsync(User);
             if (user is null)
                 return Challenge();
@@ -206,16 +208,5 @@ namespace CouplesConnect.Pages.Account
             };
         }
 
-        private void RemovePasswordValidation()
-        {
-            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Password.")).ToList())
-                ModelState.Remove(key);
-        }
-
-        private void RemoveProfileValidation()
-        {
-            foreach (var key in ModelState.Keys.Where(key => key.StartsWith("Input.") || key == nameof(ProfileImage)).ToList())
-                ModelState.Remove(key);
-        }
     }
 }
