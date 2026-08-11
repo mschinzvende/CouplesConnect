@@ -49,10 +49,20 @@ namespace CouplesConnect.Pages.User.Bookings
                 .Where(x => x.IsActive)
                 .ToListAsync();
 
-            Counselors = await _context.CounselorProfiles
-                .Where(x => x.IsApproved)
-                .Include(x => x.User)
-                .Select(x => x.User)
+            var counselorProfiles = _context.CounselorProfiles
+                .Where(profile => profile.IsApproved)
+                .Include(profile => profile.User)
+                .AsQueryable();
+
+            if (ServiceId.HasValue)
+            {
+                counselorProfiles = counselorProfiles.Where(profile =>
+                    _context.CounselorServices.Any(assignment =>
+                        assignment.CounselorId == profile.UserId && assignment.ServiceId == ServiceId.Value));
+            }
+
+            Counselors = await counselorProfiles
+                .Select(profile => profile.User)
                 .ToListAsync();
 
             if (CounselorId == null)

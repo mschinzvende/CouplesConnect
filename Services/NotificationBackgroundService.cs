@@ -1,122 +1,115 @@
-﻿using CouplesConnect.Data;
+using CouplesConnect.Data;
 using CouplesConnect.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 public class NotificationBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<NotificationBackgroundService> _logger;
 
-    public NotificationBackgroundService(
-        IServiceScopeFactory scopeFactory)
+    public NotificationBackgroundService(IServiceScopeFactory scopeFactory, ILogger<NotificationBackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
+        _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(
-        CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                await ProcessNotifications();
-
-                await Task.Delay(
-                    TimeSpan.FromMinutes(1),
-                    stoppingToken);
+                await ProcessNotificationsAsync(stoppingToken);
             }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing scheduled notifications.");
+            }
+
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
-
-        catch (Exception ex)
-
-        {
-            Console.WriteLine(ex.ToString());
-        }
-
     }
 
-    private async Task ProcessNotifications()
+    private async Task ProcessNotificationsAsync(CancellationToken stoppingToken)
     {
-        using var scope =
-            _scopeFactory.CreateScope();
-
-        var db =
-            scope.ServiceProvider
-                .GetRequiredService<ApplicationDbContext>();
-
-        var notifications =
-            scope.ServiceProvider
-                .GetRequiredService<INotificationService>();
-
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
         var now = DateTime.UtcNow;
 
+        // Repair bookings marked as completed by the previous faulty scheduled-booking query.
+        // A scheduled booking has not completed and must remain eligible for its real completion notice.
+        var incorrectlyMarkedScheduledBookings = await db.Bookings
+            .Where(booking => booking.BookingStatus == "Scheduled" && booking.SessionCompletedNotificationSent)
+            .ToListAsync(stoppingToken);
+
+        foreach (var booking in incorrectlyMarkedScheduledBookings)
+        {
+            booking.SessionCompletedNotificationSent = false;
+            booking.SessionCompletedNotificationDate = null;
+        }
+
+        if (incorrectlyMarkedScheduledBookings.Count > 0)
+            await db.SaveChangesAsync(stoppingToken);
+
         var reminders = await db.Bookings
-    .Where(x =>
-        !x.ReminderSent &&
-        x.BookingStatus == "Scheduled" &&
-        x.ScheduledStart <= now.AddMinutes(10) &&
-        x.ScheduledStart > now)
-    .Select(x => x.BookingId)
-    .ToListAsync();
+            .Where(booking => !booking.ReminderSent && booking.BookingStatus == "Scheduled" &&
+                booking.ScheduledStart <= now.AddMinutes(10) && booking.ScheduledStart > now)
+            .Select(booking => booking.BookingId)
+            .ToListAsync(stoppingToken);
 
         foreach (var bookingId in reminders)
         {
-            await notifications.NotifyBookingReminderAsync(
-                bookingId);
-
-            var booking = await db.Bookings.FindAsync(bookingId);
-
-            booking.ReminderSent = true;
-            booking.ReminderSentDate = now;
+            stoppingToken.ThrowIfCancellationRequested();
+            await notifications.NotifyBookingReminderAsync(bookingId);
+            var booking = await db.Bookings.FindAsync(new object[] { bookingId }, stoppingToken);
+            if (booking != null)
+            {
+                booking.ReminderSent = true;
+                booking.ReminderSentDate = now;
+            }
         }
-
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(stoppingToken);
 
         var started = await db.Bookings
-    .Where(x =>
-        !x.SessionStartedNotificationSent &&
-        x.BookingStatus == "Scheduled" &&
-        x.ScheduledStart <= now)
-    .Select(x => x.BookingId)
-    .ToListAsync();
+            .Where(booking => !booking.SessionStartedNotificationSent && booking.BookingStatus == "Scheduled" && booking.ScheduledStart <= now)
+            .Select(booking => booking.BookingId)
+            .ToListAsync(stoppingToken);
 
         foreach (var bookingId in started)
         {
-            await notifications.NotifySessionStartedAsync(
-                bookingId);
-
-            var booking = await db.Bookings.FindAsync(bookingId);
-
-            booking.SessionStartedNotificationSent = true;
-            booking.SessionStartedNotificationDate = now;
+            stoppingToken.ThrowIfCancellationRequested();
+            await notifications.NotifySessionStartedAsync(bookingId);
+            var booking = await db.Bookings.FindAsync(new object[] { bookingId }, stoppingToken);
+            if (booking != null)
+            {
+                booking.SessionStartedNotificationSent = true;
+                booking.SessionStartedNotificationDate = now;
+            }
         }
-
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(stoppingToken);
 
         var completed = await db.Bookings
-    .Where(x =>
-        !x.SessionCompletedNotificationSent &&
-        x.BookingStatus == "Scheduled")
-    .Select(x => x.BookingId)
-    .ToListAsync();
+            .Where(booking => !booking.SessionCompletedNotificationSent &&
+                booking.BookingStatus == "Completed" && booking.Session.IsEnded)
+            .Select(booking => booking.BookingId)
+            .ToListAsync(stoppingToken);
 
         foreach (var bookingId in completed)
         {
-            await notifications.NotifySessionCompletedAsync(
-                bookingId);
-
-            var booking = await db.Bookings.FindAsync(bookingId);
-
-            booking.SessionCompletedNotificationSent = true;
-            booking.SessionCompletedNotificationDate = now;
+            stoppingToken.ThrowIfCancellationRequested();
+            await notifications.NotifySessionCompletedAsync(bookingId);
+            var booking = await db.Bookings.FindAsync(new object[] { bookingId }, stoppingToken);
+            if (booking != null)
+            {
+                booking.SessionCompletedNotificationSent = true;
+                booking.SessionCompletedNotificationDate = now;
+            }
         }
-
-        await db.SaveChangesAsync();
-
+        await db.SaveChangesAsync(stoppingToken);
     }
-    }
-
-
+}

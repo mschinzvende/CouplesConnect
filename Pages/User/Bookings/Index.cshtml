@@ -1,262 +1,106 @@
-﻿@page
+@page
 @model CouplesConnect.Pages.User.Bookings.IndexModel
+@{
+    var states = Model.Bookings.Select(booking => Model.GetSessionState(booking)).ToList();
+}
 
-<div class="page-header">
-    <h3 class="page-title">My Bookings</h3>
-</div>
-<form method="get">
-<!-- FILTER -->
-<div class="row g-3 align-items-end mb-5">
-
-    <div class="col-md-5">
-        <label class="form-label fw-semibold mb-1">Search</label>
-        <input type="text"
-               name="Search"
-               value="@Model.Search"
-               class="form-control cc-input"
-               placeholder="Search by service or counselor..." />
-    </div>
-
-    <div class="col-md-4">
-        <label class="form-label fw-semibold mb-1">Status</label>
-        <select name="StatusFilter" class="form-select cc-input">
-            <option value="all">All</option>
-            <option value="Scheduled">Upcoming</option>
-            <option value="Ready">Ready</option>
-            <option value="Live">Live</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary w-100 cc-btn">
-            Apply Filter
-        </button>
-    </div>
-
+<div class="bookings-header">
+    <div><div class="bookings-eyebrow">YOUR CARE PLAN</div><h3>My bookings</h3><p>Keep track of your upcoming sessions and consultation history.</p></div>
+    <a asp-page="./Create" class="btn btn-primary"><i class="icon-plus"></i> Book a session</a>
 </div>
 
-</form>
-
-<!-- ALERTS -->
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success mb-3">@TempData["Success"]</div>
+    <div class="alert alert-success mb-4"><i class="icon-check me-2"></i>@TempData["Success"]</div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger mb-3">@TempData["Error"]</div>
+    <div class="alert alert-danger mb-4"><i class="icon-exclamation me-2"></i>@TempData["Error"]</div>
 }
 
-<!-- BOOKINGS GRID -->
-<div class="row g-4">
+<div class="booking-overview-stats">
+    <div class="booking-overview-stat scheduled"><span>Upcoming</span><strong>@states.Count(state => state == "Scheduled")</strong><small>Scheduled ahead</small></div>
+    <div class="booking-overview-stat ready"><span>Ready</span><strong>@states.Count(state => state == "Ready")</strong><small>Starting soon</small></div>
+    <div class="booking-overview-stat live"><span>Live</span><strong>@states.Count(state => state == "Live")</strong><small>Available to join</small></div>
+    <div class="booking-overview-stat completed"><span>Completed</span><strong>@states.Count(state => state == "Completed")</strong><small>Past consultations</small></div>
+</div>
 
-    @foreach (var b in Model.Bookings)
-    {
-        var state = Model.GetSessionState(b);
+<div class="card bookings-filter-card mb-4"><div class="card-body"><form method="get" class="row g-3 align-items-end">
+    <div class="col-lg-6"><label class="form-label fw-semibold" for="bookingSearch">Search bookings</label><div class="booking-search-field"><i class="icon-magnifier"></i><input id="bookingSearch" type="search" name="Search" value="@Model.Search" class="form-control" placeholder="Search by service or counselor" /></div></div>
+    <div class="col-lg-3"><label class="form-label fw-semibold" for="bookingStatus">Status</label><select id="bookingStatus" name="StatusFilter" class="form-select"><option value="all" selected="@(Model.StatusFilter == "all")">All statuses</option><option value="Scheduled" selected="@(Model.StatusFilter == "Scheduled")">Upcoming</option><option value="Ready" selected="@(Model.StatusFilter == "Ready")">Ready to join</option><option value="Live" selected="@(Model.StatusFilter == "Live")">Live now</option><option value="Completed" selected="@(Model.StatusFilter == "Completed")">Completed</option><option value="Cancelled" selected="@(Model.StatusFilter == "Cancelled")">Cancelled</option></select></div>
+    <div class="col-lg-3 d-flex gap-2"><button type="submit" class="btn btn-primary flex-grow-1"><i class="icon-magnifier"></i> Apply</button><a asp-page="./Index" class="btn btn-outline-secondary" title="Clear filters" aria-label="Clear filters"><i class="icon-refresh"></i></a></div>
+</form></div></div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 booking-card">
-
-                <div class="card-body">
-
-                    <!-- HEADER -->
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-
-                        <div>
-                            <div class="fw-semibold">
-                                @b.ScheduledStart.ToString("ddd, dd MMM")
-                            </div>
-                            <div class="text-muted small">
-                                @b.ScheduledStart.ToString("HH:mm")
-                            </div>
-                        </div>
-
-                        <span class="badge booking-badge @state.ToLower()">
-                            @state
-                        </span>
-
-                    </div>
-
-                    <hr />
-
-                    <!-- DETAILS -->
-                    <div class="mb-3">
-
-                        <div class="mb-1">
-                            <span class="fw-semibold">Service:</span>
-                            <span>@b.Service?.Name</span>
-                        </div>
-
-                        <div class="mb-1">
-                            <span class="fw-semibold">Counselor:</span>
-                            <span>@b.Counselor?.FullName</span>
-                        </div>
-
-                        @if (b.IsGroup)
-                        {
-                            <div class="mt-2">
-                                <span class="badge cc-group-badge">Group Session</span>
-
-                                <div class="small text-muted mt-1">
-                                    Participants:
-                                    @b.Participants.Count(p => p.Status == "Accepted")
-                                </div>
-                            </div>
-                        }
-
-                    </div>
-
-                    <!-- COUNTDOWN -->
+@if (Model.Bookings.Any())
+{
+    <div class="row g-4">
+        @foreach (var booking in Model.Bookings)
+        {
+            var state = Model.GetSessionState(booking);
+            <div class="col-md-6 col-xl-4">
+                <article class="card user-booking-card h-100 @state.ToLowerInvariant()"><div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-2"><div class="booking-date-block"><span>@booking.ScheduledStart.ToString("MMM")</span><strong>@booking.ScheduledStart.ToString("dd")</strong><small>@booking.ScheduledStart.ToString("ddd")</small></div><div class="text-end"><span class="booking-status-badge @state.ToLowerInvariant()"><i></i>@(state == "Scheduled" ? "Upcoming" : state)</span><small class="d-block mt-2 text-muted">@booking.ScheduledStart.ToString("h:mm tt")</small></div></div>
+                    <div class="booking-card-divider"></div>
+                    <div class="booking-session-detail"><span class="booking-detail-label">Service</span><strong>@booking.Service?.Name</strong><span class="booking-counselor"><i class="icon-user"></i> With @booking.Counselor?.FullName</span></div>
+                    @if (booking.IsGroup)
+                    {
+                        <div class="booking-group-detail"><i class="icon-people"></i><span>Group session <small>@booking.Participants.Count(participant => participant.Status == "Accepted") participant@(booking.Participants.Count(participant => participant.Status == "Accepted") == 1 ? "" : "s") joined</small></span></div>
+                    }
                     @if (state == "Scheduled" || state == "Ready")
                     {
-                        <div class="small text-muted mb-3">
-                            Starts in
-                            <span class="countdown"
-                                  data-time="@b.ScheduledStart.ToString("o")"></span>
-                        </div>
+                        <div class="booking-countdown"><i class="icon-clock"></i><span>Starts in <strong class="countdown" data-time="@booking.ScheduledStart.ToString("o")"></strong></span></div>
                     }
-
-                    <!-- ACTIONS -->
-                    <div class="mt-2">
-
-                        @if (b.Session != null && b.Session.IsStarted && !b.Session.IsEnded)
+                    else if (state == "Live")
+                    {
+                        <div class="booking-countdown live"><i class="icon-control-play"></i><span><strong>Session is live</strong> — join when you are ready.</span></div>
+                    }
+                    else if (state == "Completed")
+                    {
+                        <div class="booking-countdown completed"><i class="icon-check"></i><span>This session has been completed.</span></div>
+                    }
+                    else
+                    {
+                        <div class="booking-countdown cancelled"><i class="icon-close"></i><span>This booking was cancelled.</span></div>
+                    }
+                    <div class="booking-card-actions mt-auto">
+                        @if (booking.Session != null && booking.Session.IsStarted && !booking.Session.IsEnded)
                         {
-                            <a href="/Sessions/PreJoin/@b.Session.SessionId"
-                               class="btn btn-primary btn-sm w-100">
-                                Join Session
-                            </a>
+                            <a href="/Sessions/PreJoin/@booking.Session.SessionId" class="btn btn-primary w-100"><i class="icon-login"></i> Join session</a>
                         }
                         else if (state == "Scheduled")
                         {
-                            <form method="post"
-                                  asp-page-handler="Cancel"
-                                  asp-route-id="@b.BookingId"
-                                  asp-route-subId="@b.SubscriptionId">
-
-                                <button class="btn cc-cancel-btn btn-sm w-100">
-                                    Cancel Booking
-                                </button>
-                            </form>
+                            <form method="post" asp-page-handler="Cancel" asp-route-id="@booking.BookingId" asp-route-subId="@booking.SubscriptionId"><button class="btn user-cancel-booking w-100" type="submit"><i class="icon-close"></i> Cancel booking</button></form>
                         }
-
                     </div>
-
-                </div>
-
+                </div></article>
             </div>
-        </div>
-    }
-
-</div>
-
-<!-- PAGINATION -->
-<div class="mt-4 d-flex justify-content-center">
-    <ul class="pagination">
-
-        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
-            <a class="page-link"
-               asp-route-pageNumber="@(Model.PageNumber - 1)"
-               asp-route-Search="@Model.Search"
-               asp-route-StatusFilter="@Model.StatusFilter">Prev</a>
-        </li>
-
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
-                <a class="page-link"
-                   asp-route-pageNumber="@i"
-                   asp-route-Search="@Model.Search"
-                   asp-route-StatusFilter="@Model.StatusFilter">@i</a>
-            </li>
         }
+    </div>
+}
+else
+{
+    <div class="card bookings-empty"><div class="card-body"><i class="icon-calendar"></i><h5>No matching bookings</h5><p>Try changing your search or status filter, or schedule a new session.</p><a asp-page="./Create" class="btn btn-primary">Book a session</a></div></div>
+}
 
-        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
-            <a class="page-link"
-               asp-route-pageNumber="@(Model.PageNumber + 1)"
-               asp-route-Search="@Model.Search"
-               asp-route-StatusFilter="@Model.StatusFilter">Next</a>
-        </li>
+@if (Model.TotalPages > 1)
+{
+    <nav class="bookings-pagination mt-4" aria-label="Bookings pages"><ul class="pagination mb-0">
+        <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-Search="@Model.Search" asp-route-StatusFilter="@Model.StatusFilter">Previous</a></li>
+        @for (var pageIndex = 1; pageIndex <= Model.TotalPages; pageIndex++) { <li class="page-item @(pageIndex == Model.PageNumber ? "active" : "")"><a class="page-link" asp-route-pageNumber="@pageIndex" asp-route-Search="@Model.Search" asp-route-StatusFilter="@Model.StatusFilter">@pageIndex</a></li> }
+        <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")"><a class="page-link" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-Search="@Model.Search" asp-route-StatusFilter="@Model.StatusFilter">Next</a></li>
+    </ul></nav>
+}
 
-    </ul>
-</div>
-
-<!-- STYLES -->
-<style>
-    .booking-card {
-        border-radius: 12px;
-        transition: all 0.2s ease;
-    }
-
-        .booking-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
-
-    /* BADGES */
-    .booking-badge {
-        padding: 6px 10px;
-        font-size: 12px;
-        border-radius: 999px;
-        text-transform: capitalize;
-    }
-
-        .booking-badge.scheduled {
-            background: #e0e7ff;
-            color: #3730a3;
-        }
-
-        .booking-badge.ready {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .booking-badge.live {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .booking-badge.completed {
-            background: #ecfdf5;
-            color: #065f46;
-        }
-
-        .booking-badge.cancelled {
-            background: #f3f4f6;
-            color: #374151;
-        }
-
-    /* GROUP */
-    .cc-group-badge {
-        background: #eef2ff;
-        color: #4f46e5;
-    }
-</style>
-
-<!-- SCRIPTS -->
+@section Scripts {
 <script>
     function updateCountdowns() {
-        document.querySelectorAll('.countdown').forEach(el => {
-
-            const time = new Date(el.dataset.time);
-            const now = new Date();
-
-            let diff = time - now;
-
-            if (diff <= 0) {
-                el.innerText = "Starting...";
-                return;
-            }
-
-            const seconds = Math.floor(diff / 1000) % 60;
-            const minutes = Math.floor(diff / (1000 * 60)) % 60;
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-
-            el.innerText = `${hours}h ${minutes}m ${seconds}s`;
+        document.querySelectorAll(".countdown").forEach(element => {
+            const difference = new Date(element.dataset.time) - new Date();
+            if (difference <= 0) { element.innerText = "starting now"; return; }
+            const hours = Math.floor(difference / 3600000); const minutes = Math.floor(difference / 60000) % 60;
+            element.innerText = `${hours}h ${minutes}m`;
         });
     }
-
-    setInterval(updateCountdowns, 1000);
-    updateCountdowns();
+    updateCountdowns(); setInterval(updateCountdowns, 1000);
 </script>
+}

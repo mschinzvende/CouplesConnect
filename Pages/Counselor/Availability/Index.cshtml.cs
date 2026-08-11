@@ -56,14 +56,24 @@ namespace CouplesConnect.Pages.Counselor.Availability
                     return RedirectToPage();
                 }
 
+                var validSlots = new List<(DateTime Start, DateTime End)>();
                 foreach (var s in slots)
                 {
-                    // ?? CRITICAL NULL CHECK
                     if (string.IsNullOrEmpty(s?.start) || string.IsNullOrEmpty(s?.end))
-                        continue;
+                        throw new InvalidOperationException("One or more selected slots are invalid.");
 
-                    var start = DateTime.Parse(s.start);
-                    var end = DateTime.Parse(s.end);
+                    if (!DateTimeOffset.TryParse(s.start, out var startOffset) ||
+                        !DateTimeOffset.TryParse(s.end, out var endOffset))
+                        throw new InvalidOperationException("One or more selected slots are invalid.");
+
+                    var start = startOffset.LocalDateTime;
+                    var end = endOffset.LocalDateTime;
+
+                    if (start < DateTime.Now || end <= start || end - start != TimeSpan.FromHours(1))
+                        throw new InvalidOperationException("Availability must be a future one-hour slot.");
+
+                    if (validSlots.Any(existing => start < existing.End && end > existing.Start))
+                        throw new InvalidOperationException("Selected availability slots overlap.");
 
                     var exists = await _context.CounselorAvailabilities
                         .AnyAsync(x =>
@@ -74,11 +84,16 @@ namespace CouplesConnect.Pages.Counselor.Availability
 
                     if (exists) continue;
 
+                    validSlots.Add((start, end));
+                }
+
+                foreach (var slot in validSlots)
+                {
                     _context.CounselorAvailabilities.Add(new CounselorAvailability
                     {
                         CounselorId = user.Id,
-                        StartDateTime = start,
-                        EndDateTime = end
+                        StartDateTime = slot.Start,
+                        EndDateTime = slot.End
                     });
                 }
 
@@ -86,7 +101,7 @@ namespace CouplesConnect.Pages.Counselor.Availability
 
                 TempData["Success"] = "Availability added";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["Error"] = "Error saving availability";
             }
@@ -102,7 +117,9 @@ namespace CouplesConnect.Pages.Counselor.Availability
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            var slot = await _context.CounselorAvailabilities.FindAsync(id);
+            var user = await _userManager.GetUserAsync(User);
+            var slot = await _context.CounselorAvailabilities
+                .FirstOrDefaultAsync(item => item.AvailabilityId == id && item.CounselorId == user.Id);
 
             if (slot != null)
             {

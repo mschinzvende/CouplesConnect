@@ -1,272 +1,211 @@
-﻿@page
+@page
 @using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.Counselor.Availability.IndexModel
 @attribute [Authorize(Roles = "Counselor")]
+@{
+    var now = DateTime.Now;
+    var upcomingSlots = Model.Availability.Where(item => item.EndDateTime > now).OrderBy(item => item.StartDateTime).ToList();
+    var upcomingDays = upcomingSlots.Select(item => item.StartDateTime.Date).Distinct().Count();
+    var thisWeekSlots = upcomingSlots.Count(item => item.StartDateTime < now.Date.AddDays(7));
+    var groupedSlots = upcomingSlots.GroupBy(item => item.StartDateTime.Date).OrderBy(group => group.Key);
+}
 
-<div class="page-header">
-    <h3 class="page-title">My Availability</h3>
+<div class="availability-header">
+    <div>
+        <h3>Availability</h3>
+        <p>Set the times when clients can request a session with you.</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createModal">
+        <i class="icon-plus"></i> Add availability
+    </button>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success mb-3">@TempData["Success"]</div>
+    <div class="alert alert-success mb-4"><i class="icon-check me-2"></i>@TempData["Success"]</div>
 }
-
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger mb-3">@TempData["Error"]</div>
+    <div class="alert alert-danger mb-4"><i class="icon-exclamation me-2"></i>@TempData["Error"]</div>
 }
 
-<div class="card">
+<div class="availability-summary">
+    <div class="availability-stat">
+        <div class="label">Upcoming slots</div>
+        <strong>@upcomingSlots.Count</strong>
+        <span>One-hour sessions available</span>
+    </div>
+    <div class="availability-stat">
+        <div class="label">Available days</div>
+        <strong>@upcomingDays</strong>
+        <span>Days with open time</span>
+    </div>
+    <div class="availability-stat">
+        <div class="label">Next 7 days</div>
+        <strong>@thisWeekSlots</strong>
+        <span>Slots opening this week</span>
+    </div>
+</div>
+
+<div class="card availability-card">
     <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Availability Slots</h5>
-
-            <button class="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createModal">
-                Add Availability
+        <div class="schedule-toolbar">
+            <div>
+                <h5>Upcoming schedule</h5>
+                <p>Only future availability is shown. Remove a time if it should no longer be bookable.</p>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="icon-calendar"></i> Manage time
             </button>
         </div>
 
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var a in Model.Availability)
-                {
-                    <tr>
-                        <td>
-                            <div class="fw-semibold">
-                                @a.StartDateTime.ToString("ddd, dd MMM yyyy")
-                            </div>
-                        </td>
-
-                        <td>
-                            @a.StartDateTime.ToString("hh:mm tt")
-                            -
-                            @a.EndDateTime.ToString("hh:mm tt")
-                        </td>
-
-                        <td class="text-end">
-                            <form method="post" asp-page-handler="Delete" asp-route-id="@a.AvailabilityId">
-                                <button class="btn btn-outline-secondary btn-sm">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        @if (upcomingSlots.Any())
+        {
+            @foreach (var day in groupedSlots)
+            {
+                <div class="schedule-day">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="schedule-date">
+                            @day.Key.ToString("dddd")
+                            <small>@day.Key.ToString("dd MMMM yyyy")</small>
+                        </div>
+                        <div class="flex-grow-1">
+                            @foreach (var slot in day)
+                            {
+                                <span class="availability-pill">
+                                    @slot.StartDateTime.ToString("h:mm tt") – @slot.EndDateTime.ToString("h:mm tt")
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@slot.AvailabilityId" class="d-inline">
+                                        <button type="submit" aria-label="Remove @slot.StartDateTime.ToString("h:mm tt") availability" title="Remove availability">&times;</button>
+                                    </form>
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="availability-empty">
+                <i class="icon-calendar"></i>
+                <strong class="d-block text-dark mb-1">No upcoming availability</strong>
+                Add the times you are open to start accepting session requests.
+            </div>
+        }
     </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal fade" id="createModal">
-    <div class="modal-dialog">
+<div class="modal fade availability-modal" id="createModal" tabindex="-1" aria-labelledby="createModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-
             <form method="post" asp-page-handler="Create" id="availabilityForm">
-
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Availability</h5>
+                    <div>
+                        <h5 class="modal-title" id="createModalTitle">Add availability</h5>
+                        <small class="text-muted">Choose a date, then select one or more one-hour session slots.</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body">
-
-                    <!-- DATE -->
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Date</label>
-                        <input type="text"
-                               id="datePicker"
-                               name="SelectedDate"
-                               class="form-control cc-input" />
+                    <div class="row align-items-end g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="datePicker">Session date</label>
+                            <input type="date" id="datePicker" name="SelectedDate" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <div class="selection-summary" id="selectionSummary" aria-live="polite">Choose a date to see available session times.</div>
+                        </div>
                     </div>
-
-                    <!-- HIDDEN VALUES (IMPORTANT) -->
                     <input type="hidden" id="selectedSlots" name="SelectedSlots" />
-
-                    <!-- SLOT PICKER -->
-                    <div class="mt-3">
-                        <label class="form-label fw-semibold">Select Time Slot</label>
-
-                        <div id="timeSuggestions" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    <div class="slot-actions">
+                        <label class="form-label mb-0">One-hour slots</label>
+                        <div>
+                            <button class="btn btn-link btn-sm p-0 me-3" type="button" id="selectAllBtn">Select all</button>
+                            <button class="btn btn-link btn-sm p-0" type="button" id="clearBtn">Clear</button>
+                        </div>
                     </div>
-
-                    <!-- VALIDATION -->
-                    <div id="validationMsg" class="text-danger small mt-2 d-none"></div>
-
+                    <div id="timeSuggestions" class="slot-grid"></div>
+                    <div id="validationMsg" class="text-danger small mt-3 d-none"></div>
                 </div>
-
                 <div class="modal-footer">
-                    <button type="submit" id="saveBtn" class="btn btn-primary w-100" disabled>
-                        Save Availability
-                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary" disabled><i class="icon-check"></i> Save availability</button>
                 </div>
-
             </form>
-
         </div>
     </div>
 </div>
 
-<style>
-    .suggestion-btn {
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        cursor: pointer;
-        font-size: 13px;
-    }
-
-        .suggestion-btn:hover {
-            background: #eef2ff;
-            border-color: #4f46e5;
-        }
-
-        .suggestion-btn.active {
-            background: #4f46e5;
-            color: #fff;
-            border-color: #4f46e5;
-        }
-
-</style>
-
-<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+@section Scripts {
 <script>
-
-    const existingSlots = @Html.Raw(
-        System.Text.Json.JsonSerializer.Serialize(
-            Model.Availability.Select(a => new
-            {
-                start = a.StartDateTime.ToString("o"),
-                end = a.EndDateTime.ToString("o")
-            })
-        )
-    );
-
-    let selectedDate = null;
+    const existingSlots = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Availability.Select(item => new { start = item.StartDateTime.ToString("o"), end = item.EndDateTime.ToString("o") })));
+    const datePicker = document.getElementById("datePicker");
+    const slotContainer = document.getElementById("timeSuggestions");
+    const saveButton = document.getElementById("saveBtn");
+    const selectedInput = document.getElementById("selectedSlots");
+    const selectionSummary = document.getElementById("selectionSummary");
+    const validationMessage = document.getElementById("validationMsg");
     let selectedSlots = [];
 
-    document.getElementById('createModal').addEventListener('shown.bs.modal', function () {
-
-        flatpickr("#datePicker", {
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            onChange: function (dates) {
-                selectedDate = dates[0];
-                selectedSlots = []; // reset
-                generateSlots();
-            }
-        });
-
+    datePicker.min = new Date().toISOString().split("T")[0];
+    datePicker.addEventListener("change", () => { selectedSlots = []; generateSlots(); updateSelection(); });
+    document.getElementById("clearBtn").addEventListener("click", () => { selectedSlots = []; generateSlots(); updateSelection(); });
+    document.getElementById("selectAllBtn").addEventListener("click", () => {
+        selectedSlots = Array.from(slotContainer.querySelectorAll(".slot-btn:not([disabled])")).map(button => JSON.parse(button.dataset.slot));
+        generateSlots(); updateSelection();
     });
 
     function generateSlots() {
-
-        const container = document.getElementById("timeSuggestions");
-        const saveBtn = document.getElementById("saveBtn");
-
-        container.innerHTML = "";
-        saveBtn.disabled = true;
-
-        if (!selectedDate) return;
-
+        slotContainer.innerHTML = "";
+        validationMessage.classList.add("d-none");
+        if (!datePicker.value) return;
+        const chosenDate = new Date(`${datePicker.value}T00:00:00`);
         const now = new Date();
-
-        for (let hour = 5; hour <= 21; hour++) {
-
-            const start = new Date(selectedDate);
-            start.setHours(hour, 0, 0, 0);
-
-            const end = new Date(start);
-            end.setHours(hour + 1);
-
-            if (isSameDay(selectedDate, now) && start < now) continue;
-            if (isOverlapping(start, end)) continue;
-
-            const btn = document.createElement("div");
-            btn.className = "suggestion-btn";
-            btn.innerText = formatRange(start, end);
-
-            btn.onclick = () => toggleSlot(btn, start, end);
-
-            container.appendChild(btn);
+        for (let hour = 8; hour < 20; hour++) {
+            const start = new Date(chosenDate); start.setHours(hour, 0, 0, 0);
+            const end = new Date(start); end.setHours(hour + 1);
+            const slot = { start: start.toISOString(), end: end.toISOString() };
+            const unavailable = start <= now || isOverlapping(start, end);
+            const selected = selectedSlots.some(item => item.start === slot.start);
+            const button = document.createElement("button");
+            button.type = "button"; button.className = `slot-btn${selected ? " active" : ""}`;
+            button.textContent = formatRange(start, end); button.dataset.slot = JSON.stringify(slot);
+            button.disabled = unavailable;
+            if (unavailable) { button.title = "This time is already unavailable"; }
+            else button.addEventListener("click", () => toggleSlot(slot));
+            slotContainer.appendChild(button);
         }
     }
 
-    function toggleSlot(btn, start, end) {
-
-        const key = start.toISOString();
-
-        const index = selectedSlots.findIndex(s => s.start === key);
-
-        if (index > -1) {
-            // ❌ REMOVE
-            selectedSlots.splice(index, 1);
-            btn.classList.remove("active");
-        } else {
-            // ✅ ADD
-            selectedSlots.push({
-                start: start.toISOString(),
-                end: end.toISOString()
-            });
-            btn.classList.add("active");
-        }
-
-        updateHiddenInput();
+    function toggleSlot(slot) {
+        const index = selectedSlots.findIndex(item => item.start === slot.start);
+        if (index >= 0) selectedSlots.splice(index, 1); else selectedSlots.push(slot);
+        generateSlots(); updateSelection();
     }
 
-    function updateHiddenInput() {
-
-        const saveBtn = document.getElementById("saveBtn");
-
-        document.getElementById("selectedSlots").value =
-            JSON.stringify(selectedSlots);
-
-        saveBtn.disabled = selectedSlots.length === 0;
+    function updateSelection() {
+        selectedInput.value = JSON.stringify(selectedSlots);
+        saveButton.disabled = selectedSlots.length === 0;
+        if (!datePicker.value) selectionSummary.textContent = "Choose a date to see available session times.";
+        else if (!selectedSlots.length) selectionSummary.textContent = "Select one or more times to make them available.";
+        else selectionSummary.innerHTML = `<strong>${selectedSlots.length}</strong> ${selectedSlots.length === 1 ? "slot" : "slots"} selected for ${formatSelectedDate()}.`;
     }
 
-    // =====================
-    // OVERLAP CHECK
-    // =====================
     function isOverlapping(start, end) {
-
-        for (let slot of existingSlots) {
-
-            const s = new Date(slot.start);
-            const e = new Date(slot.end);
-
-            if (start < e && end > s) return true;
-        }
-
-        return false;
+        return existingSlots.some(slot => start < new Date(slot.end) && end > new Date(slot.start));
     }
-
-    // =====================
-    // HELPERS
-    // =====================
     function formatRange(start, end) {
-        return `${formatAMPM(start)} - ${formatAMPM(end)}`;
+        const options = { hour: "numeric", minute: "2-digit" };
+        return `${start.toLocaleTimeString([], options)} – ${end.toLocaleTimeString([], options)}`;
+    }
+    function formatSelectedDate() {
+        return new Date(`${datePicker.value}T00:00:00`).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
     }
 
-    function formatAMPM(date) {
-        return date.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    function isSameDay(d1, d2) {
-        return d1.toDateString() === d2.toDateString();
-    }
-
+    document.getElementById("availabilityForm").addEventListener("submit", event => {
+        if (!selectedSlots.length) {
+            event.preventDefault(); validationMessage.textContent = "Select at least one available time before saving."; validationMessage.classList.remove("d-none");
+        }
+    });
 </script>
+}

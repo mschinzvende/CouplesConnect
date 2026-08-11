@@ -1,187 +1,82 @@
-﻿@page "{sessionId:int}"
+@page "{sessionId:int}"
 @model CouplesConnect.Pages.Sessions.PreJoinModel
 
-<div class="page-header">
-    <h3 class="page-title">Setup Your Session</h3>
-</div>
-
-<div class="row">
-
-    <!-- VIDEO PREVIEW -->
-    <div class="col-md-7 grid-margin stretch-card">
-        <div class="card h-100">
-            <div class="card-body">
-
-                <h5 class="mb-3 fw-semibold">Camera Preview</h5>
-
-                <div class="video-wrapper">
-                    <video id="previewVideo" autoplay muted></video>
-                </div>
-
-            </div>
-        </div>
+<div class="prejoin-page">
+    <div class="prejoin-header">
+        <div><div class="prejoin-eyebrow">SESSION CHECK-IN</div><h3>Get ready to join</h3><p>Check your camera and microphone before entering the private session room.</p></div>
+        <button type="button" class="btn btn-primary prejoin-join-button d-none d-md-inline-flex" data-join-session><i class="icon-login"></i> Join session</button>
     </div>
 
-    <!-- SETTINGS -->
-    <div class="col-md-5 grid-margin stretch-card">
-        <div class="card h-100">
-            <div class="card-body">
+    <div class="prejoin-notice" role="status"><i class="icon-info"></i><div><strong>You are not in the session yet.</strong><span>Use “Join session” when your camera and microphone look right. You will then enter the live room.</span></div></div>
+    <div id="deviceMessage" class="prejoin-device-message d-none" role="alert"></div>
 
-                <h5 class="mb-3 fw-semibold">Device Settings</h5>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Camera</label>
-                    <select id="cameraSelect" class="form-select cc-input"></select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Microphone</label>
-                    <select id="micSelect" class="form-select cc-input"></select>
-                </div>
-
-                <div class="mb-3">
-                    <button onclick="testMic()" class="btn cc-btn-outline w-100">
-                        Test Microphone
-                    </button>
-                </div>
-
-                <div class="mt-4">
-                    <button onclick="joinSession()" class="btn btn-primary w-100">
-                        Join Session
-                    </button>
-                </div>
-
-            </div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card prejoin-preview-card h-100"><div class="card-body">
+                <div class="prejoin-card-heading"><div><h5>Camera preview</h5><p>This is how you will appear when you join.</p></div><span class="prejoin-preview-state"><i></i> Preview only</span></div>
+                <div class="prejoin-video-wrapper"><video id="previewVideo" autoplay muted playsinline></video><div class="prejoin-video-label"><i class="icon-camera"></i> Your camera is on</div></div>
+                <div class="prejoin-preview-help"><i class="icon-shield"></i><span>Your preview stays on this device. It is not sent to the session until you join.</span></div>
+            </div></div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card prejoin-settings-card h-100"><div class="card-body d-flex flex-column">
+                <div class="prejoin-card-heading"><div><h5>Device settings</h5><p>Select the devices you want to use.</p></div></div>
+                <div class="mb-3"><label class="form-label fw-semibold" for="cameraSelect">Camera</label><select id="cameraSelect" class="form-select"><option value="">Loading cameras…</option></select></div>
+                <div class="mb-3"><label class="form-label fw-semibold" for="micSelect">Microphone</label><select id="micSelect" class="form-select"><option value="">Loading microphones…</option></select></div>
+                <button type="button" class="btn btn-outline-secondary prejoin-test-button" id="testMicButton"><i class="icon-volume-2"></i> Test microphone</button>
+                <div id="micTestResult" class="prejoin-mic-result" aria-live="polite">Microphone not tested.</div>
+                <div class="prejoin-join-panel mt-auto"><span><i class="icon-lock"></i> You’ll enter a secure session room.</span><button type="button" class="btn btn-primary w-100 prejoin-join-button" data-join-session><i class="icon-login"></i> Join session</button></div>
+            </div></div>
         </div>
     </div>
-
 </div>
 
-<style>
-
-    /* VIDEO CONTAINER */
-    .video-wrapper {
-        width: 100%;
-        height: 350px;
-        background: #000;
-        border-radius: 10px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-        .video-wrapper video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-    /* INPUT STYLE */
-    .cc-input {
-        height: 42px;
-        font-size: 14px;
-        color: #111827;
-    }
-
-    /* BUTTON CONSISTENCY */
-    .btn {
-        height: 42px;
-    }
-
-    /* CARD POLISH */
-    .card {
-        border-radius: 12px;
-    }
-
-</style>
-
+@section Scripts {
 <script>
-
     let currentStream;
+    const message = document.getElementById("deviceMessage");
+    const micResult = document.getElementById("micTestResult");
+    const cameraSelect = document.getElementById("cameraSelect");
+    const micSelect = document.getElementById("micSelect");
 
-    // 🔍 LOAD DEVICES
+    function showMessage(text) { message.textContent = text; message.classList.remove("d-none"); }
+    function hideMessage() { message.classList.add("d-none"); }
+    function populateDevices(select, devices, fallback) {
+        const selectedId = select.value;
+        select.innerHTML = "";
+        if (!devices.length) { select.innerHTML = `<option value="">No ${fallback} found</option>`; return; }
+        devices.forEach((device, index) => { const option = document.createElement("option"); option.value = device.deviceId; option.textContent = device.label || `${fallback} ${index + 1}`; option.selected = device.deviceId === selectedId; select.appendChild(option); });
+    }
     async function loadDevices() {
-
         const devices = await navigator.mediaDevices.enumerateDevices();
-
-        const cameras = devices.filter(d => d.kind === "videoinput");
-        const mics = devices.filter(d => d.kind === "audioinput");
-
-        const camSelect = document.getElementById("cameraSelect");
-        const micSelect = document.getElementById("micSelect");
-
-        camSelect.innerHTML = "";
-        micSelect.innerHTML = "";
-
-        cameras.forEach(cam => {
-            camSelect.innerHTML += `<option value="${cam.deviceId}">${cam.label || "Camera"}</option>`;
-        });
-
-        mics.forEach(mic => {
-            micSelect.innerHTML += `<option value="${mic.deviceId}">${mic.label || "Microphone"}</option>`;
-        });
+        populateDevices(cameraSelect, devices.filter(device => device.kind === "videoinput"), "Camera");
+        populateDevices(micSelect, devices.filter(device => device.kind === "audioinput"), "Microphone");
     }
-
-    // 🎥 START PREVIEW
     async function startPreview() {
-
-        if (currentStream) {
-            currentStream.getTracks().forEach(t => t.stop());
-        }
-
-        const camId = document.getElementById("cameraSelect").value;
-        const micId = document.getElementById("micSelect").value;
-
+        if (currentStream) currentStream.getTracks().forEach(track => track.stop());
         try {
-
-            currentStream = await navigator.mediaDevices.getUserMedia({
-                video: camId ? { deviceId: camId } : true,
-                audio: micId ? { deviceId: micId } : true
-            });
-
+            currentStream = await navigator.mediaDevices.getUserMedia({ video: cameraSelect.value ? { deviceId: { exact: cameraSelect.value } } : true, audio: micSelect.value ? { deviceId: { exact: micSelect.value } } : true });
             document.getElementById("previewVideo").srcObject = currentStream;
-
-        } catch (err) {
-            alert("Could not access camera/microphone");
-        }
+            hideMessage();
+            await loadDevices();
+        } catch (error) { showMessage("We could not access your camera or microphone. Check your browser permissions, select another device, then try again."); }
     }
-
-    // 🎤 MIC TEST
     async function testMic() {
-
-        const micId = document.getElementById("micSelect").value;
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: micId ? { deviceId: micId } : true
-        });
-
-        const audioContext = new AudioContext();
-        const source = audioContext.createMediaStreamSource(stream);
-
-        alert("Microphone is working!");
+        micResult.textContent = "Testing microphone…";
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: micSelect.value ? { deviceId: { exact: micSelect.value } } : true });
+            const context = new AudioContext(); const source = context.createMediaStreamSource(stream); const analyser = context.createAnalyser(); source.connect(analyser);
+            setTimeout(() => { stream.getTracks().forEach(track => track.stop()); context.close(); micResult.innerHTML = "<i class='icon-check'></i> Microphone is working."; }, 700);
+        } catch (error) { micResult.textContent = "We could not test this microphone. Check browser permissions and try again."; }
     }
-
-    // 💾 SAVE + JOIN
     function joinSession() {
-
-        const camId = document.getElementById("cameraSelect").value;
-        const micId = document.getElementById("micSelect").value;
-
-        localStorage.setItem("cameraId", camId);
-        localStorage.setItem("micId", micId);
-
-        window.location.href = `/Sessions/Room/@Model.SessionId`;
+        document.querySelectorAll("[data-join-session]").forEach(button => { button.disabled = true; button.innerHTML = "<i class='icon-refresh'></i> Joining…"; });
+        localStorage.setItem("cameraId", cameraSelect.value); localStorage.setItem("micId", micSelect.value);
+        window.location.href = "/Sessions/Room/@Model.SessionId";
     }
-
-    // EVENTS
-    document.getElementById("cameraSelect").addEventListener("change", startPreview);
-    document.getElementById("micSelect").addEventListener("change", startPreview);
-
-    // INIT
-    (async () => {
-        await loadDevices();
-        await startPreview();
-    })();
-
+    cameraSelect.addEventListener("change", startPreview); micSelect.addEventListener("change", startPreview);
+    document.getElementById("testMicButton").addEventListener("click", testMic); document.querySelectorAll("[data-join-session]").forEach(button => button.addEventListener("click", joinSession));
+    (async () => { try { await startPreview(); } catch (error) { showMessage("Your browser could not initialize the device preview. Check permissions and refresh the page."); } })();
+    window.addEventListener("beforeunload", () => { if (currentStream) currentStream.getTracks().forEach(track => track.stop()); });
 </script>
+}

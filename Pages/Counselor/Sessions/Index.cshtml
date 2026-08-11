@@ -1,298 +1,156 @@
-﻿@page
+@page
 @model CouplesConnect.Pages.Counselor.Sessions.IndexModel
+@{
+    var sessionStates = Model.Sessions.Select(session => Model.GetSessionState(session)).ToList();
+}
 
-<h3 class="fw-bold mb-3">My Sessions</h3>
-
-<form method="get" class="row g-3 mb-3 align-items-end">
-    <div class="col-md-6">
-        <label class="form-label fw-semibold">Search</label>
-        <input type="text" name="Search" value="@Model.Search"
-               class="form-control cc-input"
-               placeholder="Search participant..." />
+<div class="counselor-sessions-header">
+    <div>
+        <div class="counselor-eyebrow">SESSION WORKSPACE</div>
+        <h3>My sessions</h3>
+        <p>Manage upcoming appointments, live consultations, and clinical notes.</p>
     </div>
-
-    <div class="col-md-3">
-        <label class="form-label fw-semibold">Status</label>
-        <select name="StatusFilter" class="form-select cc-input">
-            <option value="all">All</option>
-            <option value="Upcoming">Upcoming</option>
-            <option value="Ready">Ready</option>
-            <option value="Live">Live</option>
-            <option value="Completed">Completed</option>
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary w-100 cc-btn">Apply</button>
-    </div>
-</form>
+    <div class="counselor-session-page-count">@Model.Sessions.Count session@(Model.Sessions.Count == 1 ? "" : "s") shown</div>
+</div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success mb-4"><i class="icon-check me-2"></i>@TempData["Success"]</div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger mb-4"><i class="icon-exclamation me-2"></i>@TempData["Error"]</div>
 }
 
-<div class="row g-4">
-
-    @foreach (var s in Model.Sessions)
-    {
-        var state = Model.GetSessionState(s);
-        var mainBooking = s.Bookings.First();
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card session-card h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <div>
-                            <div class="fw-semibold">
-                                @mainBooking.ScheduledStart.ToString("ddd, dd MMM")
-                            </div>
-                            <div class="text-muted small">
-                                @mainBooking.ScheduledStart.ToString("hh:mm tt")
-                            </div>
-                        </div>
-
-                        <span class="badge session-badge @state.ToLower()">
-                            @state
-                        </span>
-                    </div>
-
-                    <hr />
-
-                    @if (mainBooking.IsGroup)
-                    {
-                        <span class="badge cc-group mb-2">Group Session</span>
-                    }
-
-                    <div class="mb-2">
-                        <strong>Participants:</strong>
-                        <ul class="small mb-0">
-                            <li>@mainBooking.User.FullName (Host)</li>
-
-                            @foreach (var p in mainBooking.Participants.Where(x => x.Status == "Accepted"))
-                            {
-                                if (p.User != null)
-                                {
-                                    <li>@p.User.FullName</li>
-                                }
-                            }
-                        </ul>
-                    </div>
-
-                    @if (state == "Upcoming" || state == "Ready")
-                    {
-                        <div class="text-muted small mb-2">
-                            Starts in
-                            <span class="countdown"
-                                  data-time="@mainBooking.ScheduledStart.ToString("o")">
-                            </span>
-                        </div>
-                    }
-
-                    <div class="d-flex flex-column gap-2 mt-2">
-
-                        @if (!s.IsStarted && !s.IsEnded)
-                        {
-                            <form method="post" asp-page-handler="Start" asp-route-id="@s.SessionId">
-                                <button class="btn btn-primary btn-sm w-100">Start Session</button>
-                            </form>
-                        }
-                        else if (s.IsStarted && !s.IsEnded)
-                        {
-                            <a href="/Sessions/PreJoin/@s.SessionId"
-                               class="btn btn-primary btn-sm w-100">
-                                Enter Session Room
-                            </a>
-                        }
-
-                        <!-- 🔥 NOTES BUTTON (NOW MODAL) -->
-                        <button class="btn cc-btn-outline btn-sm w-100"
-                                onclick="openNotes(@s.SessionId)">
-                            View Notes
-                        </button>
-
-                        @if (!s.IsEnded)
-                        {
-                            <form method="post" asp-page-handler="Complete" asp-route-id="@s.SessionId">
-                                <button class="btn cc-btn-outline btn-sm w-100">
-                                    End Session
-                                </button>
-                            </form>
-                        }
-
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-    }
-
+<div class="session-status-summary">
+    <div class="session-status-stat upcoming"><span>Upcoming</span><strong>@sessionStates.Count(state => state == "Upcoming")</strong><small>Scheduled ahead</small></div>
+    <div class="session-status-stat ready"><span>Ready</span><strong>@sessionStates.Count(state => state == "Ready")</strong><small>Starting within 10 min</small></div>
+    <div class="session-status-stat live"><span>Live</span><strong>@sessionStates.Count(state => state == "Live")</strong><small>Currently in progress</small></div>
+    <div class="session-status-stat completed"><span>Completed</span><strong>@sessionStates.Count(state => state == "Completed")</strong><small>Closed sessions</small></div>
 </div>
 
-<!-- ================= NOTES MODAL ================= -->
-<div class="modal fade" id="notesModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5>Session Notes</h5>
+<div class="card counselor-session-filter mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-lg-6">
+                <label class="form-label fw-semibold" for="sessionSearch">Find a participant</label>
+                <div class="session-search-field"><i class="icon-magnifier"></i><input id="sessionSearch" type="search" name="Search" value="@Model.Search" class="form-control" placeholder="Search by participant name" /></div>
             </div>
-            <form method="post">
-            <div class="modal-body">
-                
-                    @Html.AntiForgeryToken()
-                
-                <textarea id="notesBox"
-                          class="form-control"
-                          style="height:200px;"></textarea>
-
-                <input type="hidden" id="notesSessionId" />
-
+            <div class="col-lg-3">
+                <label class="form-label fw-semibold" for="statusFilter">Session status</label>
+                <select id="statusFilter" name="StatusFilter" class="form-select">
+                    <option value="all" selected="@(Model.StatusFilter == "all")">All statuses</option>
+                    <option value="Upcoming" selected="@(Model.StatusFilter == "Upcoming")">Upcoming</option>
+                    <option value="Ready" selected="@(Model.StatusFilter == "Ready")">Ready to start</option>
+                    <option value="Live" selected="@(Model.StatusFilter == "Live")">Live now</option>
+                    <option value="Completed" selected="@(Model.StatusFilter == "Completed")">Completed</option>
+                </select>
             </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-primary w-100" onclick="saveNotes()">
-                    Save Notes
-                </button>
+            <div class="col-lg-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1"><i class="icon-magnifier"></i> Apply filters</button>
+                <a asp-page="./Index" class="btn btn-outline-secondary" title="Clear filters" aria-label="Clear filters"><i class="icon-refresh"></i></a>
             </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 
-<!-- ================= STYLES ================= -->
-<style>
-    .cc-input {
-        height: 42px;
-        font-size: 14px;
-    }
+@if (Model.Sessions.Any())
+{
+    <div class="row g-4">
+        @foreach (var session in Model.Sessions)
+        {
+            var state = Model.GetSessionState(session);
+            var booking = session.Bookings.OrderBy(item => item.ScheduledStart).First();
+            var acceptedParticipants = booking.Participants.Where(item => item.Status == "Accepted" && item.User != null).ToList();
+            <div class="col-md-6 col-xl-4">
+                <article class="card counselor-session-card h-100 @state.ToLowerInvariant()">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="session-date-block"><span>@booking.ScheduledStart.ToString("MMM")</span><strong>@booking.ScheduledStart.ToString("dd")</strong><small>@booking.ScheduledStart.ToString("ddd")</small></div>
+                            <div class="text-end"><span class="session-status-badge @state.ToLowerInvariant()"><i></i>@state</span><small class="d-block mt-2 text-muted">@booking.ScheduledStart.ToString("h:mm tt")</small></div>
+                        </div>
 
-    .cc-btn {
-        height: 42px;
-    }
+                        <div class="session-card-divider"></div>
+                        <div class="session-participants">
+                            <div class="session-label">@(booking.IsGroup ? "Group consultation" : "Client consultation")</div>
+                            <strong>@booking.User.FullName</strong>
+                            @if (booking.IsGroup)
+                            {
+                                <span><i class="icon-people"></i> @acceptedParticipants.Count additional participant@(acceptedParticipants.Count == 1 ? "" : "s") accepted</span>
+                            }
+                            else
+                            {
+                                <span><i class="icon-user"></i> Individual session</span>
+                            }
+                        </div>
 
-    .session-card {
-        border-radius: 12px;
-        transition: 0.2s;
-    }
+                        @if (state == "Upcoming" || state == "Ready")
+                        {
+                            <div class="session-countdown"><i class="icon-clock"></i><span>Starts in <strong class="countdown" data-time="@booking.ScheduledStart.ToString("o")"></strong></span></div>
+                        }
+                        else if (state == "Live")
+                        {
+                            <div class="session-countdown live"><i class="icon-control-play"></i><span><strong>Session is live</strong> — enter the room to continue.</span></div>
+                        }
+                        else
+                        {
+                            <div class="session-countdown completed"><i class="icon-check"></i><span>This session has been completed.</span></div>
+                        }
 
-        .session-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+                        <div class="session-card-actions mt-auto">
+                            @if (!session.IsStarted && !session.IsEnded)
+                            {
+                                <form method="post" asp-page-handler="Start" asp-route-id="@session.SessionId"><button class="btn btn-primary w-100" type="submit"><i class="icon-control-play"></i> Start session</button></form>
+                            }
+                            else if (session.IsStarted && !session.IsEnded)
+                            {
+                                <a href="/Sessions/PreJoin/@session.SessionId" class="btn btn-primary w-100"><i class="icon-login"></i> Enter session room</a>
+                            }
+                            <button class="btn btn-outline-secondary w-100" type="button" onclick="openNotes(@session.SessionId)"><i class="icon-note"></i> View clinical notes</button>
+                            @if (!session.IsEnded)
+                            {
+                                <form method="post" asp-page-handler="Complete" asp-route-id="@session.SessionId"><button class="btn session-complete-button w-100" type="submit"><i class="icon-check"></i> Mark as completed</button></form>
+                            }
+                        </div>
+                    </div>
+                </article>
+            </div>
         }
+    </div>
+}
+else
+{
+    <div class="card counselor-session-empty"><div class="card-body"><i class="icon-calendar"></i><h5>No matching sessions</h5><p>There are no sessions matching these filters. Try changing the status or search term.</p><a asp-page="./Index" class="btn btn-outline-secondary">Clear filters</a></div></div>
+}
 
-    .session-badge.scheduled {
-        background: #eef2ff;
-        color: #4338ca;
-    }
+<div class="modal fade counselor-notes-modal" id="notesModal" tabindex="-1" aria-labelledby="notesModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title" id="notesModalTitle">Clinical notes</h5><small class="text-muted">Notes are private to you and saved securely.</small></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form method="post"><div class="modal-body">@Html.AntiForgeryToken()<textarea id="notesBox" class="form-control" rows="9" placeholder="Add session notes, observations, or follow-up actions..."></textarea><input type="hidden" id="notesSessionId" /></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="button" onclick="saveNotes()"><i class="icon-check"></i> Save notes</button></div></form></div></div>
+</div>
 
-    .session-badge.ready {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .session-badge.live {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .session-badge.completed {
-        background: #e5e7eb;
-        color: #374151;
-    }
-
-    .cc-group {
-        background: #eef2ff;
-        color: #4f46e5;
-    }
-</style>
-
-<!-- ================= SCRIPTS ================= -->
-
+@section Scripts {
 <script>
-
-    // OPEN NOTES
     function openNotes(sessionId) {
-
         document.getElementById("notesSessionId").value = sessionId;
-
-        fetch(`?handler=Notes&sessionId=${sessionId}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById("notesBox").value = data.notes || "";
-                new bootstrap.Modal(document.getElementById('notesModal')).show();
-            });
+        fetch(`?handler=Notes&sessionId=${sessionId}`).then(response => response.json()).then(data => {
+            document.getElementById("notesBox").value = data.notes || "";
+            new bootstrap.Modal(document.getElementById("notesModal")).show();
+        });
     }
-
-    // SAVE NOTES
-            function saveNotes() {
-
-        const sessionId = document.getElementById("notesSessionId").value;
-        const notes = document.getElementById("notesBox").value;
-
+    function saveNotes() {
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-        fetch(`?handler=SaveNotes`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "RequestVerificationToken": token
-            },
-            body: JSON.stringify({
-                sessionId: sessionId,
-                notes: notes
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.json();
-        })
-        .then(() => {
-
-            // 🔥 REDIRECT TO TRIGGER TEMPDATA
-           window.location.href = window.location.pathname;
-
-        })
-        .catch(() => {
-            window.location.href = window.location.pathname; // still reload to show error TempData
-        });
+        fetch("?handler=SaveNotes", { method: "POST", headers: { "Content-Type": "application/json", "RequestVerificationToken": token }, body: JSON.stringify({ sessionId: document.getElementById("notesSessionId").value, notes: document.getElementById("notesBox").value }) })
+            .then(response => { if (!response.ok) throw new Error(); return response.json(); })
+            .then(() => window.location.href = window.location.pathname)
+            .catch(() => window.location.href = window.location.pathname);
     }
-
-</script>
-<script>
-
-    
-
-    // COUNTDOWN
     function updateCountdowns() {
-        document.querySelectorAll('.countdown').forEach(el => {
-
-            const time = new Date(el.dataset.time);
-            const now = new Date();
-
-            let diff = time - now;
-
-            if (diff <= 0) {
-                el.innerText = "Starting...";
-                return;
-            }
-
-            const seconds = Math.floor(diff / 1000) % 60;
-            const minutes = Math.floor(diff / (1000 * 60)) % 60;
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-
-            el.innerText = `${hours}h ${minutes}m ${seconds}s`;
+        document.querySelectorAll(".countdown").forEach(element => {
+            const difference = new Date(element.dataset.time) - new Date();
+            if (difference <= 0) { element.innerText = "starting now"; return; }
+            const hours = Math.floor(difference / 3600000); const minutes = Math.floor(difference / 60000) % 60;
+            element.innerText = `${hours}h ${minutes}m`;
         });
     }
-
-    setInterval(updateCountdowns, 1000);
-    updateCountdowns();
-
+    updateCountdowns(); setInterval(updateCountdowns, 1000);
 </script>
+}

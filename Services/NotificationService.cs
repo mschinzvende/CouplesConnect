@@ -589,12 +589,12 @@ $@"You have a new booking.
                 .Include(x => x.Counselor)
                 .Include(x => x.Service)
                 .Include(x => x.Session)
+                .Include(x => x.Participants)
+                    .ThenInclude(x => x.User)
                 .FirstOrDefaultAsync(x => x.BookingId == bookingId);
 
             if (booking == null)
                 return;
-
-            var settings = await _settings.GetAsync();
 
             var joinUrl =
     $"{await GetBaseUrl()}/Sessions/PreJoin/{booking.Session.SessionId}";
@@ -624,7 +624,82 @@ Please join a few minutes before the scheduled time.";
                 email,
                 joinUrl);
 
+            await SendBookingReminderWhatsAppAsync(booking.User, booking, isCounselor: false);
+
+            foreach (var participant in booking.Participants.Where(item => item.Status == "Accepted" && item.User != null))
+            {
+                var participantEmail = await _templates.BuildBookingReminderAsync(
+                    participant.User!.FullName,
+                    booking.Counselor.FullName,
+                    booking.ScheduledStart,
+                    joinUrl);
+
+                await NotifyUserAsync(
+                    participant.User,
+                    booking.BookingId,
+                    NotificationType.BookingReminder,
+                    title,
+                    message,
+                    participantEmail,
+                    joinUrl);
+
+                await SendBookingReminderWhatsAppAsync(participant.User, booking, isCounselor: false);
+            }
+
+            var counselorMessage = $"Your counselling session with {booking.User.FullName} starts soon.\n\n{BuildCounsellorBookingSummary(booking)}";
+            var counselorEmail = new EmailMessage
+            {
+                Subject = "Session Reminder",
+                HtmlBody = await _templates.BuildTemplateAsync(
+                    "Session Reminder",
+                    $"<p>Hello <strong>{booking.Counselor.FullName}</strong>,</p><p>Your session with <strong>{booking.User.FullName}</strong> starts soon.</p>",
+                    "Open session",
+                    joinUrl)
+            };
+
+            await NotifyUserAsync(
+                booking.Counselor,
+                booking.BookingId,
+                NotificationType.BookingReminder,
+                title,
+                counselorMessage,
+                counselorEmail,
+                joinUrl);
+
+            await SendBookingReminderWhatsAppAsync(booking.Counselor, booking, isCounselor: true);
+
             await _context.SaveChangesAsync();
+        }
+
+        private async Task SendBookingReminderWhatsAppAsync(ApplicationUser recipient, Booking booking, bool isCounselor)
+        {
+            if (string.IsNullOrWhiteSpace(recipient.Phone))
+                return;
+
+            const string title = "Session Reminder";
+            var message = isCounselor
+                ? $"Your counselling session with {booking.User.FullName} starts soon."
+                : $"Your counselling session with {booking.Counselor.FullName} starts soon.";
+            var log = CreateLog(NotificationChannel.WhatsApp, NotificationType.BookingReminder, recipient.Id,
+                booking.BookingId, recipient.Phone, title, message);
+
+            try
+            {
+                var sent = isCounselor
+                    ? await _messaging.SendWhatsAppToCounselorAsync(recipient.Phone, "session_reminder_counselor", recipient.FullName, booking.User.FullName, booking.Service.Name, $"{booking.ScheduledStart:h:mm tt}", $"{booking.ScheduledStart:dddd, dd MMM yyyy}")
+                    : await _messaging.SendWhatsAppToClientAsync(recipient.Phone, "session_reminder_client", recipient.FullName, booking.Counselor.FullName, booking.Service.Name, $"{booking.ScheduledStart:h:mm tt}", $"{booking.ScheduledStart:dddd, dd MMM yyyy}");
+
+                log.Status = sent ? "Sent" : "Failed";
+                if (sent)
+                    log.SentDate = DateTime.UtcNow;
+            }
+            catch (Exception ex)
+            {
+                log.Status = "Failed";
+                log.ErrorMessage = ex.Message;
+            }
+
+            _context.NotificationLogs.Add(log);
         }
 
         public async Task NotifyInvitationAsync(int participantId)
