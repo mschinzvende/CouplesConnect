@@ -139,26 +139,7 @@
                     <li class="nav-item navbar-brand-mini-wrapper">
                         <a class="nav-link navbar-brand brand-logo-mini" href="/User/Dashboard"><img src="~/theme/images/logo-mini.svg" alt="CC" /></a>
                     </li>
-                    <li class="nav-item nav-profile">
-                        <a href="/account/profile" class="nav-link">
-                            <div class="profile-image">
-                                <img class="img-xs rounded-circle" src="@profileImageUrl" alt="profile image">
-                                <div class="dot-indicator bg-success"></div>
-                            </div>
-                            <div class="text-wrapper">
-                                <p class="profile-name">
-
-                                    @currentUser?.FullName
-                                    
-                                </p>
-                                
-                            </div>
-                            <div class="icon-container">
-                                <i class="icon-bubbles"></i>
-                                <div class="dot-indicator bg-danger"></div>
-                            </div>
-                        </a>
-                    </li>
+                    
 
                     @if (User.IsInRole("User") || User.IsInRole("Counselor"))
                     {
