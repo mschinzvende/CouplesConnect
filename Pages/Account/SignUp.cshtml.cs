@@ -1,27 +1,33 @@
 using CouplesConnect.Data;
 using CouplesConnect.Models;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.WebUtilities;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace CouplesConnect.Pages.Account
 {
     public class SignupModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly INotificationService _notifications;
+        private readonly ILogger<SignupModel> _logger;
 
         public SignupModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            INotificationService notifications,
+            ILogger<SignupModel> logger)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _context = context;
+            _notifications = notifications;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -72,20 +78,29 @@ namespace CouplesConnect.Pages.Account
             returnUrl ??= Url.Content("~/");
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                if (returnUrl != null)
+                if (Url.IsLocalUrl(returnUrl))
                 {
-                    return Redirect(returnUrl);
+                    return LocalRedirect(returnUrl);
                 }
 
-                else
-                {
-                    return Redirect("/User/Dashboard");
-                }
-               
+                return Redirect("/User/Dashboard");
             }
 
             if (!ModelState.IsValid)
                 return Page();
+
+            var existingUser = await _userManager.FindByEmailAsync(Input.Email);
+            if (existingUser != null)
+            {
+                if (!existingUser.EmailConfirmed)
+                {
+                    var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+                    return RedirectToPage("/Account/SignupConfirmation", new { email = existingUser.Email, returnUrl = safeReturnUrl });
+                }
+
+                ModelState.AddModelError("", "An account already exists for this email address. Please sign in.");
+                return Page();
+            }
 
             var user = new ApplicationUser
             {
@@ -121,14 +136,19 @@ namespace CouplesConnect.Pages.Account
                 _context.UserSubscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
 
-                await _signInManager.SignInAsync(user, false);
-
-                if (!string.IsNullOrEmpty(ReturnUrl))
+                try
                 {
-                    return LocalRedirect(ReturnUrl);
+                    await SendConfirmationAsync(user);
+                }
+                catch (Exception ex)
+                {
+                    // The account remains pending confirmation and the user can resend
+                    // the link. A delivery outage must not create a duplicate account.
+                    _logger.LogError(ex, "Unable to send account confirmation for user {UserId}", user.Id);
                 }
 
-                return Redirect("/User/Dashboard");
+                var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+                return RedirectToPage("/Account/SignupConfirmation", new { email = user.Email, returnUrl = safeReturnUrl });
             }
 
             foreach (var error in result.Errors)
@@ -137,6 +157,21 @@ namespace CouplesConnect.Pages.Account
             }
 
             return Page();
+        }
+
+        private async Task SendConfirmationAsync(ApplicationUser user)
+        {
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var confirmationUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { userId = user.Id, code = encodedCode },
+                protocol: Request.Scheme)
+                ?? throw new InvalidOperationException("Could not create the confirmation URL.");
+
+            var whatsAppButtonToken = $"{user.Id:N}.{encodedCode}";
+            await _notifications.SendAccountConfirmationAsync(user, confirmationUrl, whatsAppButtonToken);
         }
     }
 }

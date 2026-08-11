@@ -68,6 +68,106 @@ namespace CouplesConnect.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task SendAccountConfirmationAsync(
+            ApplicationUser user,
+            string confirmationUrl,
+            string whatsAppButtonToken)
+        {
+            const string title = "Confirm your Couples Connect account";
+            const string message = "Please confirm your email address to activate your Couples Connect account.";
+
+            await CreateNotification(user.Id, NotificationType.AccountConfirmation, title, message, confirmationUrl);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var email = await _templates.BuildAccountConfirmationAsync(user.FullName, confirmationUrl);
+                await SendEmail(user, NotificationType.AccountConfirmation, email.Subject, message, email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Phone))
+            {
+                var log = CreateLog(
+                    NotificationChannel.WhatsApp,
+                    NotificationType.AccountConfirmation,
+                    user.Id,
+                    null,
+                    user.Phone,
+                    title,
+                    message);
+
+                try
+                {
+                    var sent = await _messaging.SendWhatsAppAccountConfirmationAsync(
+                        user.Phone,
+                        user.FullName,
+                        whatsAppButtonToken);
+
+                    log.Status = sent ? "Sent" : "Failed";
+                    if (sent)
+                        log.SentDate = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    log.Status = "Failed";
+                    log.ErrorMessage = ex.Message;
+                }
+
+                _context.NotificationLogs.Add(log);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SendPasswordResetAsync(
+            ApplicationUser user,
+            string resetUrl,
+            string whatsAppButtonToken)
+        {
+            const string title = "Reset your Couples Connect password";
+            const string message = "A password reset was requested for your Couples Connect account.";
+
+            await CreateNotification(user.Id, NotificationType.PasswordReset, title, message, resetUrl);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var email = await _templates.BuildPasswordResetAsync(user.FullName, resetUrl);
+                await SendEmail(user, NotificationType.PasswordReset, email.Subject, message, email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Phone))
+            {
+                var log = CreateLog(
+                    NotificationChannel.WhatsApp,
+                    NotificationType.PasswordReset,
+                    user.Id,
+                    null,
+                    user.Phone,
+                    title,
+                    message);
+
+                try
+                {
+                    var sent = await _messaging.SendWhatsAppPasswordResetAsync(
+                        user.Phone,
+                        user.FullName,
+                        whatsAppButtonToken);
+
+                    log.Status = sent ? "Sent" : "Failed";
+                    if (sent)
+                        log.SentDate = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    log.Status = "Failed";
+                    log.ErrorMessage = ex.Message;
+                }
+
+                _context.NotificationLogs.Add(log);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         private Task CreateNotification(
     Guid userId,
     NotificationType type,
@@ -182,7 +282,8 @@ namespace CouplesConnect.Services
     ApplicationUser user,
     NotificationType type,
     string subject,
-    string message)
+    string message,
+    EmailMessage? email = null)
         {
             var log = CreateLog(
                 NotificationChannel.Email,
@@ -195,14 +296,10 @@ namespace CouplesConnect.Services
 
             try
             {
-                var html = await _templates.BuildTemplateAsync(
-                    subject,
-                    message);
-
-                var email = new EmailMessage
+                email ??= new EmailMessage
                 {
                     Subject = subject,
-                    HtmlBody = html
+                    HtmlBody = await _templates.BuildTemplateAsync(subject, message)
                 };
 
                 var sent = await _messaging.SendEmailAsync(

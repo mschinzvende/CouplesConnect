@@ -50,16 +50,12 @@ namespace CouplesConnect.Pages.Account
 
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                if (returnUrl != "")
+                if (Url.IsLocalUrl(returnUrl))
                 {
-                    return Redirect(returnUrl);
+                    return LocalRedirect(returnUrl);
                 }
 
-                else
-                {
-                    return Redirect("/DashboardRedirect");
-                }
-                
+                return Redirect("/DashboardRedirect");
             }
 
             if (!ModelState.IsValid)
@@ -73,15 +69,17 @@ namespace CouplesConnect.Pages.Account
 
             if (result.Succeeded)
             {
-                if (returnUrl != "")
+                if (Url.IsLocalUrl(returnUrl))
                 {
-                    return Redirect(returnUrl);
+                    return LocalRedirect(returnUrl);
                 }
 
-                else
-                {
-                    return Redirect("/DashboardRedirect");
-                }
+                return Redirect("/DashboardRedirect");
+            }
+
+            if (result.IsNotAllowed)
+            {
+                return RedirectToPage("/Account/SignupConfirmation", new { email = Input.Email, returnUrl });
             }
 
             ModelState.AddModelError("", "Invalid login attempt");

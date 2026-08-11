@@ -1,5 +1,7 @@
 ﻿using CouplesConnect.Enums;
 
+using CouplesConnect.Models;
+
 namespace CouplesConnect.Services.Interfaces
 {
     public interface INotificationService
@@ -12,6 +14,16 @@ namespace CouplesConnect.Services.Interfaces
             string? link = null,
             bool sendEmail = false,
             bool sendWhatsApp = false);
+
+        Task SendAccountConfirmationAsync(
+            ApplicationUser user,
+            string confirmationUrl,
+            string whatsAppButtonToken);
+
+        Task SendPasswordResetAsync(
+            ApplicationUser user,
+            string resetUrl,
+            string whatsAppButtonToken);
 
         Task NotifyBookingCreatedAsync(Guid bookingId);
 

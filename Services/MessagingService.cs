@@ -449,6 +449,134 @@ namespace CouplesConnect.Services
         
        
 
+        public async Task<bool> SendWhatsAppAccountConfirmationAsync(
+            string phoneNumber,
+            string customerName,
+            string confirmationToken)
+        {
+            try
+            {
+                var config = await _settings.GetAsync();
+                var url = $"{config.WhatsAppApiUrl}/{config.WhatsAppPhoneNumberId}/messages";
+
+                _http.DefaultRequestHeaders.Clear();
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", config.WhatsAppAccessToken);
+
+                // Meta template: account_confirmation
+                // Body: Hello {{1}}, confirm your Couples Connect account.
+                // URL button: https://YOUR-DOMAIN/account/confirm-email?token={{1}}
+                var messageData = new
+                {
+                    messaging_product = "whatsapp",
+                    to = phoneNumber,
+                    type = "template",
+                    template = new
+                    {
+                        name = "account_confirmation",
+                        language = new { code = "en" },
+                        components = new object[]
+                        {
+                            new
+                            {
+                                type = "body",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = customerName }
+                                }
+                            },
+                            new
+                            {
+                                type = "button",
+                                sub_type = "URL",
+                                index = "0",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = confirmationToken }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(messageData),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _http.PostAsync(url, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> SendWhatsAppPasswordResetAsync(
+            string phoneNumber,
+            string customerName,
+            string resetToken)
+        {
+            try
+            {
+                var config = await _settings.GetAsync();
+                var url = $"{config.WhatsAppApiUrl}/{config.WhatsAppPhoneNumberId}/messages";
+
+                _http.DefaultRequestHeaders.Clear();
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", config.WhatsAppAccessToken);
+
+                // Meta template: password_reset
+                // Body: Hello {{1}}, use the button below to reset your password.
+                // URL button: https://YOUR-DOMAIN/account/reset-password?token={{1}}
+                var messageData = new
+                {
+                    messaging_product = "whatsapp",
+                    to = phoneNumber,
+                    type = "template",
+                    template = new
+                    {
+                        name = "password_reset",
+                        language = new { code = "en" },
+                        components = new object[]
+                        {
+                            new
+                            {
+                                type = "body",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = customerName }
+                                }
+                            },
+                            new
+                            {
+                                type = "button",
+                                sub_type = "URL",
+                                index = "0",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = resetToken }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(messageData),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _http.PostAsync(url, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> SendNotificationAsync(
             string? emailAddress,
             string? phone,

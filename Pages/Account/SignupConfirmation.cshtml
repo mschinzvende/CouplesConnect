@@ -1,0 +1,51 @@
+@page "/account/signup-confirmation"
+@model CouplesConnect.Pages.Account.SignupConfirmationModel
+@{
+    ViewData["Title"] = "Check your email";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-form text-center">
+    <div class="confirmation-icon"><i class="mdi mdi-email-check-outline"></i></div>
+    <h3 class="fw-bold mb-2">Check your email</h3>
+    <p class="text-muted mb-3">
+        @if (!string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <text>We sent a confirmation link to <strong>@Model.Email</strong>. Open it to activate your account.</text>
+        }
+        else
+        {
+            <text>Enter your email address below to request a new confirmation link.</text>
+        }
+        We also send the confirmation message to WhatsApp if the number supports it.
+    </p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-info small text-start" role="status">@Model.StatusMessage</div>
+    }
+
+    <form method="post" asp-page-handler="Resend" class="mt-4">
+        @if (string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <div class="mb-3 text-start">
+                <label asp-for="Email" class="form-label fw-semibold">Email address</label>
+                <input asp-for="Email" class="form-control" placeholder="you@example.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+        }
+        else
+        {
+            <input asp-for="Email" type="hidden" />
+        }
+        <input asp-for="ReturnUrl" type="hidden" />
+        <button type="submit" class="btn btn-outline-primary w-100">Resend confirmation link</button>
+    </form>
+
+    <div class="small mt-4">Already confirmed? <a href="/signin">Sign in</a></div>
+</div>
+
+<style>
+    .auth-form { max-width: 380px; margin: auto; }
+    .confirmation-icon { display: grid; width: 64px; height: 64px; margin: 0 auto 18px; place-items: center; border-radius: 50%; background: #eef2ff; color: #4f46e5; font-size: 30px; }
+</style>

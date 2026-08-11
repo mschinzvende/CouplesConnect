@@ -4,6 +4,8 @@
     {
         General,
 
+        AccountConfirmation,
+
         Welcome,
 
         BookingCreated,

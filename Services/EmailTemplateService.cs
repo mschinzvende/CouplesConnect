@@ -427,6 +427,58 @@ You can now browse counsellors and schedule sessions.
             };
         }
 
+        public async Task<EmailMessage> BuildAccountConfirmationAsync(
+            string customerName,
+            string confirmationUrl)
+        {
+            var body = $@"
+<p>Welcome <strong>{customerName}</strong>,</p>
+
+<p>
+Thank you for creating your Couples Connect account. Please confirm your email address to activate your account and keep it secure.
+</p>
+
+<p>
+If you did not create this account, you can safely ignore this email.
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Confirm your Couples Connect account",
+                HtmlBody = await BuildTemplateAsync(
+                    "Confirm your email address",
+                    body,
+                    "Confirm email",
+                    confirmationUrl)
+            };
+        }
+
+        public async Task<EmailMessage> BuildPasswordResetAsync(
+            string customerName,
+            string resetUrl)
+        {
+            var body = $@"
+<p>Hello <strong>{customerName}</strong>,</p>
+
+<p>
+We received a request to reset the password for your Couples Connect account. Use the button below to choose a new password.
+</p>
+
+<p>
+If you did not request a password reset, you can safely ignore this email. Your current password will remain unchanged.
+</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Reset your Couples Connect password",
+                HtmlBody = await BuildTemplateAsync(
+                    "Reset your password",
+                    body,
+                    "Reset password",
+                    resetUrl)
+            };
+        }
+
         public async Task<EmailMessage> BuildGeneralNotificationAsync(
     string subject,
     string message,

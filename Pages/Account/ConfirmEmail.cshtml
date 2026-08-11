@@ -1,0 +1,31 @@
+@page "/account/confirm-email"
+@model CouplesConnect.Pages.Account.ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirm email";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-form text-center">
+    <div class="confirmation-icon @(Model.Confirmed ? "success" : "pending")">
+        <i class="mdi @(Model.Confirmed ? "mdi-check" : "mdi-email-outline")"></i>
+    </div>
+
+    <h3 class="fw-bold mb-2">@(Model.Confirmed ? "Email confirmed" : "Email confirmation")</h3>
+    <p class="text-muted mb-4">@Model.Message</p>
+
+    @if (Model.Confirmed)
+    {
+        <a class="btn btn-primary w-100" href="/signin">Continue to sign in</a>
+    }
+    else
+    {
+        <a class="btn btn-outline-primary w-100" href="/account/signup-confirmation">Request a new link</a>
+    }
+</div>
+
+<style>
+    .auth-form { max-width: 380px; margin: auto; }
+    .confirmation-icon { display: grid; width: 64px; height: 64px; margin: 0 auto 18px; place-items: center; border-radius: 50%; font-size: 30px; }
+    .confirmation-icon.success { background: #dcfce7; color: #15803d; }
+    .confirmation-icon.pending { background: #eef2ff; color: #4f46e5; }
+</style>
