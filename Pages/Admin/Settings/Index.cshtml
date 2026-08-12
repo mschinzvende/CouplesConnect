@@ -201,9 +201,11 @@
                                 <div class="input-group">
 
                                     <input asp-for="Settings.WhatsAppAccessToken"
-                                           
                                            id="token"
+                                           type="password"
                                            class="form-control" />
+
+                                    <span class="input-group-text text-muted small">Leave blank to keep current</span>
 
                                     <button class="btn btn-outline-secondary"
                                             type="button"
@@ -315,6 +317,8 @@
                                                id="smtpPassword"
                                                type="password"
                                                class="form-control" />
+
+                                        <span class="input-group-text text-muted small">Leave blank to keep current</span>
 
                                         <button type="button"
                                                 class="btn btn-outline-secondary"
@@ -437,7 +441,9 @@
                                     <label>Integration Key</label>
 
                                     <input asp-for="Settings.PaynowIntegrationKey"
+                                           type="password"
                                            class="form-control" />
+                                    <div class="form-text">Leave blank to keep the current integration key.</div>
 
                                 </div>
 

@@ -136,9 +136,11 @@ namespace CouplesConnect.Pages.Account
                 _context.UserSubscriptions.Add(subscription);
                 await _context.SaveChangesAsync();
 
+                var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
+
                 try
                 {
-                    await SendConfirmationAsync(user);
+                    await SendConfirmationAsync(user, safeReturnUrl);
                 }
                 catch (Exception ex)
                 {
@@ -147,7 +149,6 @@ namespace CouplesConnect.Pages.Account
                     _logger.LogError(ex, "Unable to send account confirmation for user {UserId}", user.Id);
                 }
 
-                var safeReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
                 return RedirectToPage("/Account/SignupConfirmation", new { email = user.Email, returnUrl = safeReturnUrl });
             }
 
@@ -159,14 +160,14 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        private async Task SendConfirmationAsync(ApplicationUser user)
+        private async Task SendConfirmationAsync(ApplicationUser user, string? returnUrl)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var confirmationUrl = Url.Page(
                 "/Account/ConfirmEmail",
                 pageHandler: null,
-                values: new { userId = user.Id, code = encodedCode },
+                values: new { userId = user.Id, code = encodedCode, returnUrl },
                 protocol: Request.Scheme)
                 ?? throw new InvalidOperationException("Could not create the confirmation URL.");
 

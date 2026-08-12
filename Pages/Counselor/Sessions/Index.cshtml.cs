@@ -23,6 +23,7 @@ namespace CouplesConnect.Pages.Counselor.Sessions
         }
 
         public List<Session> Sessions { get; set; } = new();
+        public Dictionary<int, string> NotesBySession { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public string Search { get; set; }
@@ -100,6 +101,11 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                     .Skip((PageNumber - 1) * PageSize)
                     .Take(PageSize)
                     .ToListAsync();
+
+                var sessionIds = Sessions.Select(session => session.SessionId).ToList();
+                NotesBySession = await _context.SessionNotes
+                    .Where(note => note.CounselorId == user.Id && sessionIds.Contains(note.SessionId))
+                    .ToDictionaryAsync(note => note.SessionId, note => note.Notes);
             }
             catch
             {
@@ -174,6 +180,12 @@ namespace CouplesConnect.Pages.Counselor.Sessions
         {
             var user = await _userManager.GetUserAsync(User);
 
+            var ownsSession = await _context.Bookings
+                .AnyAsync(booking => booking.SessionId == sessionId && booking.CounselorId == user.Id);
+
+            if (!ownsSession)
+                return new ForbidResult();
+
             var note = await _context.SessionNotes
                 .FirstOrDefaultAsync(x =>
                     x.SessionId == sessionId &&
@@ -188,6 +200,12 @@ namespace CouplesConnect.Pages.Counselor.Sessions
         public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] NotesDto dto)
         {
             var user = await _userManager.GetUserAsync(User);
+
+            var ownsSession = await _context.Bookings
+                .AnyAsync(booking => booking.SessionId == dto.SessionId && booking.CounselorId == user.Id);
+
+            if (!ownsSession)
+                return new ForbidResult();
 
             var note = await _context.SessionNotes
                 .FirstOrDefaultAsync(x =>

@@ -18,9 +18,11 @@ namespace CouplesConnect.Pages.Account
 
         public bool Confirmed { get; private set; }
         public string Message { get; private set; } = "";
+        public string? ReturnUrl { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync(Guid? userId, string? code, string? token)
+        public async Task<IActionResult> OnGetAsync(Guid? userId, string? code, string? token, string? returnUrl)
         {
+            ReturnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null;
             if (!string.IsNullOrWhiteSpace(token))
             {
                 var separator = token.IndexOf('.');

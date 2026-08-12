@@ -15,11 +15,11 @@
 
     @if (Model.Confirmed)
     {
-        <a class="btn btn-primary w-100" href="/signin">Continue to sign in</a>
+        <a class="btn btn-primary w-100" href="/signin?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")">Continue to sign in</a>
     }
     else
     {
-        <a class="btn btn-outline-primary w-100" href="/account/signup-confirmation">Request a new link</a>
+        <a class="btn btn-outline-primary w-100" href="/account/signup-confirmation?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")">Request a new link</a>
     }
 </div>
 

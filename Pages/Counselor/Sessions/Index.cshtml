@@ -106,7 +106,7 @@
                             {
                                 <a href="/Sessions/PreJoin/@session.SessionId" class="btn btn-primary w-100"><i class="icon-login"></i> Enter session room</a>
                             }
-                            <button class="btn btn-outline-secondary w-100" type="button" onclick="openNotes(@session.SessionId)"><i class="icon-note"></i> View clinical notes</button>
+                            <button class="btn btn-outline-secondary w-100" type="button" data-session-id="@session.SessionId" data-notes="@Model.NotesBySession.GetValueOrDefault(session.SessionId, "")" onclick="openNotes(this)"><i class="icon-note"></i> View clinical notes</button>
                             @if (!session.IsEnded)
                             {
                                 <form method="post" asp-page-handler="Complete" asp-route-id="@session.SessionId"><button class="btn session-complete-button w-100" type="submit"><i class="icon-check"></i> Mark as completed</button></form>
@@ -129,12 +129,10 @@ else
 
 @section Scripts {
 <script>
-    function openNotes(sessionId) {
-        document.getElementById("notesSessionId").value = sessionId;
-        fetch(`?handler=Notes&sessionId=${sessionId}`).then(response => response.json()).then(data => {
-            document.getElementById("notesBox").value = data.notes || "";
-            new bootstrap.Modal(document.getElementById("notesModal")).show();
-        });
+    function openNotes(button) {
+        document.getElementById("notesSessionId").value = button.dataset.sessionId;
+        document.getElementById("notesBox").value = button.dataset.notes || "";
+        new bootstrap.Modal(document.getElementById("notesModal")).show();
     }
     function saveNotes() {
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;

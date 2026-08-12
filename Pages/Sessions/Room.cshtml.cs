@@ -55,8 +55,12 @@ namespace CouplesConnect.Pages.Sessions
 
             var isOwner = booking.UserId == user.Id;
             var isCounselor = booking.CounselorId == user.Id;
+            var isAcceptedParticipant = await _context.BookingParticipants.AnyAsync(participant =>
+                participant.BookingId == booking.BookingId &&
+                participant.UserId == user.Id &&
+                participant.Status == "Accepted");
 
-            if (!isOwner && !isCounselor)
+            if (!isOwner && !isCounselor && !isAcceptedParticipant)
                 return Forbid();
 
             IsCounselor = isCounselor;
@@ -85,26 +89,29 @@ namespace CouplesConnect.Pages.Sessions
                 }*/
             }
 
-            // ? Counselor logic (unchanged)
             if (IsCounselor)
             {
                 var note = await _context.SessionNotes
-                    .FirstOrDefaultAsync(x => x.SessionId == sessionId);
+                    .FirstOrDefaultAsync(x => x.SessionId == sessionId && x.CounselorId == user.Id);
 
                 ExistingNotes = note?.Notes;
 
-                UpcomingSessions = await _context.Bookings
-                    .Include(x => x.User)
-                    .Include(x => x.Session)
-                    .Where(x => x.CounselorId == user.Id &&
-                                x.BookingStatus == "Scheduled" &&
-                                x.ScheduledStart > DateTime.UtcNow)
-                    .OrderBy(x => x.ScheduledStart)
-                    .Take(5)
-                    .ToListAsync();
-
-                NextSessionTime = UpcomingSessions.FirstOrDefault()?.ScheduledStart;
             }
+
+            var upcomingBookings = _context.Bookings
+                .Include(item => item.User)
+                .Include(item => item.Counselor)
+                .Where(item => item.BookingStatus == "Scheduled" && item.ScheduledStart > DateTime.UtcNow);
+
+            UpcomingSessions = await (IsCounselor
+                    ? upcomingBookings.Where(item => item.CounselorId == user.Id)
+                    : upcomingBookings.Where(item => item.UserId == user.Id ||
+                        item.Participants.Any(participant => participant.UserId == user.Id && participant.Status == "Accepted")))
+                .OrderBy(item => item.ScheduledStart)
+                .Take(5)
+                .ToListAsync();
+
+            NextSessionTime = UpcomingSessions.FirstOrDefault()?.ScheduledStart;
 
             return Page();
         }
@@ -138,7 +145,7 @@ namespace CouplesConnect.Pages.Sessions
                 var userId = user.Id;
 
                 var existing = await _context.SessionNotes
-                    .FirstOrDefaultAsync(x => x.SessionId == dto.SessionId);
+                    .FirstOrDefaultAsync(x => x.SessionId == dto.SessionId && x.CounselorId == userId);
 
                 if (existing == null)
                 {

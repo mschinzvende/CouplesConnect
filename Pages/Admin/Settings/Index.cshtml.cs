@@ -32,14 +32,10 @@ namespace CouplesConnect.Pages.Admin.Settings
 
             if (Settings != null)
             {
-                Settings.WhatsAppAccessToken =
-                    _encryption.Decrypt(Settings.WhatsAppAccessToken);
-
-                Settings.SmtpPassword =
-                    _encryption.Decrypt(Settings.SmtpPassword);
-
-                Settings.PaynowIntegrationKey =
-                    _encryption.Decrypt(Settings.PaynowIntegrationKey);
+                // Secrets are never rendered back into the form. Leaving a secret field blank keeps its stored value.
+                Settings.WhatsAppAccessToken = null;
+                Settings.SmtpPassword = null;
+                Settings.PaynowIntegrationKey = null;
             }
 
             if (Settings == null)
@@ -62,16 +58,15 @@ namespace CouplesConnect.Pages.Admin.Settings
             if (settings == null)
                 return NotFound();
 
+            var storedWhatsAppAccessToken = settings.WhatsAppAccessToken;
+            var storedSmtpPassword = settings.SmtpPassword;
+            var storedPaynowIntegrationKey = settings.PaynowIntegrationKey;
+
             _context.Entry(settings).CurrentValues.SetValues(Settings);
 
-            settings.WhatsAppAccessToken =
-                _encryption.Encrypt(Settings.WhatsAppAccessToken);
-
-            settings.SmtpPassword =
-                _encryption.Encrypt(Settings.SmtpPassword);
-
-            settings.PaynowIntegrationKey =
-                _encryption.Encrypt(Settings.PaynowIntegrationKey);
+            settings.WhatsAppAccessToken = PreserveOrEncrypt(Settings.WhatsAppAccessToken, storedWhatsAppAccessToken);
+            settings.SmtpPassword = PreserveOrEncrypt(Settings.SmtpPassword, storedSmtpPassword);
+            settings.PaynowIntegrationKey = PreserveOrEncrypt(Settings.PaynowIntegrationKey, storedPaynowIntegrationKey);
 
             await _context.SaveChangesAsync();
 
@@ -86,10 +81,15 @@ namespace CouplesConnect.Pages.Admin.Settings
 
             try
             {
+                var savedSettings = await _context.PlatformSettings.AsNoTracking().FirstOrDefaultAsync();
+                var accessToken = string.IsNullOrWhiteSpace(Settings.WhatsAppAccessToken)
+                    ? _encryption.Decrypt(savedSettings?.WhatsAppAccessToken ?? string.Empty)
+                    : Settings.WhatsAppAccessToken;
+
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue(
                         "Bearer",
-                        Settings.WhatsAppAccessToken);
+                        accessToken);
 
                 var response =
                     await client.GetAsync(
@@ -112,6 +112,13 @@ namespace CouplesConnect.Pages.Admin.Settings
             }
 
             return RedirectToPage();
+        }
+
+        private string? PreserveOrEncrypt(string? submittedValue, string? storedEncryptedValue)
+        {
+            return string.IsNullOrWhiteSpace(submittedValue)
+                ? storedEncryptedValue
+                : _encryption.Encrypt(submittedValue);
         }
     }
 }

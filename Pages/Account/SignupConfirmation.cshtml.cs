@@ -47,7 +47,7 @@ namespace CouplesConnect.Pages.Account
                 {
                     try
                     {
-                        await SendConfirmationAsync(user);
+                        await SendConfirmationAsync(user, ReturnUrl);
                     }
                     catch (Exception ex)
                     {
@@ -60,14 +60,14 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        private async Task SendConfirmationAsync(ApplicationUser user)
+        private async Task SendConfirmationAsync(ApplicationUser user, string? returnUrl)
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             var confirmationUrl = Url.Page(
                 "/Account/ConfirmEmail",
                 pageHandler: null,
-                values: new { userId = user.Id, code = encodedCode },
+                values: new { userId = user.Id, code = encodedCode, returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : null },
                 protocol: Request.Scheme)
                 ?? throw new InvalidOperationException("Could not create the confirmation URL.");
 

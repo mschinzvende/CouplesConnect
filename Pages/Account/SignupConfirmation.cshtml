@@ -42,7 +42,7 @@
         <button type="submit" class="btn btn-outline-primary w-100">Resend confirmation link</button>
     </form>
 
-    <div class="small mt-4">Already confirmed? <a href="/signin">Sign in</a></div>
+    <div class="small mt-4">Already confirmed? <a href="/signin?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")">Sign in</a></div>
 </div>
 
 <style>
