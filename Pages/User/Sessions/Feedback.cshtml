@@ -3,92 +3,111 @@
 @model CouplesConnect.Pages.User.Sessions.FeedbackModel
 @attribute [Authorize(Roles = "User")]
 
-<h3 class="mb-4">Session Feedback</h3>
+<div class="feedback-page">
+    <div class="feedback-header">
+        <div>
+            <div class="feedback-eyebrow">SESSION COMPLETE</div>
+            <h3>Rate your counselor</h3>
+            <p>Your feedback helps us maintain a high-quality counseling experience.</p>
+        </div>
+        <div class="feedback-privacy-note"><i class="icon-lock"></i><span>Private feedback</span></div>
+    </div>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success feedback-alert"><i class="icon-check me-2"></i>@TempData["Success"]</div>
+    }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger feedback-alert"><i class="icon-exclamation me-2"></i>@TempData["Error"]</div>
+    }
 
-<div class="card shadow-sm">
-    <div class="card-body">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9">
+            <section class="card feedback-card" aria-labelledby="feedbackCardTitle">
+                <div class="feedback-card-summary">
+                    <div class="feedback-counselor-icon" aria-hidden="true"><i class="icon-user"></i></div>
+                    <div>
+                        <span>Session with</span>
+                        <h4 id="feedbackCardTitle">@Model.CounselorName</h4>
+                    </div>
+                    <div class="feedback-complete-badge"><i class="icon-check"></i> Completed</div>
+                </div>
 
-        <form method="post">
+                <div class="card-body">
+                    <form method="post" class="feedback-form">
+                        <input type="hidden" name="rating" id="ratingInput" value="@Model.ExistingRating" />
 
-            <!-- STAR RATING -->
-            <label class="mb-2">Rate your session</label>
+                        <div class="feedback-field">
+                            <div class="feedback-field-heading">
+                                <label for="ratingInput">How would you rate your session?</label>
+                                <span>Required</span>
+                            </div>
+                            <p class="feedback-field-help">Select one to five stars based on your overall experience.</p>
 
-            <div id="starContainer" class="mb-3">
+                            <div id="starContainer" class="feedback-stars" role="group" aria-label="Session rating" aria-describedby="ratingDescription">
+                                @for (var i = 1; i <= 5; i++)
+                                {
+                                    var ratingLabel = i switch
+                                    {
+                                        1 => "Poor",
+                                        2 => "Fair",
+                                        3 => "Good",
+                                        4 => "Very good",
+                                        _ => "Excellent"
+                                    };
+                                    <button type="button" class="feedback-star" data-value="@i" aria-label="@i star@((i == 1) ? "" : "s") — @ratingLabel" aria-pressed="false">
+                                        <span aria-hidden="true">&#9733;</span>
+                                    </button>
+                                }
+                            </div>
+                            <div class="feedback-rating-scale" aria-hidden="true"><span>Poor</span><span>Excellent</span></div>
+                            <p id="ratingDescription" class="feedback-rating-description" aria-live="polite">No rating selected.</p>
+                        </div>
 
-                @for (int i = 1; i <= 5; i++)
-                {
-                    <span class="star"
-                          data-value="@i">&#9733;</span>
-                }
+                        <div class="feedback-field">
+                            <div class="feedback-field-heading">
+                                <label for="comment">Share additional feedback</label>
+                                <span>Optional</span>
+                            </div>
+                            <textarea id="comment" name="comment" class="form-control feedback-comment" rows="5" maxlength="1000" placeholder="Tell us what went well or how we could improve.">@Model.ExistingComment</textarea>
+                            <p class="feedback-field-help">Please do not include sensitive personal or medical information.</p>
+                        </div>
 
-            </div>
-
-            <input type="hidden" name="Rating" id="ratingInput" value="@Model.ExistingRating" />
-
-            <!-- COMMENT -->
-            <textarea name="Comment"
-                      class="form-control mb-3"
-                      rows="4"
-                      placeholder="Share your experience...">@Model.ExistingComment</textarea>
-
-            <button class="btn btn-primary w-100">
-                Submit Feedback
-            </button>
-
-        </form>
-
+                        <div class="feedback-submit-bar">
+                            <p><i class="icon-info"></i> Your rating will be shared with Couples Connect to support service quality.</p>
+                            <button class="btn btn-primary feedback-submit-button" type="submit"><i class="icon-check"></i> Submit rating</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
     </div>
 </div>
 
-<style>
-    .star {
-        font-size: 30px;
-        cursor: pointer;
-        color: #ccc;
+@section Scripts {
+<script>
+    const stars = Array.from(document.querySelectorAll(".feedback-star"));
+    const ratingInput = document.getElementById("ratingInput");
+    const ratingDescription = document.getElementById("ratingDescription");
+
+    function setRating(rating) {
+        ratingInput.value = rating;
+        stars.forEach(star => {
+            const value = Number(star.dataset.value);
+            star.classList.toggle("active", value <= rating);
+            star.setAttribute("aria-pressed", String(value === rating));
+        });
+
+        ratingDescription.textContent = `${rating} of 5 stars selected.`;
     }
 
-        .star.active {
-            color: gold;
-        }
-</style>
-
-<script>
-
-    let stars = document.querySelectorAll(".star");
-    let ratingInput = document.getElementById("ratingInput");
-
-    // set initial state
-    let currentRating = parseInt(ratingInput.value || 0);
-    highlightStars(currentRating);
+    const existingRating = Number(ratingInput.value || 0);
+    if (existingRating > 0) setRating(existingRating);
 
     stars.forEach(star => {
-        star.addEventListener("click", function () {
-
-            let value = this.getAttribute("data-value");
-
-            ratingInput.value = value;
-            highlightStars(value);
-        });
+        star.addEventListener("click", () => setRating(Number(star.dataset.value)));
     });
-
-    function highlightStars(rating) {
-        stars.forEach(star => {
-            star.classList.remove("active");
-
-            if (star.getAttribute("data-value") <= rating) {
-                star.classList.add("active");
-            }
-        });
-    }
-
 </script>
+}

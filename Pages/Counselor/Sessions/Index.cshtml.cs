@@ -1,11 +1,13 @@
 using CouplesConnect.Data;
 using CouplesConnect.Data.Models;
+using CouplesConnect.Hubs;
 using CouplesConnect.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CouplesConnect.Pages.Counselor.Sessions
 {
@@ -14,16 +16,18 @@ namespace CouplesConnect.Pages.Counselor.Sessions
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHubContext<SessionHub> _sessionHub;
 
         public IndexModel(ApplicationDbContext context,
-                          UserManager<ApplicationUser> userManager)
+                          UserManager<ApplicationUser> userManager,
+                          IHubContext<SessionHub> sessionHub)
         {
             _context = context;
             _userManager = userManager;
+            _sessionHub = sessionHub;
         }
 
         public List<Session> Sessions { get; set; } = new();
-        public Dictionary<int, string> NotesBySession { get; set; } = new();
 
         [BindProperty(SupportsGet = true)]
         public string Search { get; set; }
@@ -102,10 +106,6 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                     .Take(PageSize)
                     .ToListAsync();
 
-                var sessionIds = Sessions.Select(session => session.SessionId).ToList();
-                NotesBySession = await _context.SessionNotes
-                    .Where(note => note.CounselorId == user.Id && sessionIds.Contains(note.SessionId))
-                    .ToDictionaryAsync(note => note.SessionId, note => note.Notes);
             }
             catch
             {
@@ -135,13 +135,18 @@ namespace CouplesConnect.Pages.Counselor.Sessions
 
         public async Task<IActionResult> OnPostCompleteAsync(int id)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+                return Challenge();
+
             var session = await _context.Sessions
                 .Include(s => s.Bookings)
-                .FirstOrDefaultAsync(s => s.SessionId == id);
+                .FirstOrDefaultAsync(s => s.SessionId == id &&
+                    s.Bookings.Any(booking => booking.CounselorId == user.Id));
 
             if (session == null)
             {
-                TempData["Error"] = "Session not found";
+                TempData["Error"] = "Session not found or you do not have permission to complete it.";
                 return RedirectToPage();
             }
 
@@ -155,6 +160,9 @@ namespace CouplesConnect.Pages.Counselor.Sessions
             }
 
             await _context.SaveChangesAsync();
+
+            await _sessionHub.Clients.Group(session.SessionId.ToString())
+                .SendAsync("SessionEnded");
 
             TempData["Success"] = "Session completed";
 
@@ -179,6 +187,8 @@ namespace CouplesConnect.Pages.Counselor.Sessions
         public async Task<IActionResult> OnGetNotesAsync(int sessionId)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+                return Challenge();
 
             var ownsSession = await _context.Bookings
                 .AnyAsync(booking => booking.SessionId == sessionId && booking.CounselorId == user.Id);
@@ -187,19 +197,26 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                 return new ForbidResult();
 
             var note = await _context.SessionNotes
-                .FirstOrDefaultAsync(x =>
-                    x.SessionId == sessionId &&
-                    x.CounselorId == user.Id);
+                .AsNoTracking()
+                .Where(note => note.SessionId == sessionId && note.CounselorId == user.Id)
+                .OrderByDescending(note => note.SessionNoteId)
+                .Select(note => note.Notes)
+                .FirstOrDefaultAsync();
 
             return new JsonResult(new
             {
-                notes = note?.Notes
+                notes = note ?? string.Empty
             });
         }
 
-        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] NotesDto dto)
+        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] NotesDto? dto)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+                return Challenge();
+
+            if (dto is null || dto.SessionId <= 0)
+                return BadRequest(new { success = false, message = "A valid session is required." });
 
             var ownsSession = await _context.Bookings
                 .AnyAsync(booking => booking.SessionId == dto.SessionId && booking.CounselorId == user.Id);
@@ -208,9 +225,9 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                 return new ForbidResult();
 
             var note = await _context.SessionNotes
-                .FirstOrDefaultAsync(x =>
-                    x.SessionId == dto.SessionId &&
-                    x.CounselorId == user.Id);
+                .Where(note => note.SessionId == dto.SessionId && note.CounselorId == user.Id)
+                .OrderByDescending(note => note.SessionNoteId)
+                .FirstOrDefaultAsync();
 
             if (note == null)
             {
@@ -218,14 +235,14 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                 {
                     SessionId = dto.SessionId,
                     CounselorId = user.Id,
-                    Notes = dto.Notes
+                    Notes = dto.Notes?.Trim() ?? string.Empty
                 };
 
                 _context.SessionNotes.Add(note);
             }
             else
             {
-                note.Notes = dto.Notes;
+                note.Notes = dto.Notes?.Trim() ?? string.Empty;
             }
 
             await _context.SaveChangesAsync();

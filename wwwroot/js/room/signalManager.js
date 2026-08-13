@@ -8,6 +8,7 @@ export default class SignalManager {
         this.onWaiting = null;
         this.onAdmitted = null;
         this.onUserWaiting = null;
+        this.onSessionEnded = null;
     }
 
     async connect() {
@@ -21,6 +22,7 @@ export default class SignalManager {
             await this.onAdmitted?.();
         });
         this.connection.on("UserWaiting", connectionId => this.onUserWaiting?.(connectionId));
+        this.connection.on("SessionEnded", () => this.onSessionEnded?.());
         this.connection.onreconnecting(() => this.onDisconnected?.());
         this.connection.onreconnected(async () => {
             this.onConnected?.();
@@ -43,6 +45,10 @@ export default class SignalManager {
 
     async raiseHand() {
         await this.connection.invoke("RaiseHand", this.sessionId.toString());
+    }
+
+    async endSession() {
+        await this.connection.invoke("EndSession", this.sessionId);
     }
 
     async dispose() {

@@ -979,7 +979,7 @@ Click below to join now.";
             var baseUrl = await GetBaseUrl();
 
             var feedbackUrl =
-                $"{baseUrl}/User/Bookings/Feedback/{booking.BookingId}";
+                $"{baseUrl}/User/Sessions/Feedback/{booking.Session.SessionId}";
 
             var bookingUrl =
                 $"{baseUrl}/User/Bookings/Index";

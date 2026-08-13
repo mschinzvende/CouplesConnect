@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
+using CouplesConnect.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
 namespace CouplesConnect.Hubs
 {
     public class SessionHub : Hub
     {
         private readonly ILogger<SessionHub> _logger;
-        public SessionHub(ILogger<SessionHub> logger)
+        private readonly ApplicationDbContext _context;
+
+        public SessionHub(ILogger<SessionHub> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
         // ==========================================
         // Active Participants
@@ -75,6 +82,10 @@ namespace CouplesConnect.Hubs
 
             WaitingRooms[sessionId]
                 .Add(Context.ConnectionId);
+
+            // Waiting participants need session-ended notifications too, even
+            // though they have not yet been admitted to the call.
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId.ToString());
 
             await Clients.Group(sessionId.ToString())
                 .SendAsync(
@@ -201,6 +212,38 @@ namespace CouplesConnect.Hubs
         {
             await Clients.Group(sessionId)
                 .SendAsync("UserRaisedHand", Context.ConnectionId);
+        }
+
+        public async Task EndSession(int sessionId)
+        {
+            var userIdValue = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdValue, out var userId))
+                throw new HubException("You must be signed in to end a session.");
+
+            var session = await _context.Sessions
+                .Include(item => item.Bookings)
+                .FirstOrDefaultAsync(item => item.SessionId == sessionId);
+
+            if (session is null)
+                throw new HubException("Session not found.");
+
+            if (!session.Bookings.Any(booking => booking.CounselorId == userId))
+                throw new HubException("Only the assigned counselor can end this session.");
+
+            if (!session.IsEnded)
+            {
+                session.IsEnded = true;
+                session.EndedAt = DateTime.UtcNow;
+
+                foreach (var booking in session.Bookings)
+                {
+                    booking.BookingStatus = "Completed";
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            await Clients.Group(sessionId.ToString()).SendAsync("SessionEnded");
         }
     }
 }

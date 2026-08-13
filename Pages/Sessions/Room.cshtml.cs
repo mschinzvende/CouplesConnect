@@ -44,6 +44,8 @@ namespace CouplesConnect.Pages.Sessions
         {
             SessionId = sessionId;
             var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+                return Challenge();
 
             // ?? Get booking tied to session
             var booking = await _context.Bookings
@@ -64,6 +66,14 @@ namespace CouplesConnect.Pages.Sessions
                 return Forbid();
 
             IsCounselor = isCounselor;
+
+            if (booking.Session.IsEnded)
+            {
+                return IsCounselor
+                    ? Redirect("/Counselor/Sessions")
+                    : Redirect($"/User/Sessions/Feedback/{sessionId}");
+            }
+
             SessionStartTime = booking.ScheduledStart;
 
             var callToken = await _callService.CreateVoipTokenAsync();
@@ -92,7 +102,9 @@ namespace CouplesConnect.Pages.Sessions
             if (IsCounselor)
             {
                 var note = await _context.SessionNotes
-                    .FirstOrDefaultAsync(x => x.SessionId == sessionId && x.CounselorId == user.Id);
+                    .Where(note => note.SessionId == sessionId && note.CounselorId == user.Id)
+                    .OrderByDescending(note => note.SessionNoteId)
+                    .FirstOrDefaultAsync();
 
                 ExistingNotes = note?.Notes;
 
@@ -145,7 +157,9 @@ namespace CouplesConnect.Pages.Sessions
                 var userId = user.Id;
 
                 var existing = await _context.SessionNotes
-                    .FirstOrDefaultAsync(x => x.SessionId == dto.SessionId && x.CounselorId == userId);
+                    .Where(note => note.SessionId == dto.SessionId && note.CounselorId == userId)
+                    .OrderByDescending(note => note.SessionNoteId)
+                    .FirstOrDefaultAsync();
 
                 if (existing == null)
                 {

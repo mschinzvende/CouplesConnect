@@ -106,7 +106,7 @@
                             {
                                 <a href="/Sessions/PreJoin/@session.SessionId" class="btn btn-primary w-100"><i class="icon-login"></i> Enter session room</a>
                             }
-                            <button class="btn btn-outline-secondary w-100" type="button" data-session-id="@session.SessionId" data-notes="@Model.NotesBySession.GetValueOrDefault(session.SessionId, "")" onclick="openNotes(this)"><i class="icon-note"></i> View clinical notes</button>
+                            <button class="btn session-view-notes-button w-100" type="button" data-session-id="@session.SessionId" onclick="openNotes(this)"><i class="icon-note"></i> View clinical notes</button>
                             @if (!session.IsEnded)
                             {
                                 <form method="post" asp-page-handler="Complete" asp-route-id="@session.SessionId"><button class="btn session-complete-button w-100" type="submit"><i class="icon-check"></i> Mark as completed</button></form>
@@ -124,22 +124,95 @@ else
 }
 
 <div class="modal fade counselor-notes-modal" id="notesModal" tabindex="-1" aria-labelledby="notesModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><div><h5 class="modal-title" id="notesModalTitle">Clinical notes</h5><small class="text-muted">Notes are private to you and saved securely.</small></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><form method="post"><div class="modal-body">@Html.AntiForgeryToken()<textarea id="notesBox" class="form-control" rows="9" placeholder="Add session notes, observations, or follow-up actions..."></textarea><input type="hidden" id="notesSessionId" /></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="button" onclick="saveNotes()"><i class="icon-check"></i> Save notes</button></div></form></div></div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="notesModalTitle">Clinical notes</h5>
+                    <small class="text-muted">Private to you and saved in the session record.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <p id="notesLoadState" class="notes-load-state d-none" role="status" aria-live="polite"></p>
+                    <textarea id="notesBox" class="form-control" rows="9" placeholder="Add session notes, observations, or follow-up actions..."></textarea>
+                    <input type="hidden" id="notesSessionId" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="saveNotesButton" class="btn btn-primary" type="button" onclick="saveNotes()"><i class="icon-check"></i> Save notes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
 <script>
-    function openNotes(button) {
-        document.getElementById("notesSessionId").value = button.dataset.sessionId;
-        document.getElementById("notesBox").value = button.dataset.notes || "";
-        new bootstrap.Modal(document.getElementById("notesModal")).show();
+    const notesModalElement = document.getElementById("notesModal");
+    const notesModal = new bootstrap.Modal(notesModalElement);
+    const notesBox = document.getElementById("notesBox");
+    const notesLoadState = document.getElementById("notesLoadState");
+
+    function setNotesLoadState(message, isError = false) {
+        notesLoadState.textContent = message;
+        notesLoadState.classList.remove("d-none", "text-danger");
+        notesLoadState.classList.toggle("text-danger", isError);
     }
-    function saveNotes() {
+
+    async function openNotes(button) {
+        const sessionId = button.dataset.sessionId;
+        document.getElementById("notesSessionId").value = sessionId;
+        notesBox.value = "";
+        notesBox.disabled = true;
+        setNotesLoadState("Loading saved notes…");
+        notesModal.show();
+
+        try {
+            const response = await fetch(`${window.location.pathname}?handler=Notes&sessionId=${encodeURIComponent(sessionId)}`, {
+                headers: { "Accept": "application/json" }
+            });
+            if (!response.ok) throw new Error(`Unable to load notes: ${response.status}`);
+
+            const result = await response.json();
+            notesBox.value = result.notes || "";
+            setNotesLoadState(result.notes ? "Saved note loaded." : "No saved notes for this session yet.");
+        } catch (error) {
+            console.error(error);
+            setNotesLoadState("Notes could not be loaded. Please close this window and try again.", true);
+        } finally {
+            notesBox.disabled = false;
+        }
+    }
+
+    async function saveNotes() {
         const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-        fetch("?handler=SaveNotes", { method: "POST", headers: { "Content-Type": "application/json", "RequestVerificationToken": token }, body: JSON.stringify({ sessionId: document.getElementById("notesSessionId").value, notes: document.getElementById("notesBox").value }) })
-            .then(response => { if (!response.ok) throw new Error(); return response.json(); })
-            .then(() => window.location.href = window.location.pathname)
-            .catch(() => window.location.href = window.location.pathname);
+        const saveButton = document.getElementById("saveNotesButton");
+        saveButton.disabled = true;
+        setNotesLoadState("Saving notes…");
+
+        try {
+            const response = await fetch("?handler=SaveNotes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "RequestVerificationToken": token },
+                body: JSON.stringify({
+                    sessionId: document.getElementById("notesSessionId").value,
+                    notes: notesBox.value
+                })
+            });
+            if (!response.ok) throw new Error(`Unable to save notes: ${response.status}`);
+
+            const result = await response.json();
+            if (!result.success) throw new Error("The note was not saved.");
+
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            setNotesLoadState("Notes could not be saved. Please try again.", true);
+            saveButton.disabled = false;
+        }
     }
     function updateCountdowns() {
         document.querySelectorAll(".countdown").forEach(element => {

@@ -52,6 +52,8 @@
 
         </div>
 
+        <p class="small text-muted mb-3">Use the site navigation to open another page in a new tab while keeping this session active.</p>
+
         <!-- WAITING -->
         <div id="waitingScreen" class="waiting-screen d-none">
             <h5>Waiting for therapist to admit you...</h5>
@@ -106,6 +108,16 @@
                 }
 
                 
+
+                @if (Model.IsCounselor)
+                {
+                    <button type="button"
+                            id="btnEndSession"
+                            onclick="endSession()"
+                            class="control-btn danger" title="End session for everyone" aria-label="End session for everyone">
+                        <span class="control-icon">■</span><span class="control-label">End session</span>
+                    </button>
+                }
 
                 <button type="button"
                         id="btnLeave"
@@ -249,7 +261,8 @@
     window.roomConfig = {
         sessionId: @Model.SessionId,
         isCounselor: @(Model.IsCounselor.ToString().ToLower()),
-        returnUrl: "@(Model.IsCounselor ? "/Counselor/Sessions" : "User/Bookings")",
+        returnUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.IsCounselor ? "/Counselor/Sessions" : "/User/Bookings")),
+        feedbackUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize($"/User/Sessions/Feedback/{Model.SessionId}")),
         azureCallToken: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallToken)),
         azureCallTokenExpiresOn: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallTokenExpiresOn)),
         azureCallGroupId: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallGroupId))

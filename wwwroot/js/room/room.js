@@ -2,7 +2,7 @@ import SignalManager from "./signalManager.js";
 import NotesManager from "./notes.js";
 import AcsCallManager from "./acsCallManager.js";
 
-const { sessionId, isCounselor, azureCallToken, azureCallGroupId } = window.roomConfig;
+const { sessionId, isCounselor, returnUrl, feedbackUrl, azureCallToken, azureCallGroupId } = window.roomConfig;
 const waitingScreen = document.getElementById("waitingScreen");
 const sessionUI = document.getElementById("sessionUI");
 const statusDot = document.getElementById("statusDot");
@@ -11,11 +11,33 @@ const waitingUsers = new Set();
 const notes = new NotesManager(sessionId);
 let alertTimer = null;
 let audioContext = null;
+let isExiting = false;
+let isEndingSession = false;
 
 document.addEventListener("pointerdown", () => {
     audioContext ??= new AudioContext();
     audioContext.resume().catch(() => {});
 }, { once: true });
+
+// A full-page navigation tears down the browser call. Open internal navigation
+// in a new tab so either participant can use the rest of the site without
+// disconnecting from this room.
+document.addEventListener("click", event => {
+    if (event.button !== 0 || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    const link = event.target.closest("a[href]");
+    if (!link || link.target || link.hasAttribute("download")) return;
+
+    const destination = new URL(link.href, window.location.href);
+    const current = new URL(window.location.href);
+    const isSamePageAnchor = destination.pathname === current.pathname &&
+        destination.search === current.search && destination.hash;
+
+    if (destination.origin !== current.origin || isSamePageAnchor) return;
+
+    event.preventDefault();
+    window.open(destination.href, "_blank", "noopener");
+});
 
 const call = new AcsCallManager({
     token: azureCallToken,
@@ -60,6 +82,9 @@ signal.onUserWaiting = connectionId => {
     waitingUsers.add(connectionId);
     renderWaitingUsers();
     showRoomAlert("A participant is waiting to be admitted.");
+};
+signal.onSessionEnded = () => {
+    if (!isEndingSession) exitRoom(isCounselor ? returnUrl : feedbackUrl);
 };
 
 function showRoomAlert(message) {
@@ -139,14 +164,35 @@ window.raiseHand = () => runControl("btnHand", async () => {
     setControlState("btnHand", raised, "Lower hand", "Raise hand", "is-active");
 });
 window.saveNotes = async show => notes.save(show);
-window.leaveSession = async () => {
-    if (!confirm("Are you sure you want to leave this session?")) return;
+
+async function exitRoom(destination) {
+    if (isExiting) return;
+    isExiting = true;
+
     try {
-        await call.leave();
-        await signal.dispose();
+        await Promise.allSettled([call.leave(), signal.dispose()]);
         notes.dispose();
     } finally {
-        window.location.href = window.roomConfig.returnUrl;
+        window.location.assign(destination);
+    }
+}
+
+window.leaveSession = async () => {
+    if (!confirm("Are you sure you want to leave this session?")) return;
+    await exitRoom(isCounselor ? returnUrl : feedbackUrl);
+};
+
+window.endSession = async () => {
+    if (!confirm("End this session for everyone? Participants will be asked to leave feedback.")) return;
+
+    isEndingSession = true;
+    try {
+        await signal.endSession();
+        await exitRoom(returnUrl);
+    } catch (error) {
+        console.error("[Room] Unable to end the session", error);
+        alert("The session could not be ended. Please try again.");
+        isEndingSession = false;
     }
 };
 
