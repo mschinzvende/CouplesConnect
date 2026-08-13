@@ -1,0 +1,327 @@
+@page
+@using Microsoft.AspNetCore.Authorization
+@model CouplesConnect.Pages.Admin.Users.IndexModel
+@attribute [Authorize(Roles = "Admin")]
+@{
+    ViewData["Title"] = "User Management";
+    var firstPage = Math.Max(1, Model.PageNumber - 2);
+    var lastPage = Math.Min(Model.TotalPages, Model.PageNumber + 2);
+}
+
+<div class="admin-page user-management-page">
+    <div class="admin-page-header">
+        <div>
+            <span class="admin-eyebrow">Identity &amp; access</span>
+            <h3>User Management</h3>
+            <p>Create accounts, manage access roles, and protect users with password controls.</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            <i class="icon-user-follow"></i> Add user
+        </button>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success" role="status"><i class="icon-check me-2"></i>@success</div>
+    }
+    @if (TempData["Warning"] is string warning)
+    {
+        <div class="alert alert-warning" role="alert"><i class="icon-info me-2"></i>@warning</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert"><i class="icon-exclamation me-2"></i>@error</div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon indigo"><i class="icon-people"></i></div><span>Total users</span><strong>@Model.Users.Count.ToString("N0")</strong><small>All managed identities</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon green"><i class="icon-check"></i></div><span>Active access</span><strong>@Model.ActiveUserCount.ToString("N0")</strong><small>Accounts currently enabled</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon amber"><i class="icon-shield"></i></div><span>Administrators</span><strong>@Model.AdministratorCount.ToString("N0")</strong><small>Users with elevated access</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon blue"><i class="icon-envelope"></i></div><span>Email verification</span><strong>@Model.UnconfirmedEmailCount.ToString("N0")</strong><small>Accounts awaiting confirmation</small></div></div>
+    </div>
+
+    <section class="card admin-card user-directory-card">
+        <div class="card-header">
+            <div>
+                <h5>User directory</h5>
+                <span>Roles are assigned from the active Identity roles configured for Couples Connect.</span>
+            </div>
+            <div class="user-role-summary d-none d-md-flex">
+                @foreach (var role in Model.AvailableRoles)
+                {
+                    <span class="role-chip">@role</span>
+                }
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <form class="user-directory-toolbar" method="get">
+                <div class="user-search-box"><i class="icon-magnifier"></i><input class="form-control" name="search" value="@Model.Search" type="search" placeholder="Search all users by name, email, phone, or role" aria-label="Search users" /></div>
+                <input type="hidden" name="pageNumber" value="1" />
+                <div class="directory-toolbar-actions">
+                    <label class="visually-hidden" for="pageSize">Users per page</label>
+                    <select id="pageSize" class="form-select form-select-sm" name="pageSize" onchange="this.form.submit()">
+                        @foreach (var pageSize in Model.PageSizeOptions)
+                        {
+                            if (pageSize == Model.PageSize)
+                            {
+                                <option value="@pageSize" selected>@pageSize per page</option>
+                            }
+                            else
+                            {
+                                <option value="@pageSize">@pageSize per page</option>
+                            }
+                        }
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary" type="submit"><i class="icon-magnifier"></i><span class="d-none d-lg-inline">Search</span></button>
+                    @if (!string.IsNullOrWhiteSpace(Model.Search))
+                    {
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="./Index" asp-route-pageSize="@Model.PageSize">Clear</a>
+                    }
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table class="table admin-table mb-0" id="userDirectoryTable">
+                    <thead>
+                        <tr><th>User</th><th>Contact</th><th>Roles</th><th>Account status</th><th>Created</th><th class="text-end">Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Users.Any())
+                        {
+                            @foreach (var managedUser in Model.Users)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="user-identity">
+                                            <span class="user-avatar" aria-hidden="true">@managedUser.FullName[..1].ToUpperInvariant()</span>
+                                            <div><span class="fw-semibold d-block">@managedUser.FullName</span><span class="small text-muted">ID: @managedUser.Id.ToString("N")[..8]</span></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="d-block">@(string.IsNullOrWhiteSpace(managedUser.Email) ? "No email address" : managedUser.Email)</span>
+                                        <span class="small text-muted">@(string.IsNullOrWhiteSpace(managedUser.Phone) ? "No WhatsApp number" : managedUser.Phone)</span>
+                                    </td>
+                                    <td>
+                                        <div class="user-role-list">
+                                            @foreach (var role in managedUser.Roles)
+                                            {
+                                                <span class="role-chip">@role</span>
+                                            }
+                                            @if (!managedUser.Roles.Any())
+                                            {
+                                                <span class="text-muted small">No roles assigned</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (managedUser.IsLockedOut)
+                                        {
+                                            <span class="admin-status status-disabled"><i class="icon-lock me-1"></i>Disabled</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-status status-active"><i class="icon-check me-1"></i>Active</span>
+                                        }
+                                        @if (!managedUser.EmailConfirmed)
+                                        {
+                                            <span class="admin-status status-pending ms-1">Email unverified</span>
+                                        }
+                                    </td>
+                                    <td><span class="small">@managedUser.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</span></td>
+                                    <td>
+                                        <div class="user-row-actions justify-content-end">
+                                            <button class="btn btn-sm user-action-button" type="button"
+                                                    data-user-id="@managedUser.Id" data-user-name="@managedUser.FullName" data-user-email="@managedUser.Email" data-user-phone="@managedUser.Phone" data-user-roles="@string.Join(',', managedUser.Roles)"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Edit user" aria-label="Edit @managedUser.FullName"
+                                                    onclick="openEditUser(this)"><i class="icon-pencil" aria-hidden="true"></i></button>
+                                            <button class="btn btn-sm user-action-button" type="button"
+                                                    data-user-id="@managedUser.Id" data-user-name="@managedUser.FullName" data-user-locked="@managedUser.IsLockedOut.ToString().ToLowerInvariant()"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Password and access" aria-label="Manage password and access for @managedUser.FullName"
+                                                    onclick="openSecurityUser(this)"><i class="icon-lock" aria-hidden="true"></i></button>
+                                            @if (managedUser.CanDelete)
+                                            {
+                                                <button class="btn btn-sm user-action-button user-action-danger" type="button" data-user-id="@managedUser.Id" data-user-name="@managedUser.FullName"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Delete user" aria-label="Delete @managedUser.FullName" onclick="openDeleteUser(this)"><i class="icon-trash" aria-hidden="true"></i></button>
+                                            }
+                                            else
+                                            {
+                                                <span class="user-action-button user-action-disabled" role="img" aria-label="Delete unavailable" data-bs-toggle="tooltip" data-bs-placement="top" title="Accounts with retained activity, and the final administrator, cannot be deleted."><i class="icon-trash" aria-hidden="true"></i></span>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="6" class="admin-empty-state">@(string.IsNullOrWhiteSpace(Model.Search) ? "No users have been created yet." : "No users match your search.")</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.TotalUserCount > 0)
+            {
+                <div class="user-pagination">
+                    <span class="user-pagination-summary">Showing @Model.FirstUserNumber–@Model.LastUserNumber of @Model.TotalUserCount user@(Model.TotalUserCount == 1 ? "" : "s")</span>
+                    @if (Model.TotalPages > 1)
+                    {
+                        <nav aria-label="User directory pages">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@(Model.PageNumber - 1)" aria-label="Previous page"><i class="icon-arrow-left"></i></a>
+                                </li>
+                                @if (firstPage > 1)
+                                {
+                                    <li class="page-item"><a class="page-link" asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="1">1</a></li>
+                                    @if (firstPage > 2)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                                    }
+                                }
+                                @for (var pageIndex = firstPage; pageIndex <= lastPage; pageIndex++)
+                                {
+                                    <li class="page-item @(pageIndex == Model.PageNumber ? "active" : "")"><a class="page-link" asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@pageIndex" aria-current="@(pageIndex == Model.PageNumber ? "page" : null)">@pageIndex</a></li>
+                                }
+                                @if (lastPage < Model.TotalPages)
+                                {
+                                    @if (lastPage < Model.TotalPages - 1)
+                                    {
+                                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                                    }
+                                    <li class="page-item"><a class="page-link" asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@Model.TotalPages">@Model.TotalPages</a></li>
+                                }
+                                <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-page="./Index" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize" asp-route-pageNumber="@(Model.PageNumber + 1)" aria-label="Next page"><i class="icon-arrow-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form method="post" asp-page-handler="Create" class="modal-content">
+            <div class="modal-header"><div><h5 class="modal-title" id="createUserModalTitle">Add a user</h5><p class="modal-subtitle">They receive a secure password setup link by email and WhatsApp.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label" for="createFullName">Full name</label><input class="form-control" id="createFullName" name="fullName" required autocomplete="name" /></div>
+                    <div class="col-md-6"><label class="form-label" for="createEmail">Email address</label><input class="form-control" id="createEmail" name="email" type="email" required autocomplete="email" /></div>
+                    <div class="col-12"><label class="form-label" for="createPhone">WhatsApp number</label><input class="form-control" id="createPhone" name="phone" type="tel" placeholder="263xxxxxxxxx" autocomplete="tel" /><div class="form-text">Use the international format without spaces so WhatsApp notifications can be delivered.</div></div>
+                    <div class="col-12">
+                        <label class="form-label d-block">Access roles</label>
+                        <div class="role-selector">
+                            @foreach (var role in Model.AvailableRoles)
+                            {
+                                var roleId = $"createRole{role.Replace(" ", "")}";
+                                <label class="role-option" for="@roleId"><input id="@roleId" type="checkbox" name="roles" value="@role" /><span>@role</span></label>
+                            }
+                        </div>
+                        <div class="form-text">At least one role is required. A user may receive more than one role.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit"><i class="icon-user-follow"></i>Create &amp; notify user</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form method="post" asp-page-handler="Edit" class="modal-content">
+            <input type="hidden" id="editUserId" name="userId" />
+            <div class="modal-header"><div><h5 class="modal-title" id="editUserModalTitle">Edit user</h5><p class="modal-subtitle">Update contact details and role-based access.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6"><label class="form-label" for="editFullName">Full name</label><input class="form-control" id="editFullName" name="fullName" required autocomplete="name" /></div>
+                    <div class="col-md-6"><label class="form-label" for="editEmail">Email address</label><input class="form-control" id="editEmail" name="email" type="email" required autocomplete="email" /><div class="form-text">Changing this address requires the user to verify the new email.</div></div>
+                    <div class="col-12"><label class="form-label" for="editPhone">WhatsApp number</label><input class="form-control" id="editPhone" name="phone" type="tel" placeholder="263xxxxxxxxx" autocomplete="tel" /></div>
+                    <div class="col-12">
+                        <label class="form-label d-block">Access roles</label>
+                        <div class="role-selector">
+                            @foreach (var role in Model.AvailableRoles)
+                            {
+                                var roleId = $"editRole{role.Replace(" ", "")}";
+                                <label class="role-option" for="@roleId"><input id="@roleId" type="checkbox" name="roles" value="@role" /><span>@role</span></label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit">Save changes</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="securityUserModal" tabindex="-1" aria-labelledby="securityUserModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><div><h5 class="modal-title" id="securityUserModalTitle">Account security</h5><p class="modal-subtitle" id="securityUserName"></p></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body">
+                <div class="security-action"><div><strong>Send password reset</strong><p>Delivers a secure reset link through the user’s configured email and WhatsApp channels.</p></div><form method="post" asp-page-handler="SendPasswordReset"><input type="hidden" id="resetUserId" name="userId" /><button class="btn btn-sm btn-outline-primary" type="submit">Send reset link</button></form></div>
+                <div class="security-action"><div><strong id="accessActionTitle">Disable account access</strong><p id="accessActionDescription">Prevents sign-in while preserving the user’s records and audit trail.</p></div><form method="post" asp-page-handler="ToggleAccess"><input type="hidden" id="accessUserId" name="userId" /><button class="btn btn-sm btn-outline-primary" id="accessActionButton" type="submit">Disable access</button></form></div>
+                <hr class="my-4" />
+                <form method="post" asp-page-handler="SetPassword">
+                    <input type="hidden" id="passwordUserId" name="userId" />
+                    <h6 class="mb-1">Set a new password</h6><p class="small text-muted mb-3">Use only when immediate administrator assistance is required. The user is notified after the password changes.</p>
+                    <div class="mb-3"><label class="form-label" for="newPassword">New password</label><input class="form-control" id="newPassword" name="newPassword" type="password" minlength="8" required autocomplete="new-password" /></div>
+                    <div class="mb-3"><label class="form-label" for="confirmPassword">Confirm new password</label><input class="form-control" id="confirmPassword" name="confirmPassword" type="password" minlength="8" required autocomplete="new-password" /></div>
+                    <button class="btn btn-primary w-100" type="submit"><i class="icon-lock"></i>Change password &amp; notify user</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" asp-page-handler="Delete" class="modal-content">
+            <input type="hidden" id="deleteUserId" name="userId" />
+            <div class="modal-header"><h5 class="modal-title" id="deleteUserModalTitle">Permanently delete user?</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body"><p class="mb-2">You are about to permanently delete <strong id="deleteUserName"></strong>.</p><p class="text-muted small mb-0">This is available only for accounts without retained activity. Disable access instead when history must be preserved.</p></div>
+            <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-outline-danger" type="submit"><i class="icon-trash"></i>Delete user</button></div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showModal(id) {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
+        }
+
+        function openEditUser(button) {
+            document.getElementById('editUserId').value = button.dataset.userId;
+            document.getElementById('editFullName').value = button.dataset.userName || '';
+            document.getElementById('editEmail').value = button.dataset.userEmail || '';
+            document.getElementById('editPhone').value = button.dataset.userPhone || '';
+            const roles = (button.dataset.userRoles || '').split(',').filter(Boolean);
+            document.querySelectorAll('#editUserModal input[name="roles"]').forEach(input => input.checked = roles.includes(input.value));
+            showModal('editUserModal');
+        }
+
+        function openSecurityUser(button) {
+            const isLocked = button.dataset.userLocked === 'true';
+            document.getElementById('securityUserName').textContent = button.dataset.userName || '';
+            document.getElementById('resetUserId').value = button.dataset.userId;
+            document.getElementById('passwordUserId').value = button.dataset.userId;
+            document.getElementById('accessUserId').value = button.dataset.userId;
+            document.getElementById('accessActionTitle').textContent = isLocked ? 'Restore account access' : 'Disable account access';
+            document.getElementById('accessActionDescription').textContent = isLocked
+                ? 'Allows the user to sign in again while retaining all account history.'
+                : 'Prevents sign-in while preserving the user’s records and audit trail.';
+            document.getElementById('accessActionButton').textContent = isLocked ? 'Restore access' : 'Disable access';
+            showModal('securityUserModal');
+        }
+
+        function openDeleteUser(button) {
+            document.getElementById('deleteUserId').value = button.dataset.userId;
+            document.getElementById('deleteUserName').textContent = button.dataset.userName || '';
+            showModal('deleteUserModal');
+        }
+
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(element => new bootstrap.Tooltip(element));
+    </script>
+}

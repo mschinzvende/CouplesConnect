@@ -20,6 +20,12 @@ namespace CouplesConnect.Services.Interfaces
             string confirmationUrl,
             string whatsAppButtonToken);
 
+        Task SendAdministratorCreatedAccountAsync(
+            ApplicationUser user,
+            string passwordSetupUrl,
+            string whatsAppButtonToken,
+            string roleSummary);
+
         Task SendPasswordResetAsync(
             ApplicationUser user,
             string resetUrl,

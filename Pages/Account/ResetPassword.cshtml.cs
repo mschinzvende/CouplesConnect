@@ -1,4 +1,5 @@
 using CouplesConnect.Models;
+using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,10 +12,17 @@ namespace CouplesConnect.Pages.Account
     public class ResetPasswordModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notifications;
+        private readonly ILogger<ResetPasswordModel> _logger;
 
-        public ResetPasswordModel(UserManager<ApplicationUser> userManager)
+        public ResetPasswordModel(
+            UserManager<ApplicationUser> userManager,
+            INotificationService notifications,
+            ILogger<ResetPasswordModel> logger)
         {
             _userManager = userManager;
+            _notifications = notifications;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -83,7 +91,18 @@ namespace CouplesConnect.Pages.Account
                 var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Input.Code));
                 var result = await _userManager.ResetPasswordAsync(user, code, Input.Password);
                 if (result.Succeeded)
+                {
+                    try
+                    {
+                        await _notifications.SendPasswordChangedAlertAsync(user);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Unable to send password-changed alert for user {UserId}", user.Id);
+                    }
+
                     return RedirectToPage("/Account/ResetPasswordConfirmation");
+                }
 
                 foreach (var error in result.Errors)
                     ModelState.AddModelError("", error.Description);

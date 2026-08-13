@@ -122,6 +122,58 @@ namespace CouplesConnect.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task SendAdministratorCreatedAccountAsync(
+            ApplicationUser user,
+            string passwordSetupUrl,
+            string whatsAppButtonToken,
+            string roleSummary)
+        {
+            const string title = "Your Couples Connect account is ready";
+            const string message = "An administrator created your account. Choose a password to complete your sign-in setup.";
+
+            await CreateNotification(user.Id, NotificationType.AccountCreated, title, message, passwordSetupUrl);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                var email = await _templates.BuildAdministratorCreatedAccountAsync(user.FullName, passwordSetupUrl, roleSummary);
+                await SendEmail(user, NotificationType.AccountCreated, email.Subject, message, email);
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Phone))
+            {
+                var log = CreateLog(
+                    NotificationChannel.WhatsApp,
+                    NotificationType.AccountCreated,
+                    user.Id,
+                    null,
+                    user.Phone,
+                    title,
+                    message);
+
+                try
+                {
+                    var sent = await _messaging.SendWhatsAppAdministratorCreatedAccountAsync(
+                        user.Phone,
+                        user.FullName,
+                        roleSummary,
+                        whatsAppButtonToken);
+
+                    log.Status = sent ? "Sent" : "Failed";
+                    if (sent)
+                        log.SentDate = DateTime.UtcNow;
+                }
+                catch (Exception ex)
+                {
+                    log.Status = "Failed";
+                    log.ErrorMessage = ex.Message;
+                }
+
+                _context.NotificationLogs.Add(log);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task SendPasswordResetAsync(
             ApplicationUser user,
             string resetUrl,

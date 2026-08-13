@@ -513,6 +513,72 @@ namespace CouplesConnect.Services
             }
         }
 
+        public async Task<bool> SendWhatsAppAdministratorCreatedAccountAsync(
+            string phoneNumber,
+            string customerName,
+            string roleSummary,
+            string passwordSetupToken)
+        {
+            try
+            {
+                var config = await _settings.GetAsync();
+                var url = $"{config.WhatsAppApiUrl}/{config.WhatsAppPhoneNumberId}/messages";
+
+                _http.DefaultRequestHeaders.Clear();
+                _http.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", config.WhatsAppAccessToken);
+
+                // Meta template: account_created
+                // Body: Hello {{1}}, your Couples Connect account is ready. Access: {{2}}.
+                // URL button: https://YOUR-DOMAIN/account/reset-password?token={{1}}
+                var messageData = new
+                {
+                    messaging_product = "whatsapp",
+                    to = phoneNumber,
+                    type = "template",
+                    template = new
+                    {
+                        name = "account_created",
+                        language = new { code = "en" },
+                        components = new object[]
+                        {
+                            new
+                            {
+                                type = "body",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = customerName },
+                                    new { type = "text", text = roleSummary }
+                                }
+                            },
+                            new
+                            {
+                                type = "button",
+                                sub_type = "URL",
+                                index = "0",
+                                parameters = new object[]
+                                {
+                                    new { type = "text", text = passwordSetupToken }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(messageData),
+                    Encoding.UTF8,
+                    "application/json");
+
+                var response = await _http.PostAsync(url, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> SendWhatsAppTemplateAsync(
             string phoneNumber,
             string templateName,

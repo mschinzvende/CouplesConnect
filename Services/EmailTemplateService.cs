@@ -453,6 +453,33 @@ If you did not create this account, you can safely ignore this email.
             };
         }
 
+        public async Task<EmailMessage> BuildAdministratorCreatedAccountAsync(
+            string customerName,
+            string passwordSetupUrl,
+            string roleSummary)
+        {
+            var safeName = System.Net.WebUtility.HtmlEncode(customerName);
+            var safeRoles = System.Net.WebUtility.HtmlEncode(roleSummary);
+            var body = $@"
+<p>Welcome <strong>{safeName}</strong>,</p>
+
+<p>An administrator has created a Couples Connect account for you. To protect your account, use the button below to choose your password before signing in.</p>
+
+<p><strong>Access assigned:</strong> {safeRoles}</p>
+
+<p>If you were not expecting this invitation, please contact Couples Connect support.</p>";
+
+            return new EmailMessage
+            {
+                Subject = "Your Couples Connect account is ready",
+                HtmlBody = await BuildTemplateAsync(
+                    "Your account is ready",
+                    body,
+                    "Choose your password",
+                    passwordSetupUrl)
+            };
+        }
+
         public async Task<EmailMessage> BuildPasswordResetAsync(
             string customerName,
             string resetUrl)

@@ -6,6 +6,8 @@
 
         AccountConfirmation,
 
+        AccountCreated,
+
         Welcome,
 
         BookingCreated,
