@@ -19,25 +19,33 @@ document.addEventListener("pointerdown", () => {
     audioContext.resume().catch(() => {});
 }, { once: true });
 
-// A full-page navigation tears down the browser call. Open internal navigation
-// in a new tab so either participant can use the rest of the site without
-// disconnecting from this room.
-document.addEventListener("click", event => {
-    if (event.button !== 0 || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-
-    const link = event.target.closest("a[href]");
-    if (!link || link.target || link.hasAttribute("download")) return;
+// A full-page navigation tears down the browser call. Give internal links a
+// native _blank target instead of relying on window.open, so browsers keep the
+// room alive even when popup protections are enabled.
+function isInternalNavigationLink(link) {
+    if (!link || link.hasAttribute("download") || link.dataset.roomNavigation === "same-tab") return false;
 
     const destination = new URL(link.href, window.location.href);
     const current = new URL(window.location.href);
     const isSamePageAnchor = destination.pathname === current.pathname &&
         destination.search === current.search && destination.hash;
 
-    if (destination.origin !== current.origin || isSamePageAnchor) return;
+    return destination.origin === current.origin && !isSamePageAnchor;
+}
 
-    event.preventDefault();
-    window.open(destination.href, "_blank", "noopener");
-});
+function keepRoomOpenWhileNavigating(link) {
+    if (!isInternalNavigationLink(link)) return;
+    link.target = "_blank";
+    link.rel = ["noopener", "noreferrer", ...link.rel.split(" ")]
+        .filter((value, index, values) => value && values.indexOf(value) === index)
+        .join(" ");
+}
+
+document.querySelectorAll("a[href]").forEach(keepRoomOpenWhileNavigating);
+document.addEventListener("click", event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    keepRoomOpenWhileNavigating(event.target.closest("a[href]"));
+}, true);
 
 const call = new AcsCallManager({
     token: azureCallToken,
