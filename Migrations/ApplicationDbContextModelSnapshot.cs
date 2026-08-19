@@ -122,6 +122,52 @@ namespace CouplesConnect.Migrations
                     b.ToTable("BookingParticipants");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Data.Models.ContactRequest", b =>
+                {
+                    b.Property<Guid>("ContactRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("ContactRequestId");
+
+                    b.HasIndex("Email", "CreatedAt");
+
+                    b.HasIndex("Status", "CreatedAt");
+
+                    b.ToTable("ContactRequests");
+                });
+
             modelBuilder.Entity("CouplesConnect.Data.Models.Counselor", b =>
                 {
                     b.Property<Guid>("CounselorId")
@@ -410,9 +456,6 @@ namespace CouplesConnect.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProfileImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -420,6 +463,9 @@ namespace CouplesConnect.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("PrivacyLevel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RelationshipStage")
@@ -543,6 +589,173 @@ namespace CouplesConnect.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("CounselorProfiles");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumCategory", b =>
+                {
+                    b.Property<Guid>("ForumCategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("ForumCategoryId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "DisplayOrder");
+
+                    b.ToTable("ForumCategories");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumReply", b =>
+                {
+                    b.Property<Guid>("ForumReplyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ForumTopicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ForumReplyId");
+
+                    b.HasIndex("AuthorId", "CreatedAt");
+
+                    b.HasIndex("ForumTopicId", "IsDeleted", "CreatedAt");
+
+                    b.ToTable("ForumReplies");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumTopic", b =>
+                {
+                    b.Property<Guid>("ForumTopicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(8000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ForumCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsAnonymous")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPinned")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastActivityAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ForumTopicId");
+
+                    b.HasIndex("AuthorId", "CreatedAt");
+
+                    b.HasIndex("ForumCategoryId", "IsDeleted", "IsArchived", "IsPinned", "LastActivityAt");
+
+                    b.ToTable("ForumTopics");
                 });
 
             modelBuilder.Entity("CouplesConnect.Models.Notification", b =>
@@ -1260,6 +1473,44 @@ namespace CouplesConnect.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Models.ForumReply", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CouplesConnect.Models.ForumTopic", "Topic")
+                        .WithMany("Replies")
+                        .HasForeignKey("ForumTopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Topic");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumTopic", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CouplesConnect.Models.ForumCategory", "Category")
+                        .WithMany("Topics")
+                        .HasForeignKey("ForumCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("CouplesConnect.Models.Notification", b =>
                 {
                     b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
@@ -1384,6 +1635,16 @@ namespace CouplesConnect.Migrations
                 {
                     b.Navigation("CounselorProfile")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumCategory", b =>
+                {
+                    b.Navigation("Topics");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Models.ForumTopic", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("CouplesConnect.Models.ResourceCategory", b =>

@@ -1,0 +1,161 @@
+@page
+@model CouplesConnect.Pages.Admin.Forum.IndexModel
+
+@{
+    ViewData["Title"] = "Forum Management";
+}
+
+<div class="forum-admin-shell">
+    <div class="forum-admin-heading">
+        <div>
+            <span class="forum-kicker">Community controls</span>
+            <h1>Forum categories</h1>
+            <p>Shape the spaces members use to discover and participate in conversations.</p>
+        </div>
+        <a asp-page="/Forum/Index" class="btn btn-outline-primary"><i class="mdi mdi-open-in-new"></i> View community</a>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success forum-alert"><i class="mdi mdi-check-circle-outline"></i> @success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger forum-alert"><i class="mdi mdi-alert-circle-outline"></i> @error</div>
+    }
+
+    <div class="forum-admin-grid">
+        <section class="forum-admin-create-card">
+            <span class="forum-kicker">New category</span>
+            <h2>Create a conversation space</h2>
+            <form method="post" asp-page-handler="Create" class="forum-form">
+                <div class="mb-3">
+                    <label asp-for="Input.Name" class="form-label">Name</label>
+                    <input asp-for="Input.Name" class="form-control" maxlength="100" placeholder="e.g. Everyday Connection" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Description" class="form-label">Description</label>
+                    <textarea asp-for="Input.Description" class="form-control" rows="4" maxlength="500" placeholder="Help members understand what belongs here."></textarea>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-7">
+                        <label asp-for="Input.Icon" class="form-label">Material icon class</label>
+                        <input asp-for="Input.Icon" class="form-control" maxlength="80" placeholder="mdi mdi-forum-outline" />
+                    </div>
+                    <div class="col-sm-5">
+                        <label asp-for="Input.Color" class="form-label">Accent colour</label>
+                        <input asp-for="Input.Color" class="form-control form-control-color forum-color-input" type="color" />
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="form-check">
+                        <input asp-for="Input.IsActive" class="form-check-input" />
+                        <label asp-for="Input.IsActive" class="form-check-label">Visible now</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create category</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="forum-admin-list-card">
+            <div class="forum-admin-list-header">
+                <div>
+                    <span class="forum-kicker">Current structure</span>
+                    <h2>@Model.Categories.Count categor@(Model.Categories.Count == 1 ? "y" : "ies")</h2>
+                </div>
+            </div>
+
+            @if (Model.Categories.Count == 0)
+            {
+                <div class="forum-empty-state compact">
+                    <span class="forum-empty-icon"><i class="mdi mdi-shape-outline"></i></span>
+                    <h3>No categories yet</h3>
+                    <p>Create the first forum category to open the community.</p>
+                </div>
+            }
+            else
+            {
+                <div class="forum-admin-category-list">
+                    @foreach (var item in Model.Categories)
+                    {
+                        var category = item.Category;
+                        <article class="forum-admin-category-item" style="--forum-category: @category.Color">
+                            <span class="forum-category-icon"><i class="@category.Icon"></i></span>
+                            <div class="forum-admin-category-copy">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <h3>@category.Name</h3>
+                                    <span class="badge @(category.IsActive ? "text-bg-success" : "text-bg-secondary")">@(category.IsActive ? "Visible" : "Hidden")</span>
+                                </div>
+                                <p>@category.Description</p>
+                                <span>@item.TopicCount discussion@(item.TopicCount == 1 ? "" : "s") · Order @category.DisplayOrder</span>
+                            </div>
+                            <div class="forum-admin-category-actions">
+                                <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#edit-category-@category.ForumCategoryId">Edit</button>
+                                <form method="post" asp-page-handler="Toggle" asp-route-id="@category.ForumCategoryId">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">@(category.IsActive ? "Hide" : "Show")</button>
+                                </form>
+                            </div>
+                        </article>
+
+                        <div class="modal fade" id="edit-category-@category.ForumCategoryId" tabindex="-1" aria-labelledby="edit-category-title-@category.ForumCategoryId" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content forum-category-modal">
+                                    <form method="post" asp-page-handler="Edit">
+                                        <input type="hidden" name="id" value="@category.ForumCategoryId" />
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="edit-category-title-@category.ForumCategoryId">Edit @category.Name</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label" for="name-@category.ForumCategoryId">Name</label>
+                                                <input id="name-@category.ForumCategoryId" name="name" class="form-control" value="@category.Name" maxlength="100" required />
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label" for="description-@category.ForumCategoryId">Description</label>
+                                                <textarea id="description-@category.ForumCategoryId" name="description" class="form-control" rows="4" maxlength="500" required>@category.Description</textarea>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-sm-7">
+                                                    <label class="form-label" for="icon-@category.ForumCategoryId">Icon class</label>
+                                                    <input id="icon-@category.ForumCategoryId" name="icon" class="form-control" value="@category.Icon" maxlength="80" required />
+                                                </div>
+                                                <div class="col-sm-5">
+                                                    <label class="form-label" for="color-@category.ForumCategoryId">Accent colour</label>
+                                                    <input id="color-@category.ForumCategoryId" name="color" class="form-control form-control-color forum-color-input" type="color" value="@category.Color" required />
+                                                </div>
+                                            </div>
+                                            <div class="row g-3 mt-1">
+                                                <div class="col-sm-6">
+                                                    <label class="form-label" for="order-@category.ForumCategoryId">Display order</label>
+                                                    <input id="order-@category.ForumCategoryId" name="displayOrder" class="form-control" type="number" value="@category.DisplayOrder" />
+                                                </div>
+                                                <div class="col-sm-6 d-flex align-items-end">
+                                                    <div class="form-check mb-2">
+                                                        @if (category.IsActive)
+                                                        {
+                                                            <input id="active-@category.ForumCategoryId" name="isActive" value="true" class="form-check-input" type="checkbox" checked />
+                                                        }
+                                                        else
+                                                        {
+                                                            <input id="active-@category.ForumCategoryId" name="isActive" value="true" class="form-check-input" type="checkbox" />
+                                                        }
+                                                        <label class="form-check-label" for="active-@category.ForumCategoryId">Visible to members</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-primary">Save category</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+</div>

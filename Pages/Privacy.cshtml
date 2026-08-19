@@ -1,8 +1,56 @@
-﻿@page
-@model PrivacyModel
-@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+@page
+@model CouplesConnect.Pages.PrivacyModel
 
-<p>Use this page to detail your site's privacy policy.</p>
+@{
+    Layout = null;
+    ViewData["Title"] = "Privacy Policy | Couples Connect";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@mdi/font/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+</head>
+<body class="landing-policy-body">
+    <div class="landing-page">
+        <header class="landing-nav">
+            <div class="landing-container landing-nav-inner">
+                <a class="landing-brand-logo" href="/"><img src="~/theme/images/logo.svg" alt="Couples Connect" /></a>
+                <div class="landing-nav-actions"><a href="/signin" class="landing-sign-in">Sign in</a><a href="/signup" class="btn landing-button landing-button-primary">Get started <i class="mdi mdi-arrow-right"></i></a></div>
+            </div>
+        </header>
+
+        <main class="landing-policy-main">
+            <div class="landing-container landing-policy-wrap">
+                <div class="landing-policy-hero">
+                    <p class="landing-section-label">Your information, handled with care</p>
+                    <h1>Privacy Policy</h1>
+                    <p>Effective date: 13 August 2026</p>
+                </div>
+
+                <article class="landing-policy-content">
+                    <p class="landing-policy-lead">CouplesConnect is committed to protecting your privacy and handling personal information responsibly. This policy explains what we collect, how it is used and shared, how it is protected, and the choices available to you when using our counselling, booking, and anonymous reflection features.</p>
+
+                    <section><h2>1. Information we collect</h2><h3>Personal information</h3><ul><li>Your name and email address when you create an account.</li><li>Profile information, including relationship status and preferences you choose to provide.</li><li>Booking details and counselling-related records or session notes, where applicable.</li><li>Payment information required to complete a transaction. Payments are processed securely through Stripe; CouplesConnect does not need to store full card details.</li></ul><h3>Anonymous and usage information</h3><ul><li>Blind Reflection Room conversations and related anonymous interaction data.</li><li>Website and platform usage statistics and analytics.</li><li>Session feedback, ratings, and service-improvement information.</li></ul></section>
+                    <section><h2>2. How we use your information</h2><ul><li>Provide, operate, and improve counselling and relationship-support services.</li><li>Schedule, manage, and communicate about appointments and bookings.</li><li>Process payments securely and facilitate anonymous peer or reflection-room connections.</li><li>Send service-related notices and important account updates.</li><li>Understand usage patterns, improve platform performance, and protect the safety, integrity, and security of CouplesConnect and its users.</li></ul></section>
+                    <section><h2>3. Information sharing</h2><h3>We never sell your data</h3><p>CouplesConnect does not sell, rent, or trade your personal information to third parties.</p><h3>Limited sharing</h3><ul><li><strong>With your counsellor:</strong> relevant booking details, session notes, and information reasonably necessary to provide counselling services.</li><li><strong>Payment processing:</strong> information required by Stripe or another approved payment provider to process a payment.</li><li><strong>Analytics:</strong> aggregated or de-identified information that does not reasonably identify you.</li><li><strong>Legal and safety requirements:</strong> information where disclosure is required by law or reasonably necessary to protect rights, safety, users, or the platform.</li></ul></section>
+                    <section><h2>4. Blind Reflection Room privacy</h2><ul><li>Names, email addresses, and direct identifying information are not shared with other participants.</li><li>Anonymous sessions use temporary or anonymous identifiers where technically supported.</li><li>Chat messages are designed not to display your account identity to other participants.</li><li>Temporary session recordings created for technical or safety purposes are automatically deleted after 24 hours, unless retention is required by law or necessary to investigate a serious safety or security incident.</li></ul></section>
+                    <section><h2>5. Data security</h2><ul><li>Data is protected with encryption in transit and, where supported by platform infrastructure, at rest.</li><li>Secure authentication and session-management controls protect accounts.</li><li>Access to personal information is limited to authorised personnel with a legitimate service purpose.</li><li>Security controls, software, and infrastructure are reviewed and updated regularly.</li><li>Payments are handled through established payment-processing providers using industry-standard safeguards.</li></ul></section>
+                    <section><h2>6. Your privacy rights</h2><ul><li><strong>Access:</strong> request a copy of personal information we hold about you.</li><li><strong>Update:</strong> correct or update information in your account or profile.</li><li><strong>Delete:</strong> request deletion of your account and associated data, subject to applicable legal, clinical, contractual, or record-retention obligations.</li><li><strong>Opt out:</strong> unsubscribe from non-essential marketing communications.</li><li><strong>Portability:</strong> request personal data in a commonly used, machine-readable format where applicable.</li></ul><p>To exercise a privacy right, contact <a href="mailto:privacy@couplesconnect.com">privacy@couplesconnect.com</a>. We aim to respond within 30 days, subject to applicable law and identity-verification requirements.</p></section>
+                    <section><h2>7. Cookies and tracking</h2><p>Cookies and similar technologies help us keep you signed in, remember preferences and settings, analyse usage, improve CouplesConnect, and support security, fraud prevention, and platform reliability. You may control cookies through browser settings, though disabling some cookies may affect account, booking, or platform functionality.</p></section>
+                    <section><h2>8. Data retention</h2><ul><li><strong>Account data:</strong> retained while your account is active and for a reasonable period afterwards where required for administration, security, dispute resolution, or legal obligations.</li><li><strong>Session records:</strong> may be retained for up to 7 years where required for clinical, professional, contractual, or legal purposes.</li><li><strong>Payment records:</strong> retained for the period required by applicable accounting, tax, financial, and payment-processing requirements.</li><li><strong>Anonymous data:</strong> aggregated or de-identified information may be retained for service improvement and analytics where it can no longer reasonably identify you.</li></ul><p>Data scheduled for deletion may remain temporarily in secure backups until those backups are overwritten in the normal course of operations.</p></section>
+                    <section><h2>9. Changes to this policy</h2><p>We may update this policy as our services, technology, or legal obligations change. Material changes will be communicated through the platform, by email, or by another appropriate notice.</p></section>
+                    <section><h2>10. Contact us</h2><p>For privacy questions or requests, contact <a href="mailto:privacy@couplesconnect.com">privacy@couplesconnect.com</a>.</p></section>
+                </article>
+            </div>
+        </main>
+
+        <footer class="landing-footer"><div class="landing-container landing-footer-inner"><div><a class="landing-brand-logo" href="/"><img src="~/theme/images/logo.svg" alt="Couples Connect" /></a><p>Relationship support with care, clarity, and room to grow.</p></div><div class="landing-footer-links"><a href="/#support">How we help</a><a href="/#faqs">FAQs</a><a href="/#contact">Contact us</a></div><p class="landing-copyright">© @DateTime.UtcNow.Year Couples Connect</p></div></footer>
+    </div>
+</body>
+</html>

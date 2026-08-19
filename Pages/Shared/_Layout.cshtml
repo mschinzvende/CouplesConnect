@@ -16,6 +16,10 @@
     var isUserArea = Context.Request.Path.StartsWithSegments("/User");
     var isCounselorArea = Context.Request.Path.StartsWithSegments("/Counselor");
     var isPreJoinArea = Context.Request.Path.StartsWithSegments("/Sessions/PreJoin");
+    var isForumArea = Context.Request.Path.StartsWithSegments("/Forum") || Context.Request.Path.StartsWithSegments("/Admin/Forum");
+    var isResourcesArea = Context.Request.Path.StartsWithSegments("/Resources");
+    var bodyAreaClass = isAdminArea ? "admin-area" : isUserArea ? "user-area" : isCounselorArea ? "counselor-area" : isPreJoinArea ? "session-prejoin-area" : "";
+    var bodyClass = isForumArea ? $"{bodyAreaClass} forum-area" : bodyAreaClass;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +30,7 @@
     <title>Couples Connect</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="~/theme/vendors/simple-line-icons/css/simple-line-icons.css">
+    <link rel="stylesheet" href="~/theme/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="~/theme/vendors/flag-icon-css/css/flag-icons.min.css">
     <link rel="stylesheet" href="~/theme/vendors/css/vendor.bundle.base.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -59,10 +64,18 @@
     {
         <link rel="stylesheet" href="~/css/prejoin.css" asp-append-version="true">
     }
+    @if (isForumArea)
+    {
+        <link rel="stylesheet" href="~/css/forum.css" asp-append-version="true">
+    }
+    @if (isResourcesArea)
+    {
+        <link rel="stylesheet" href="~/css/resources.css" asp-append-version="true">
+    }
     <!-- End layout styles -->
     <link rel="shortcut icon" href="~/theme/images/favicon.png" />
 </head>
-<body class="@(isAdminArea ? "admin-area" : isUserArea ? "user-area" : isCounselorArea ? "counselor-area" : isPreJoinArea ? "session-prejoin-area" : "")">
+<body class="@bodyClass">
     <div class="container-scroller">
 
         <!-- partial:partials/_navbar.html -->
@@ -268,7 +281,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link" href="/Admin/Users">
-                                <span class="menu-title">User Management</span>
+                                <span class="menu-title">User Manager</span>
                                 <i class="icon-user menu-icon"></i>
                             </a>
                         </li>
@@ -287,10 +300,19 @@
                             </a>
                         </li>
 
+                       
+
                         <li class="nav-item">
-                            <a class="nav-link" href="/Admin/Resources">
-                                <span class="menu-title">Resources</span>
-                                <i class="icon-book-open menu-icon"></i>
+                            <a class="nav-link" href="/Admin/Forum">
+                                <span class="menu-title">Forum Manager</span>
+                                <i class="icon-bubbles menu-icon"></i>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Admin/ContactRequests">
+                                <span class="menu-title">Contact Enquiries</span>
+                                <i class="mdi mdi-email-outline menu-icon"></i>
                             </a>
                         </li>
 
@@ -312,6 +334,16 @@
                             <span class="menu-title">Resources</span>
                         </a>
                     </li>
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Forum/Index">
+                                <i class="mdi mdi-forum-outline menu-icon"></i>
+                                <span class="menu-title">Community Forum</span>
+                            </a>
+                        </li>
+                    }
 
 
                     

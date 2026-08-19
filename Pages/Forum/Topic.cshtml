@@ -1,0 +1,177 @@
+@page "{id:guid}"
+@model CouplesConnect.Pages.Forum.TopicModel
+
+@{
+    ViewData["Title"] = Model.Topic.Title;
+    string AuthorName(CouplesConnect.Models.ApplicationUser? author, bool isAnonymous) => isAnonymous
+        ? "Community member"
+        : CouplesConnect.Pages.Forum.TopicModel.DisplayName(author);
+}
+
+<div class="forum-shell forum-topic-detail">
+    <div class="forum-breadcrumb">
+        <a asp-page="/Forum/Index"><i class="mdi mdi-arrow-left"></i> Community forum</a>
+        <span>/</span>
+        <a asp-page="/Forum/Index" asp-route-categoryId="@Model.Topic.ForumCategoryId">@Model.Topic.Category.Name</a>
+        <span>/</span>
+        <span class="forum-breadcrumb-current">Discussion</span>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success forum-alert" role="status"><i class="mdi mdi-check-circle-outline"></i> @success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger forum-alert" role="alert"><i class="mdi mdi-alert-circle-outline"></i> @error</div>
+    }
+
+    <section class="forum-topic-header">
+        <div class="forum-topic-header-copy">
+            <div class="forum-topic-meta">
+                <a asp-page="/Forum/Index" asp-route-categoryId="@Model.Topic.ForumCategoryId" class="forum-category-badge" style="--forum-category: @Model.Topic.Category.Color">@Model.Topic.Category.Name</a>
+                @if (Model.Topic.IsPinned)
+                {
+                    <span class="forum-state-badge"><i class="mdi mdi-pin"></i> Pinned</span>
+                }
+                @if (Model.Topic.IsLocked)
+                {
+                    <span class="forum-state-badge"><i class="mdi mdi-lock-outline"></i> Closed</span>
+                }
+                @if (Model.Topic.IsArchived)
+                {
+                    <span class="forum-state-badge"><i class="mdi mdi-archive-outline"></i> Archived</span>
+                }
+            </div>
+            <h1>@Model.Topic.Title</h1>
+            <div class="forum-topic-byline">
+                <span>Started by @AuthorName(Model.Topic.Author, Model.Topic.IsAnonymous)</span>
+                <span aria-hidden="true">•</span>
+                <time datetime="@Model.Topic.CreatedAt.ToString("O")">@Model.Topic.CreatedAt.ToLocalTime().ToString("dddd, dd MMMM yyyy 'at' HH:mm")</time>
+            </div>
+        </div>
+        <div class="forum-topic-header-actions">
+            @if (Model.CanEditTopic)
+            {
+                <a asp-page="/Forum/Edit" asp-route-id="@Model.Topic.ForumTopicId" class="btn btn-outline-primary btn-sm"><i class="mdi mdi-pencil-outline"></i> Edit</a>
+                <form method="post" asp-page-handler="DeleteTopic" asp-route-id="@Model.Topic.ForumTopicId" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Remove this discussion? This cannot be undone from the forum.')"><i class="mdi mdi-delete-outline"></i> Remove</button>
+                </form>
+            }
+            @if (Model.IsCurrentUserAdmin)
+            {
+                <div class="forum-moderation-actions">
+                    <form method="post" asp-page-handler="Moderate" asp-route-id="@Model.Topic.ForumTopicId">
+                        <button name="action" value="toggle-pin" class="btn btn-light btn-sm">@(Model.Topic.IsPinned ? "Unpin" : "Pin")</button>
+                    </form>
+                    <form method="post" asp-page-handler="Moderate" asp-route-id="@Model.Topic.ForumTopicId">
+                        <button name="action" value="toggle-lock" class="btn btn-light btn-sm">@(Model.Topic.IsLocked ? "Reopen" : "Lock")</button>
+                    </form>
+                    <form method="post" asp-page-handler="Moderate" asp-route-id="@Model.Topic.ForumTopicId">
+                        <button name="action" value="toggle-archive" class="btn btn-light btn-sm">@(Model.Topic.IsArchived ? "Restore" : "Archive")</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </section>
+
+    <article class="forum-post forum-opening-post">
+        <div class="forum-post-aside">
+            <span class="forum-person-avatar">@AuthorName(Model.Topic.Author, Model.Topic.IsAnonymous).Substring(0, 1).ToUpperInvariant()</span>
+            <span class="forum-author-name">@AuthorName(Model.Topic.Author, Model.Topic.IsAnonymous)</span>
+            <span class="forum-author-role">Original poster</span>
+        </div>
+        <div class="forum-post-body">
+            @if (Model.Topic.UpdatedAt.HasValue)
+            {
+                <div class="forum-edited-note">Edited @Model.Topic.UpdatedAt.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</div>
+            }
+            <div class="forum-post-content">@Model.Topic.Body</div>
+        </div>
+    </article>
+
+    <section class="forum-replies-section" aria-labelledby="replies-heading">
+        <div class="forum-section-heading forum-replies-heading">
+            <div>
+                <span class="forum-kicker">The conversation</span>
+                <h2 id="replies-heading">@Model.TotalReplies repl@(Model.TotalReplies == 1 ? "y" : "ies")</h2>
+            </div>
+        </div>
+
+        @if (Model.Replies.Count == 0)
+        {
+            <div class="forum-no-replies">No replies yet. A thoughtful response can make someone’s day.</div>
+        }
+        else
+        {
+            <div class="forum-replies-list">
+                @foreach (var reply in Model.Replies)
+                {
+                    var canEditReply = reply.AuthorId == Model.CurrentUserId || Model.IsCurrentUserAdmin;
+                    <article id="reply-@reply.ForumReplyId" class="forum-post forum-reply">
+                        <div class="forum-post-aside">
+                            <span class="forum-person-avatar">@AuthorName(reply.Author, reply.IsAnonymous).Substring(0, 1).ToUpperInvariant()</span>
+                            <span class="forum-author-name">@AuthorName(reply.Author, reply.IsAnonymous)</span>
+                            <time class="forum-author-date" datetime="@reply.CreatedAt.ToString("O")">@reply.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</time>
+                        </div>
+                        <div class="forum-post-body">
+                            @if (canEditReply)
+                            {
+                                <div class="forum-reply-actions">
+                                    <a asp-page="/Forum/Replies/Edit" asp-route-id="@reply.ForumReplyId">Edit</a>
+                                    <form method="post" asp-page-handler="DeleteReply" asp-route-id="@Model.Topic.ForumTopicId" asp-route-replyId="@reply.ForumReplyId">
+                                        <button type="submit" onclick="return confirm('Remove this reply?')">Remove</button>
+                                    </form>
+                                </div>
+                            }
+                            @if (reply.UpdatedAt.HasValue)
+                            {
+                                <div class="forum-edited-note">Edited @reply.UpdatedAt.Value.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</div>
+                            }
+                            <div class="forum-post-content">@reply.Body</div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="forum-pagination" aria-label="Reply pagination">
+                <a class="@(Model.PageNumber == 1 ? "is-disabled" : "")" asp-route-id="@Model.Topic.ForumTopicId" asp-route-pageNumber="@(Model.PageNumber - 1)">Previous</a>
+                @for (var pageIndex = 1; pageIndex <= Model.TotalPages; pageIndex++)
+                {
+                    <a class="@(pageIndex == Model.PageNumber ? "is-current" : "")" asp-route-id="@Model.Topic.ForumTopicId" asp-route-pageNumber="@pageIndex">@pageIndex</a>
+                }
+                <a class="@(Model.PageNumber == Model.TotalPages ? "is-disabled" : "")" asp-route-id="@Model.Topic.ForumTopicId" asp-route-pageNumber="@(Model.PageNumber + 1)">Next</a>
+            </nav>
+        }
+    </section>
+
+    <section class="forum-reply-composer" aria-labelledby="reply-composer-heading">
+        @if (Model.CanReply)
+        {
+            <span class="forum-kicker">Join in</span>
+            <h2 id="reply-composer-heading">Add a thoughtful reply</h2>
+            <form method="post" asp-page-handler="Reply" asp-route-id="@Model.Topic.ForumTopicId" class="forum-form" novalidate>
+                <span asp-validation-for="Input.Body" class="text-danger small d-block mb-2"></span>
+                <textarea asp-for="Input.Body" class="form-control forum-textarea" rows="6" maxlength="5000" placeholder="Write your reply with care…"></textarea>
+                <div class="forum-reply-form-footer">
+                    <div class="forum-anonymous-option">
+                        <input asp-for="Input.IsAnonymous" class="form-check-input" />
+                        <label asp-for="Input.IsAnonymous" class="form-check-label"></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="mdi mdi-send-outline"></i> Post reply</button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="forum-locked-notice"><i class="mdi mdi-lock-outline"></i> This discussion is closed to new replies.</div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

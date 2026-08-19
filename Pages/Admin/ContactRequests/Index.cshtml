@@ -1,0 +1,132 @@
+@page
+@model CouplesConnect.Pages.Admin.ContactRequests.IndexModel
+
+@{
+    ViewData["Title"] = "Contact Enquiries";
+}
+
+<div class="admin-page contact-enquiries-page">
+    <div class="admin-page-header">
+        <div>
+            <span class="admin-eyebrow">Public website</span>
+            <h3>Contact enquiries</h3>
+            <p>Messages submitted from the Couples Connect landing page.</p>
+        </div>
+        <a class="btn btn-primary" href="/#contact"><i class="mdi mdi-open-in-new"></i> View contact form</a>
+    </div>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success mb-4"><i class="mdi mdi-check-circle-outline me-2"></i>@success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger mb-4"><i class="mdi mdi-alert-circle-outline me-2"></i>@error</div>
+    }
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="metric-card">
+                <span class="metric-icon amber"><i class="mdi mdi-email-alert-outline"></i></span>
+                <span>Open enquiries</span>
+                <strong>@Model.OpenCount</strong>
+                <small>New and in-progress messages</small>
+            </div>
+        </div>
+    </div>
+
+    <section class="card admin-card contact-enquiries-card">
+        <div class="card-header">
+            <div>
+                <h5>Inbox</h5>
+                <span>Showing up to 200 of the most recent messages.</span>
+            </div>
+            <form method="get" class="contact-status-filter">
+                <label class="visually-hidden" for="contact-status">Filter by status</label>
+                <select id="contact-status" name="status" class="form-select" onchange="this.form.submit()">
+                    @if (Model.CurrentStatus is null)
+                    {
+                        <option value="" selected>All statuses</option>
+                    }
+                    else
+                    {
+                        <option value="">All statuses</option>
+                    }
+                    @if (Model.CurrentStatus == "New")
+                    {
+                        <option value="New" selected>New</option>
+                    }
+                    else
+                    {
+                        <option value="New">New</option>
+                    }
+                    @if (Model.CurrentStatus == "In progress")
+                    {
+                        <option value="In progress" selected>In progress</option>
+                    }
+                    else
+                    {
+                        <option value="In progress">In progress</option>
+                    }
+                    @if (Model.CurrentStatus == "Resolved")
+                    {
+                        <option value="Resolved" selected>Resolved</option>
+                    }
+                    else
+                    {
+                        <option value="Resolved">Resolved</option>
+                    }
+                </select>
+            </form>
+        </div>
+
+        @if (Model.Requests.Count == 0)
+        {
+            <div class="admin-empty-state">
+                <i class="mdi mdi-email-check-outline d-block mb-2 fs-3"></i>
+                No contact enquiries match this view.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table contact-enquiries-table">
+                    <thead>
+                        <tr><th>From</th><th>Topic</th><th>Message</th><th>Received</th><th>Status</th><th class="text-end">Action</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model.Requests)
+                        {
+                            var statusClass = request.Status.ToLowerInvariant().Replace(" ", "-");
+                            <tr>
+                                <td><strong class="d-block">@request.FullName</strong><a href="mailto:@request.Email" class="small">@request.Email</a></td>
+                                <td><span class="contact-topic">@request.Subject</span></td>
+                                <td class="contact-message-cell">@request.Message</td>
+                                <td><time datetime="@request.CreatedAt.ToString("O")">@request.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</time></td>
+                                <td><span class="contact-status contact-status-@statusClass">@request.Status</span></td>
+                                <td>
+                                    <form method="post" asp-page-handler="SetStatus" class="contact-status-actions">
+                                        <input type="hidden" name="id" value="@request.ContactRequestId" />
+                                        <input type="hidden" name="returnStatus" value="@Model.CurrentStatus" />
+                                        @if (request.Status == "New")
+                                        {
+                                            <button type="submit" name="status" value="In progress" class="btn btn-sm">Start</button>
+                                        }
+                                        else if (request.Status == "In progress")
+                                        {
+                                            <button type="submit" name="status" value="Resolved" class="btn btn-sm">Resolve</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" name="status" value="In progress" class="btn btn-sm">Reopen</button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

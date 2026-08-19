@@ -1,0 +1,180 @@
+@page
+@model CouplesConnect.Pages.Forum.IndexModel
+
+@{
+    ViewData["Title"] = "Community Forum";
+    string DisplayName(CouplesConnect.Models.ForumTopic topic) => topic.IsAnonymous
+        ? "Community member"
+        : CouplesConnect.Pages.Forum.TopicModel.DisplayName(topic.Author);
+}
+
+<div class="forum-shell">
+    <section class="forum-hero">
+        <div>
+            <span class="forum-eyebrow"><i class="mdi mdi-account-group-outline"></i> Couples Connect Community</span>
+            <h1>Conversations that bring us closer.</h1>
+            <p>Share experiences, ask thoughtful questions, and learn alongside a caring community.</p>
+        </div>
+        <a asp-page="/Forum/Create" class="btn btn-light forum-hero-action">
+            <i class="mdi mdi-plus-circle-outline"></i> Start a discussion
+        </a>
+    </section>
+
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success forum-alert" role="status"><i class="mdi mdi-check-circle-outline"></i> @success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger forum-alert" role="alert"><i class="mdi mdi-alert-circle-outline"></i> @error</div>
+    }
+
+    <section aria-labelledby="forum-categories-heading" class="mb-4">
+        <div class="forum-section-heading">
+            <div>
+                <span class="forum-kicker">Browse by focus</span>
+                <h2 id="forum-categories-heading">Explore the community</h2>
+            </div>
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-page="/Admin/Forum/Index" class="forum-subtle-link">Manage categories <i class="mdi mdi-arrow-right"></i></a>
+            }
+        </div>
+
+        <div class="row g-3">
+            @foreach (var summary in Model.Categories)
+            {
+                var category = summary.Category;
+                <div class="col-xl-3 col-md-6">
+                    <a asp-page="/Forum/Index"
+                       asp-route-categoryId="@category.ForumCategoryId"
+                       asp-route-search="@Model.Search"
+                       asp-route-sort="@Model.Sort"
+                       class="forum-category-card @(Model.CategoryId == category.ForumCategoryId ? "is-selected" : "")"
+                       style="--forum-category: @category.Color">
+                        <span class="forum-category-icon"><i class="@category.Icon"></i></span>
+                        <span class="forum-category-body">
+                            <strong>@category.Name</strong>
+                            <span>@category.Description</span>
+                        </span>
+                        <span class="forum-category-count">@summary.TopicCount topic@(summary.TopicCount == 1 ? "" : "s")</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="forum-topic-panel" aria-labelledby="forum-topics-heading">
+        <div class="forum-toolbar">
+            <div>
+                <span class="forum-kicker">Discussion feed</span>
+                <h2 id="forum-topics-heading">
+                    @(Model.CategoryId.HasValue ? Model.Categories.FirstOrDefault(item => item.Category.ForumCategoryId == Model.CategoryId)?.Category.Name ?? "Topics" : "Latest conversations")
+                </h2>
+            </div>
+            <a asp-page="/Forum/Create" asp-route-categoryId="@Model.CategoryId" class="btn btn-primary d-none d-sm-inline-flex align-items-center gap-1">
+                <i class="mdi mdi-plus"></i> New topic
+            </a>
+        </div>
+
+        <form method="get" class="forum-filters" role="search">
+            @if (Model.CategoryId.HasValue)
+            {
+                <input type="hidden" name="categoryId" value="@Model.CategoryId" />
+            }
+            <label class="visually-hidden" for="forum-search">Search discussions</label>
+            <div class="forum-search-input">
+                <i class="mdi mdi-magnify"></i>
+                <input id="forum-search" name="search" value="@Model.Search" maxlength="120" placeholder="Search discussions" />
+            </div>
+            <label class="visually-hidden" for="forum-sort">Sort discussions</label>
+            <select id="forum-sort" name="sort" onchange="this.form.submit()">
+                <option value="latest" selected="@(Model.Sort == "latest" ? "selected" : null)">Latest activity</option>
+                <option value="popular" selected="@(Model.Sort == "popular" ? "selected" : null)">Most replies</option>
+                <option value="unanswered" selected="@(Model.Sort == "unanswered" ? "selected" : null)">Unanswered</option>
+            </select>
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+            @if (Model.CategoryId.HasValue || !string.IsNullOrWhiteSpace(Model.Search) || Model.Sort != "latest")
+            {
+                <a asp-page="/Forum/Index" class="btn btn-link forum-clear-filter">Clear</a>
+            }
+        </form>
+
+        <div class="forum-result-summary">@Model.TotalTopics discussion@(Model.TotalTopics == 1 ? "" : "s") found</div>
+
+        @if (Model.Topics.Count == 0)
+        {
+            <div class="forum-empty-state">
+                <span class="forum-empty-icon"><i class="mdi mdi-forum-outline"></i></span>
+                <h3>No discussions found</h3>
+                <p>Try changing your filters, or be the first to start a conversation in this space.</p>
+                <a asp-page="/Forum/Create" asp-route-categoryId="@Model.CategoryId" class="btn btn-primary">Start a discussion</a>
+            </div>
+        }
+        else
+        {
+            <div class="forum-topic-list">
+                @foreach (var topic in Model.Topics)
+                {
+                    <article class="forum-topic-row">
+                        <div class="forum-topic-marker" style="--forum-category: @topic.Category.Color">
+                            <i class="@(topic.IsPinned ? "mdi mdi-pin" : topic.Category.Icon)"></i>
+                        </div>
+                        <div class="forum-topic-main">
+                            <div class="forum-topic-meta">
+                                <span class="forum-category-badge" style="--forum-category: @topic.Category.Color">@topic.Category.Name</span>
+                                @if (topic.IsPinned)
+                                {
+                                    <span class="forum-state-badge"><i class="mdi mdi-pin"></i> Pinned</span>
+                                }
+                                @if (topic.IsLocked)
+                                {
+                                    <span class="forum-state-badge"><i class="mdi mdi-lock-outline"></i> Closed</span>
+                                }
+                            </div>
+                            <h3><a asp-page="/Forum/Topic" asp-route-id="@topic.ForumTopicId">@topic.Title</a></h3>
+                            <p>@topic.Body</p>
+                            <div class="forum-topic-byline">
+                                <span>Started by @DisplayName(topic)</span>
+                                <span aria-hidden="true">•</span>
+                                <time datetime="@topic.CreatedAt.ToString("O")">@topic.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</time>
+                            </div>
+                        </div>
+                        <div class="forum-topic-stats">
+                            <strong>@topic.ReplyCount</strong>
+                            <span>repl@(topic.ReplyCount == 1 ? "y" : "ies")</span>
+                            <small>Active @topic.LastActivityAt.ToLocalTime().ToString("dd MMM, HH:mm")</small>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="forum-pagination" aria-label="Forum pagination">
+                <a class="@(Model.PageNumber == 1 ? "is-disabled" : "")"
+                   asp-page="/Forum/Index"
+                   asp-route-pageNumber="@(Model.PageNumber - 1)"
+                   asp-route-categoryId="@Model.CategoryId"
+                   asp-route-search="@Model.Search"
+                   asp-route-sort="@Model.Sort">Previous</a>
+                @for (var pageIndex = 1; pageIndex <= Model.TotalPages; pageIndex++)
+                {
+                    <a class="@(pageIndex == Model.PageNumber ? "is-current" : "")"
+                       asp-page="/Forum/Index"
+                       asp-route-pageNumber="@pageIndex"
+                       asp-route-categoryId="@Model.CategoryId"
+                       asp-route-search="@Model.Search"
+                       asp-route-sort="@Model.Sort">@pageIndex</a>
+                }
+                <a class="@(Model.PageNumber == Model.TotalPages ? "is-disabled" : "")"
+                   asp-page="/Forum/Index"
+                   asp-route-pageNumber="@(Model.PageNumber + 1)"
+                   asp-route-categoryId="@Model.CategoryId"
+                   asp-route-search="@Model.Search"
+                   asp-route-sort="@Model.Sort">Next</a>
+            </nav>
+        }
+    </section>
+</div>

@@ -1,106 +1,46 @@
-﻿@page "/signin"
+@page "/signin"
 @model CouplesConnect.Pages.Account.SigninModel
 
 @{
     Layout = "_AuthLayout";
-    ViewData["Title"] = "Sign In";
+    ViewData["Title"] = "Sign in";
 }
 
 <div class="auth-form">
+    <p class="public-auth-eyebrow">Welcome back</p>
+    <h2>Continue your journey together.</h2>
+    <p class="public-auth-description">Sign in to return to your bookings, reflections, resources, and shared progress.</p>
 
-    <h3 class="fw-bold mb-2">
-        Welcome Back
-    </h3>
+    <form method="post" class="public-auth-form">
+        <input asp-for="ReturnUrl" type="hidden" />
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="public-auth-validation" role="alert"></div>
+        }
 
-    <p class="text-muted mb-4">
-        Sign in to continue your journey together.
-    </p>
-
-    <form method="post">
-
-        <div asp-validation-summary="All" class="text-danger small mb-3"></div>
-
-        <!-- EMAIL -->
         <div class="mb-3">
-            <label class="form-label fw-semibold">Email</label>
-            <input asp-for="Input.Email"
-                   class="form-control"
-                   placeholder="Enter your email" />
+            <label asp-for="Input.Email" class="form-label">Email address</label>
+            <input asp-for="Input.Email" class="form-control" autocomplete="email" placeholder="you@example.com" />
         </div>
 
-        <!-- PASSWORD -->
         <div class="mb-3">
-            <label class="form-label fw-semibold">Password</label>
-            <input asp-for="Input.Password"
-                   type="password"
-                   class="form-control"
-                   placeholder="Enter your password" />
+            <label asp-for="Input.Password" class="form-label">Password</label>
+            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" placeholder="Enter your password" />
         </div>
 
-        <!-- REMEMBER -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
             <div class="form-check">
-                <input asp-for="Input.RememberMe"
-                       class="form-check-input" />
-                <label class="form-check-label small">
-                    Remember me
-                </label>
+                <input asp-for="Input.RememberMe" class="form-check-input" />
+                <label asp-for="Input.RememberMe" class="form-check-label">Remember me</label>
             </div>
-
-            <a asp-page="/Account/ForgotPassword" class="small text-decoration-none">
-                Forgot password?
-            </a>
-
+            <a asp-page="/Account/ForgotPassword" class="public-auth-link">Forgot password?</a>
         </div>
 
-        <!-- BUTTON -->
-        <button class="btn btn-primary w-100">
-            Sign In
-        </button>
+        <button type="submit" class="btn btn-primary public-auth-submit">Sign in <i class="mdi mdi-arrow-right"></i></button>
 
-        <!-- LINK -->
-        <div class="text-center mt-4 small">
-            Don’t have an account?
-            <a href="/signup?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")" class="fw-semibold">Create one</a>
-        </div>
-
+        <p class="public-auth-switch">New to Couples Connect? <a href="/signup?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")">Create your account</a></p>
     </form>
-
-    
-
 </div>
-
-<style>
-
-    /* FORM WRAPPER */
-    .auth-form {
-        max-width: 380px;
-        margin: auto;
-    }
-
-    /* INPUT */
-    .form-control {
-        height: 42px;
-        font-size: 14px;
-        border-radius: 8px;
-    }
-
-    /* BUTTON */
-    .btn-primary {
-        height: 42px;
-        border-radius: 8px;
-        font-weight: 500;
-    }
-
-    /* IMAGE STRIP */
-    .auth-image-strip {
-        opacity: 0.85;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

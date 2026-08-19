@@ -44,18 +44,11 @@ namespace CouplesConnect.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = "")
+        public async Task<IActionResult> OnPostAsync()
         {
-            returnUrl ??= Url.Content("~/");
-
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                if (Url.IsLocalUrl(returnUrl))
-                {
-                    return LocalRedirect(returnUrl);
-                }
-
-                return Redirect("/DashboardRedirect");
+                return RedirectAfterAuthentication();
             }
 
             if (!ModelState.IsValid)
@@ -69,22 +62,34 @@ namespace CouplesConnect.Pages.Account
 
             if (result.Succeeded)
             {
-                if (Url.IsLocalUrl(returnUrl))
-                {
-                    return LocalRedirect(returnUrl);
-                }
-
-                return Redirect("/DashboardRedirect");
+                return RedirectAfterAuthentication();
             }
 
             if (result.IsNotAllowed)
             {
-                return RedirectToPage("/Account/SignupConfirmation", new { email = Input.Email, returnUrl });
+                var safeReturnUrl = IsMeaningfulLocalUrl(ReturnUrl) ? ReturnUrl : null;
+                return RedirectToPage("/Account/SignupConfirmation", new { email = Input.Email, returnUrl = safeReturnUrl });
             }
 
             ModelState.AddModelError("", "Invalid login attempt");
 
             return Page();
+        }
+
+        private IActionResult RedirectAfterAuthentication()
+        {
+            // A bare slash is the public landing page, not a post-login destination.
+            // Defaulting to DashboardRedirect preserves role-specific destinations.
+            return IsMeaningfulLocalUrl(ReturnUrl)
+                ? LocalRedirect(ReturnUrl!)
+                : Redirect("/DashboardRedirect");
+        }
+
+        private bool IsMeaningfulLocalUrl(string? returnUrl)
+        {
+            return !string.IsNullOrWhiteSpace(returnUrl)
+                && !string.Equals(returnUrl, "/", StringComparison.Ordinal)
+                && Url.IsLocalUrl(returnUrl);
         }
     }
 }

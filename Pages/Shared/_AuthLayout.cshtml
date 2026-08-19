@@ -1,231 +1,71 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>@ViewData["Title"] - Couples Connect</title>
-
-    <!-- BOOTSTRAP -->
-    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- ICONS (OPTIONAL BUT RECOMMENDED) -->
-    <link href="https://cdn.jsdelivr.net/npm/@@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
-
-    <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <style>
-
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-            /* SOFT BACKGROUND GLOW */
-            body::before,
-            body::after {
-                content: "";
-                position: absolute;
-                width: 350px;
-                height: 350px;
-                background: rgba(255,255,255,0.08);
-                border-radius: 50%;
-                filter: blur(120px);
-                z-index: 0;
-            }
-
-            body::before {
-                top: -100px;
-                left: -100px;
-            }
-
-            body::after {
-                bottom: -100px;
-                right: -100px;
-            }
-
-        /* WRAPPER */
-        .auth-wrapper {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 1100px;
-            padding: 20px;
-        }
-
-        /* CARD */
-        .auth-card {
-            display: flex;
-            background: rgba(255,255,255,0.96);
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-
-        /* LEFT PANEL */
-        .auth-left {
-            flex: 1;
-            background: linear-gradient(135deg, #4338ca, #6d28d9);
-            color: #fff;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-            .auth-left h2 {
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
-
-            .auth-left p {
-                opacity: 0.85;
-                font-size: 14px;
-            }
-
-        /* RIGHT PANEL */
-        .auth-right {
-            flex: 1;
-            padding: 40px;
-        }
-
-        /* INPUTS */
-        .form-control {
-            height: 42px;
-            font-size: 14px;
-            border-radius: 8px;
-        }
-
-        /* BUTTON */
-        .btn-primary {
-            height: 42px;
-            background: #4f46e5;
-            border: none;
-            border-radius: 8px;
-        }
-
-            .btn-primary:hover {
-                background: #4338ca;
-            }
-
-        /* LINKS */
-        a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-
-            a:hover {
-                text-decoration: underline;
-            }
-
-        /* MOBILE */
-        @@media (max-width: 768px) {
-            .auth-card
-
-        {
-            flex-direction: column;
-        }
-
-        .auth-left {
-            display: none;
-        }
-
-        }
-
-
-        /* LEFT PANEL WITH IMAGE */
-        .auth-left {
-            position: relative;
-            flex: 1;
-            color: #fff;
-            padding: 40px;
-            display: flex;
-            align-items: center;
-        }
-
-        /* IMAGE BACKGROUND */
-        .auth-bg {
-            position: absolute;
-            inset: 0;
-            background: url("https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2") center/cover no-repeat;
-            z-index: 0;
-        }
-
-            /* DARK OVERLAY */
-            .auth-bg::after {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(135deg, rgba(79,70,229,0.85), rgba(124,58,237,0.85));
-            }
-
-        /* CONTENT ABOVE IMAGE */
-        .auth-content {
-            position: relative;
-            z-index: 1;
-        }
-
-            .auth-content h2 {
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
-
-            .auth-content p {
-                opacity: 0.9;
-                font-size: 14px;
-            }
-    </style>
-
+    <meta name="description" content="Couples Connect provides thoughtful relationship support, guided conversations, and counselling." />
+    <title>@ViewData["Title"] | Couples Connect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@mdi/font/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/public-auth.css" asp-append-version="true" />
 </head>
+<body class="public-auth-body">
+    <header class="landing-nav">
+        <div class="landing-container landing-nav-inner">
+            <a class="landing-brand-logo" href="/" aria-label="Couples Connect home">
+                <img src="~/theme/images/logo.svg" alt="Couples Connect" />
+            </a>
 
-<body>
+            <nav class="landing-nav-links" aria-label="Main navigation">
+                <a href="/#support">How we help</a>
+                <a href="/#faqs">FAQs</a>
+                <a href="/#contact">Contact</a>
+            </nav>
 
-    <div class="auth-wrapper">
-
-        <div class="auth-card">
-
-            <!-- LEFT SIDE -->
-            <div class="auth-left">
-
-                <!-- BACKGROUND IMAGE -->
-                <div class="auth-bg"></div>
-
-                <!-- OVERLAY CONTENT -->
-                <div class="auth-content">
-                    <h2>Couples Connect</h2>
-                    <p>
-                        Strengthen relationships through guided support,
-                        meaningful conversations, and expert counseling.
-                    </p>
-                </div>
-
+            <div class="landing-nav-actions">
+                <a href="/signin" class="landing-sign-in">Sign in</a>
+                <a href="/signup" class="btn landing-button landing-button-primary">Get started <i class="mdi mdi-arrow-right"></i></a>
             </div>
-
-            <!-- RIGHT SIDE -->
-            <div class="auth-right">
-                @RenderBody()
-            </div>
-
         </div>
+    </header>
 
-    </div>
+    <main class="public-auth-main">
+        <div class="landing-container public-auth-shell">
+            <aside class="public-auth-introduction">
+                <div class="public-auth-introduction-image"></div>
+                <div class="public-auth-introduction-content">
+                    <span class="public-auth-kicker"><i class="mdi mdi-heart-pulse"></i> A safe place to begin</span>
+                    <h1>Make room for the conversations that matter.</h1>
+                    <p>Find caring support, practical guidance, and private tools to help you grow together—one step at a time.</p>
+                    <div class="public-auth-benefits">
+                        <span><i class="mdi mdi-lock-check-outline"></i> Private by design</span>
+                        <span><i class="mdi mdi-message-heart-outline"></i> Built for both of you</span>
+                    </div>
+                </div>
+            </aside>
 
-    <!-- SCRIPTS -->
+            <section class="public-auth-panel" aria-label="Account access">
+                @RenderBody()
+            </section>
+        </div>
+    </main>
+
+    <footer class="landing-footer public-auth-footer">
+        <div class="landing-container landing-footer-inner">
+            <div>
+                <a class="landing-brand-logo" href="/"><img src="~/theme/images/logo.svg" alt="Couples Connect" /></a>
+                <p>Relationship support with care, clarity, and room to grow.</p>
+            </div>
+            <div class="landing-footer-links"><a href="/#support">How we help</a><a href="/#faqs">FAQs</a><a href="/#contact">Contact us</a><a href="/Privacy">Privacy Policy</a></div>
+            <p class="landing-copyright">© @DateTime.UtcNow.Year Couples Connect</p>
+        </div>
+    </footer>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-
     @RenderSection("Scripts", required: false)
-
 </body>
-
 </html>

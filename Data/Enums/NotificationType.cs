@@ -34,6 +34,8 @@
 
         CounselorApplicationApproved,
 
-        CounselorApplicationRejected
+        CounselorApplicationRejected,
+
+        ForumReply
     }
 }

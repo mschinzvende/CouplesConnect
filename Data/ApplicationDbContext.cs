@@ -43,6 +43,8 @@ namespace CouplesConnect.Data
 
         public DbSet<SupportTicket> SupportTickets { get; set; }
 
+        public DbSet<ContactRequest> ContactRequests { get; set; }
+
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
         public DbSet<PlatformSetting> PlatformSettings { get; set; }
 
@@ -61,6 +63,12 @@ namespace CouplesConnect.Data
         public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<NotificationLog> NotificationLogs { get; set; }
+
+        public DbSet<ForumCategory> ForumCategories { get; set; }
+
+        public DbSet<ForumTopic> ForumTopics { get; set; }
+
+        public DbSet<ForumReply> ForumReplies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -117,6 +125,53 @@ namespace CouplesConnect.Data
 
             builder.Entity<NotificationLog>()
                 .HasIndex(x => x.Status);
+
+            builder.Entity<ContactRequest>(entity =>
+            {
+                entity.HasIndex(x => new { x.Status, x.CreatedAt });
+                entity.HasIndex(x => new { x.Email, x.CreatedAt });
+            });
+
+            builder.Entity<ForumCategory>(entity =>
+            {
+                entity.HasIndex(x => x.Name).IsUnique();
+                entity.HasIndex(x => x.Slug).IsUnique();
+                entity.HasIndex(x => new { x.IsActive, x.DisplayOrder });
+            });
+
+            builder.Entity<ForumTopic>(entity =>
+            {
+                entity.HasOne(x => x.Category)
+                    .WithMany(x => x.Topics)
+                    .HasForeignKey(x => x.ForumCategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Author)
+                    .WithMany()
+                    .HasForeignKey(x => x.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(x => x.RowVersion).IsRowVersion();
+                entity.HasIndex(x => new { x.ForumCategoryId, x.IsDeleted, x.IsArchived, x.IsPinned, x.LastActivityAt });
+                entity.HasIndex(x => new { x.AuthorId, x.CreatedAt });
+            });
+
+            builder.Entity<ForumReply>(entity =>
+            {
+                entity.HasOne(x => x.Topic)
+                    .WithMany(x => x.Replies)
+                    .HasForeignKey(x => x.ForumTopicId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Author)
+                    .WithMany()
+                    .HasForeignKey(x => x.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(x => x.RowVersion).IsRowVersion();
+                entity.HasIndex(x => new { x.ForumTopicId, x.IsDeleted, x.CreatedAt });
+                entity.HasIndex(x => new { x.AuthorId, x.CreatedAt });
+            });
         }
     }
 }

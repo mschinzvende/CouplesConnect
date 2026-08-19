@@ -1,641 +1,115 @@
-﻿@page
+@page
 @model CouplesConnect.Pages.Resources.IndexModel
 
 @{
-    ViewData["Title"] = "Relationship Resources";
+    ViewData["Title"] = "Relationship Resource Library";
 }
 
-<div class="container-fluid py-4">
+<div class="relationship-library">
+    <section class="resource-library-hero">
+        <div class="resource-library-hero-copy">
+            <span class="resource-library-eyebrow"><i class="mdi mdi-book-open-page-variant-outline"></i> Couples Connect Library</span>
+            <h1>Practical support for every part of your relationship.</h1>
+            <p>Explore simple, guided tools for the conversations, decisions, and seasons that shape life together.</p>
+            <a href="#resource-library-topics" class="btn btn-light resource-library-hero-action">Explore topics <i class="mdi mdi-arrow-down"></i></a>
+        </div>
+        <div class="resource-library-hero-stat" aria-label="@Model.AvailableActivityCount available guided activities">
+            <strong>@Model.AvailableActivityCount</strong>
+            <span>guided activities<br />available today</span>
+        </div>
+    </section>
 
-    <!-- HERO -->
-
-    <div class="resources-hero mb-5">
-
-        <div class="row align-items-center">
-
-            <div class="col-lg-7">
-
-                <span class="badge bg-white text-primary px-3 py-2 rounded-pill mb-3">
-
-                    Couples Connect Library
-
-                </span>
-
-                <h1 class="display-4 fw-bold text-white">
-
-                    Relationship Resources
-
-                </h1>
-
-                <p class="lead text-white opacity-75 mt-3">
-
-                    Explore practical activities, guided reflections and relationship tools designed by professionals to strengthen communication, trust and emotional connection.
-
-                </p>
-
+    <section id="resource-library-topics" class="resource-library-directory" aria-labelledby="resource-topics-heading">
+        <div class="resource-library-heading">
+            <div>
+                <span class="resource-library-kicker">Find the right support</span>
+                <h2 id="resource-topics-heading">Explore by relationship topic</h2>
             </div>
-
-            <div class="col-lg-5 text-center">
-
-                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=900&q=80"
-                     class="img-fluid rounded-4 shadow-lg hero-image" />
-
-            </div>
-
+            <p>Choose a focus area to find tools and guided conversations designed for that part of your shared life.</p>
         </div>
 
-    </div>
-
-    <div class="row g-4">
-
-        <!-- Conflict Repair -->
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-danger">
-
-                        Communication
-
+        <div class="resource-topic-grid">
+            @foreach (var collection in Model.Collections)
+            {
+                <a href="#@collection.Slug" class="resource-topic-card" style="--resource-topic: @collection.Color">
+                    <span class="resource-topic-icon"><i class="@collection.Icon"></i></span>
+                    <span class="resource-topic-copy">
+                        <strong>@collection.Name</strong>
+                        <span>@collection.Activities.Count @(collection.Activities.Count == 1 ? "activity" : "activities")</span>
                     </span>
-
-                    <h3>
-
-                        Conflict Repair
-
-                    </h3>
-
-                    <p>
-
-                        Repair disagreements using a guided six-step reflection exercise.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            10 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/ConflictRepair/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+                    <i class="mdi mdi-arrow-down-right resource-topic-arrow" aria-hidden="true"></i>
+                </a>
+            }
         </div>
+    </section>
 
-        <!-- Daily Check In -->
+    <nav class="resource-topic-nav" aria-label="Relationship resource topics">
+        @foreach (var collection in Model.Collections)
+        {
+            <a href="#@collection.Slug" style="--resource-topic: @collection.Color">@collection.Name</a>
+        }
+    </nav>
 
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-primary">
-
-                        Daily Practice
-
-                    </span>
-
-                    <h3>
-
-                        Daily Check-In
-
-                    </h3>
-
-                    <p>
-
-                        Build stronger communication through daily conversations.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            5 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/DailyCheckIn/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
+    <section class="resource-collections" aria-label="Relationship resources by topic">
+        @foreach (var collection in Model.Collections)
+        {
+            <article id="@collection.Slug" class="resource-collection" style="--resource-topic: @collection.Color">
+                <header class="resource-collection-header">
+                    <div class="resource-collection-icon"><i class="@collection.Icon"></i></div>
+                    <div>
+                        <span class="resource-library-kicker">Guided collection</span>
+                        <h2>@collection.Name</h2>
+                        <p>@collection.Description</p>
                     </div>
+                </header>
 
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Love Languages -->
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1516589091380-5d8e87df6999?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-success">
-
-                        Family
-
-                    </span>
-
-                    <h3>
-
-                        Family & Boundaries
-
-                    </h3>
-
-                    <p>
-
-                        Build healthy boundaries together, communicate with confidence, and protect the unity of your relationship.
-
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            15 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/FamilyBoundaries/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
+                @if (collection.Activities.Count == 0)
+                {
+                    <div class="resource-coming-soon">
+                        <span><i class="mdi mdi-progress-clock"></i></span>
+                        <div>
+                            <strong>Resources in development</strong>
+                            <p>We are expanding this collection with practical guides and shared exercises. Check back soon.</p>
+                        </div>
                     </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Shared Vision -->
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-warning text-dark">
-
-                        Planning
-
-                    </span>
-
-                    <h3>
-
-                        Date Night Generator
-
-                    </h3>
-
-                    <p>
-
-                        Discover meaningful date ideas tailored to your mood, budget and available time.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            5 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/DateNightGenerator/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
+                }
+                else
+                {
+                    <div class="resource-activity-grid">
+                        @foreach (var activity in collection.Activities)
+                        {
+                            <div class="resource-activity-card @(activity.IsAvailable ? "is-available" : "is-coming-soon")">
+                                <div class="resource-activity-card-top">
+                                    <span class="resource-activity-icon"><i class="@activity.Icon"></i></span>
+                                    <span class="resource-activity-status">@activity.Type</span>
+                                </div>
+                                <h3>@activity.Name</h3>
+                                <p>@activity.Description</p>
+                                <div class="resource-activity-footer">
+                                    <span><i class="mdi mdi-clock-outline"></i> @activity.Duration</span>
+                                    @if (activity.IsAvailable)
+                                    {
+                                        <button type="button" class="btn btn-primary resource-activity-button" onclick="window.location.href='@activity.Href'">Open activity <i class="mdi mdi-arrow-right"></i></button>
+                                    }
+                                    else
+                                    {
+                                        <span class="resource-coming-badge">Coming soon</span>
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
+                }
+            </article>
+        }
+    </section>
 
-                </div>
-
-            </div>
-
+    <aside class="resource-library-support-note">
+        <span><i class="mdi mdi-account-heart-outline"></i></span>
+        <div>
+            <h2>Need more personal support?</h2>
+            <p>These tools are a starting point. For support tailored to your situation, book a session with a Couples Connect counselor.</p>
         </div>
-
-
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-warning text-dark">
-
-                        Planning
-
-                    </span>
-
-                    <h3>
-
-                        Shared Vision Board
-
-                    </h3>
-
-                    <p>
-
-                        Create shared dreams, goals and future plans together.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            20 mins
-
-                        </span>
-
-                        <button class="btn btn-light rounded-pill">
-
-                            Coming Soon
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-warning text-dark">
-
-                        Planning
-
-                    </span>
-
-                    <h3>
-
-                        Guided Intimacy Builder
-
-                    </h3>
-
-                    <p>
-
-                        Strengthen emotional closeness through intentional conversations, affection, trust and meaningful daily connection.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            20 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/GuidedIntimacyBuilder/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-warning text-dark">
-
-                        Planning
-
-                    </span>
-
-                    <h3>
-
-                        Love Language Planner
-
-                    </h3>
-
-                    <p>
-
-                        Transform your partner's love language into practical daily actions that strengthen your relationship through consistency and intentional care.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            20 mins
-
-                        </span>
-
-                        <a asp-page="/Resources/LoveLanguagePlanner/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Gratitude -->
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-info">
-
-                        Reflection
-
-                    </span>
-
-                    <h3>
-
-                        Gratitude Journal
-
-                    </h3>
-
-                    <p>
-
-                        Strengthen appreciation through guided gratitude exercises.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            Daily
-
-                        </span>
-
-                        <a asp-page="/Resources/GratitudeJournal/Index"
-                           class="btn btn-light rounded-pill">
-
-                            Start
-
-                            <i class="mdi mdi-arrow-right"></i>
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Quiz -->
-
-        <div class="col-lg-4 col-md-6">
-
-            <div class="resource-card">
-
-                <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=900&q=80"
-                     class="resource-image" />
-
-                <div class="resource-overlay"></div>
-
-                <div class="resource-content">
-
-                    <span class="resource-badge bg-secondary">
-
-                        Assessment
-
-                    </span>
-
-                    <h3>
-
-                        Relationship Health Quiz
-
-                    </h3>
-
-                    <p>
-
-                        Measure your relationship strengths and identify growth areas.
-
-                    </p>
-
-                    <div class="resource-footer">
-
-                        <span>
-
-                            <i class="mdi mdi-clock-outline"></i>
-
-                            10 mins
-
-                        </span>
-
-                        <button class="btn btn-light rounded-pill">
-
-                            Coming Soon
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
+        <a href="/User/Bookings/Create" class="btn btn-primary">Book a session</a>
+    </aside>
 </div>
-
-
-<style>
-    /*CSS FOR THE RESOURCES PAGE*/
-
-    .resources-hero {
-        padding: 60px;
-        border-radius: 28px;
-        background: linear-gradient(135deg,#5B5CEB,#7C3AED);
-        margin-bottom: 50px;
-    }
-
-    .resource-card {
-        position: relative;
-        overflow: hidden;
-        border-radius: 22px;
-        height: 420px;
-        box-shadow: 0 15px 40px rgba(0,0,0,.12);
-        transition: .35s;
-    }
-
-        .resource-card:hover {
-            transform: translateY(-10px);
-        }
-
-    .resource-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .resource-overlay {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,.15));
-    }
-
-    .resource-content {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 30px;
-        color: #fff;
-    }
-
-        .resource-content h3 {
-            font-weight: 700;
-            margin: 15px 0;
-        }
-
-        .resource-content p {
-            opacity: .9;
-            line-height: 1.7;
-            margin-bottom: 25px;
-        }
-
-    .resource-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .resource-badge {
-        display: inline-block;
-        padding: 7px 16px;
-        border-radius: 30px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .hero-image {
-        max-height: 320px;
-    }
-
-</style>

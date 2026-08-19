@@ -1,0 +1,78 @@
+@page
+@model CouplesConnect.Pages.Forum.CreateModel
+
+@{
+    ViewData["Title"] = "Start a Discussion";
+}
+
+<div class="forum-shell forum-compose-shell">
+    <div class="forum-breadcrumb">
+        <a asp-page="/Forum/Index"><i class="mdi mdi-arrow-left"></i> Community forum</a>
+        <span>/</span>
+        <span>Start a discussion</span>
+    </div>
+
+    <div class="forum-compose-grid">
+        <section class="forum-compose-card">
+            <span class="forum-kicker">Your perspective matters</span>
+            <h1>Start a meaningful conversation</h1>
+            <p class="forum-lead">Choose the best category so members can find and contribute to your discussion easily.</p>
+
+            <form method="post" class="forum-form" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                <div class="mb-4">
+                    <label asp-for="Input.ForumCategoryId" class="form-label">Category</label>
+                    <select asp-for="Input.ForumCategoryId" class="form-select">
+                        <option value="">Choose a discussion category</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.ForumCategoryId">@category.Name — @category.Description</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.ForumCategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.Title" class="form-label"></label>
+                    <input asp-for="Input.Title" class="form-control" maxlength="160" placeholder="Write a clear, inviting title" autocomplete="off" />
+                    <div class="form-text">Up to 160 characters.</div>
+                    <span asp-validation-for="Input.Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Input.Body" class="form-label"></label>
+                    <textarea asp-for="Input.Body" class="form-control forum-textarea" rows="10" maxlength="8000" placeholder="Share context, a question, or what has been on your mind. Please keep the conversation respectful and supportive."></textarea>
+                    <div class="form-text">Plain text is used to keep conversations safe and easy to read.</div>
+                    <span asp-validation-for="Input.Body" class="text-danger small"></span>
+                </div>
+
+                <div class="forum-anonymous-option mb-4">
+                    <input asp-for="Input.IsAnonymous" class="form-check-input" />
+                    <label asp-for="Input.IsAnonymous" class="form-check-label"></label>
+                    <p>Your name will be shown as “Community member”. Administrators retain the account link for safety and moderation.</p>
+                </div>
+
+                <div class="forum-form-actions">
+                    <a asp-page="/Forum/Index" class="btn btn-light">Cancel</a>
+                    <button type="submit" class="btn btn-primary"><i class="mdi mdi-send-outline"></i> Publish discussion</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="forum-guidelines-card">
+            <span class="forum-guidelines-icon"><i class="mdi mdi-heart-outline"></i></span>
+            <h2>Community guidelines</h2>
+            <ul>
+                <li>Lead with care, curiosity, and respect.</li>
+                <li>Protect your privacy and that of others.</li>
+                <li>Share personal experience, not professional diagnosis.</li>
+                <li>Keep posts relevant to the selected category.</li>
+            </ul>
+            <p>Need professional support? Your counselor is available through your Couples Connect session tools.</p>
+        </aside>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

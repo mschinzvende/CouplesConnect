@@ -591,6 +591,56 @@ input,
     
 }
 
+/* =========================
+   STICKY APPLICATION MENU
+========================= */
+@media (min-width: 992px) {
+    .page-body-wrapper > .sidebar.custom-sidebar {
+        position: fixed;
+        top: 70px;
+        bottom: 0;
+        left: 0;
+        height: auto;
+        min-height: 0;
+        margin-top: 0 !important;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, .55) transparent;
+    }
+
+    .page-body-wrapper > .main-panel {
+        margin-left: 240px;
+    }
+
+    .sidebar-mini:not(.sidebar-icon-only) .page-body-wrapper > .main-panel {
+        margin-left: 185px;
+    }
+
+    .sidebar-icon-only .page-body-wrapper > .main-panel {
+        margin-left: 70px;
+    }
+
+    .sidebar-hidden .page-body-wrapper > .main-panel {
+        margin-left: 0;
+    }
+
+    .page-body-wrapper > .sidebar.custom-sidebar .nav {
+        margin-bottom: 16px;
+        overflow: visible;
+    }
+
+    .page-body-wrapper > .sidebar.custom-sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .page-body-wrapper > .sidebar.custom-sidebar::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(148, 163, 184, .55);
+    }
+}
+
 
 
 
