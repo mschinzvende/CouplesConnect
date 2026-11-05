@@ -110,13 +110,13 @@
                                         <input type="hidden" name="ServiceTypeId" value="@s.ServiceTypeId" />
 
                                         <div class="mb-2">
-                                            <label>Name</label>
-                                            <input name="Name" value="@s.Name" class="form-control" />
+                                            <label class="form-label" for="editServiceTypeName-@s.ServiceTypeId">Name</label>
+                                            <input id="editServiceTypeName-@s.ServiceTypeId" name="Name" value="@s.Name" class="form-control" />
                                         </div>
 
                                         <div>
-                                            <label>Description</label>
-                                            <textarea name="Description" class="form-control">@s.Description</textarea>
+                                            <label class="form-label" for="editServiceTypeDescription-@s.ServiceTypeId">Description</label>
+                                            <textarea id="editServiceTypeDescription-@s.ServiceTypeId" name="Description" class="form-control">@s.Description</textarea>
                                         </div>
 
                                     </div>
@@ -164,13 +164,13 @@
                 <div class="modal-body">
 
                     <div class="mb-2">
-                        <label>Name</label>
-                        <input name="Name" class="form-control" />
+                        <label class="form-label" for="createServiceTypeName">Name</label>
+                        <input id="createServiceTypeName" name="Name" class="form-control" />
                     </div>
 
                     <div>
-                        <label>Description</label>
-                        <textarea name="Description" class="form-control"></textarea>
+                        <label class="form-label" for="createServiceTypeDescription">Description</label>
+                        <textarea id="createServiceTypeDescription" name="Description" class="form-control"></textarea>
                     </div>
 
                 </div>

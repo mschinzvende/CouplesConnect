@@ -37,8 +37,11 @@ namespace CouplesConnect.Services
             _settings.SmtpPassword =
                 _encryption.Decrypt(_settings.SmtpPassword);
 
-            _settings.PaynowIntegrationKey =
-                _encryption.Decrypt(_settings.PaynowIntegrationKey);
+            _settings.SmileAndPayApiKey =
+                _encryption.Decrypt(_settings.SmileAndPayApiKey ?? string.Empty);
+
+            _settings.SmileAndPayApiSecret =
+                _encryption.Decrypt(_settings.SmileAndPayApiSecret ?? string.Empty);
 
             return _settings;
         }

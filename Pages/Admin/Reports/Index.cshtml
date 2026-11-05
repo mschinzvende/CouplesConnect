@@ -1,14 +1,224 @@
-﻿@page
+@page
 @using Microsoft.AspNetCore.Authorization
 @model CouplesConnect.Pages.Admin.Reports.IndexModel
 @attribute [Authorize(Roles = "Admin")]
+@{
+    ViewData["Title"] = "Platform Reports";
+    string QueryDate(DateTime value) => value.ToString("yyyy-MM-dd");
+    string StatusClass(string value) => value.ToLowerInvariant() switch
+    {
+        "paid" or "completed" or "active" => "report-status-success",
+        "pending" or "scheduled" => "report-status-warning",
+        "failed" or "cancelled" or "canceled" or "paidrequiresreview" => "report-status-danger",
+        _ => "report-status-neutral"
+    };
+}
 
-<div class="admin-page">
-    <div class="admin-page-header"><div><span class="admin-eyebrow">Business intelligence</span><h3>Platform Reports</h3><p>A consolidated view of clients, service delivery, and financial performance.</p></div><a class="btn btn-outline-primary" href="/Admin/Dashboard"><i class="icon-speedometer"></i> Dashboard</a></div>
-    <div class="row g-3">
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon indigo"><i class="icon-people"></i></div><span>Total users</span><strong>@Model.TotalUsers.ToString("N0")</strong><small>@Model.TotalCounselors approved counselors</small></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon amber"><i class="icon-calendar"></i></div><span>Total bookings</span><strong>@Model.TotalBookings.ToString("N0")</strong><small>@Model.TotalSessions sessions created</small></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon blue"><i class="icon-wallet"></i></div><span>Subscription revenue</span><strong>$@Model.TotalRevenue.ToString("N2")</strong><small>Paid package subscriptions</small></div></div>
-        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon green"><i class="icon-graph"></i></div><span>Counselor earnings</span><strong>$@Model.TotalEarnings.ToString("N2")</strong><small>Recorded payout amount</small></div></div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/reports.css" asp-append-version="true" />
+}
+
+<div class="admin-page reports-page">
+    <div class="admin-page-header reports-header">
+        <div>
+            <span class="admin-eyebrow">Business intelligence</span>
+            <h3>Platform Reports</h3>
+            <p>Financial, subscription, service-delivery, and quality performance in one place.</p>
+        </div>
+        <div class="report-header-actions">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                    <i class="icon-cloud-download"></i> Export CSV
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" asp-page-handler="Export" asp-route-report="payments" asp-route-from="@QueryDate(Model.PeriodFrom)" asp-route-to="@QueryDate(Model.PeriodTo)">Payments</a></li>
+                    <li><a class="dropdown-item" asp-page-handler="Export" asp-route-report="subscriptions" asp-route-from="@QueryDate(Model.PeriodFrom)" asp-route-to="@QueryDate(Model.PeriodTo)">Subscriptions</a></li>
+                    <li><a class="dropdown-item" asp-page-handler="Export" asp-route-report="bookings" asp-route-from="@QueryDate(Model.PeriodFrom)" asp-route-to="@QueryDate(Model.PeriodTo)">Bookings</a></li>
+                    <li><a class="dropdown-item" asp-page-handler="Export" asp-route-report="counselors" asp-route-from="@QueryDate(Model.PeriodFrom)" asp-route-to="@QueryDate(Model.PeriodTo)">Counsellor performance</a></li>
+                </ul>
+            </div>
+            <a class="btn btn-outline-primary" href="/Admin/Dashboard"><i class="icon-speedometer"></i> Dashboard</a>
+        </div>
+    </div>
+
+    <section class="card admin-card report-filter-card mb-4">
+        <form method="get" class="report-filter-form">
+            <div>
+                <label for="From">From</label>
+                <input asp-for="From" type="date" class="form-control" />
+            </div>
+            <div>
+                <label for="To">To</label>
+                <input asp-for="To" type="date" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="icon-magnifier"></i> Apply period</button>
+            <a asp-page="/Admin/Reports/Index" class="btn btn-outline-secondary">Last 30 days</a>
+            <span class="report-period-note">Period uses UTC dates · maximum 367 days</span>
+        </form>
+    </section>
+
+    <nav class="report-tabs" aria-label="Report categories">
+        <div class="nav nav-pills" id="reportTabs" role="tablist">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview-report" type="button" role="tab" aria-controls="overview-report" aria-selected="true"><i class="icon-chart"></i> Overview</button>
+            <button class="nav-link" id="commercial-tab" data-bs-toggle="tab" data-bs-target="#commercial-report" type="button" role="tab" aria-controls="commercial-report" aria-selected="false"><i class="icon-wallet"></i> Revenue &amp; packages</button>
+            <button class="nav-link" id="operations-tab" data-bs-toggle="tab" data-bs-target="#operations-report" type="button" role="tab" aria-controls="operations-report" aria-selected="false"><i class="icon-calendar"></i> Service delivery</button>
+            <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments-report" type="button" role="tab" aria-controls="payments-report" aria-selected="false"><i class="icon-credit-card"></i> Payments</button>
+        </div>
+    </nav>
+
+    <div class="tab-content report-tab-content" id="reportTabContent">
+    <section class="tab-pane fade show active" id="overview-report" role="tabpanel" aria-labelledby="overview-tab" tabindex="0">
+    <div class="report-section-heading"><div><span>Executive summary</span><h4>Performance at a glance</h4></div><small>@Model.PeriodFrom.ToString("dd MMM yyyy") – @Model.PeriodTo.ToString("dd MMM yyyy")</small></div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon blue"><i class="icon-wallet"></i></div><span>Paid revenue</span><strong>USD @Model.PaidRevenueUsd.ToString("N2")</strong><small>ZWG @Model.PaidRevenueZwg.ToString("N2") · @Model.PaidPayments paid payments</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon indigo"><i class="icon-calendar"></i></div><span>Bookings</span><strong>@Model.TotalBookings.ToString("N0")</strong><small>@Model.CompletionRate.ToString("N1")% completed · @Model.CancellationRate.ToString("N1")% cancelled</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon green"><i class="icon-badge"></i></div><span>Paid subscriptions</span><strong>@Model.NewPaidSubscriptions.ToString("N0")</strong><small>@Model.ActiveSubscriptions currently active · @Model.ActiveTrials active trials</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="metric-card"><div class="metric-icon amber"><i class="icon-people"></i></div><span>New users</span><strong>@Model.NewUsers.ToString("N0")</strong><small>@Model.ApprovedCounselors approved counsellors</small></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><div class="report-mini-card"><span>Payment success</span><strong>@Model.PaymentSuccessRate.ToString("N1")%</strong><small>@Model.FailedPayments failed/cancelled · @Model.PendingPayments pending</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="report-mini-card"><span>Pending value</span><strong>USD @Model.PendingRevenueUsd.ToString("N2")</strong><small>ZWG @Model.PendingRevenueZwg.ToString("N2") · requires follow-up</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="report-mini-card"><span>Session utilization</span><strong>@Model.SessionUtilizationRate.ToString("N1")%</strong><small>@Model.SessionsRemaining of @Model.SessionsAllocated credits remain</small></div></div>
+        <div class="col-sm-6 col-xl-3"><div class="report-mini-card"><span>Client satisfaction</span><strong>@Model.AverageRating.ToString("N1") / 5</strong><small>@Model.FeedbackResponses feedback responses</small></div></div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-8">
+            <section class="card admin-card h-100">
+                <div class="card-header"><div><h5>Revenue and booking trend</h5><span>Daily paid revenue and bookings created</span></div></div>
+                <div class="chart-container report-trend-chart"><canvas id="trendChart"></canvas></div>
+            </section>
+        </div>
+        <div class="col-xl-4">
+            <div class="row g-4 h-100">
+                <div class="col-sm-6 col-xl-12">
+                    <section class="card admin-card report-donut-card">
+                        <div class="card-header"><div><h5>Booking outcomes</h5><span>@Model.ScheduledBookings scheduled · @Model.GroupBookings group</span></div></div>
+                        <div class="report-donut"><canvas id="bookingStatusChart"></canvas></div>
+                    </section>
+                </div>
+                <div class="col-sm-6 col-xl-12">
+                    <section class="card admin-card report-donut-card">
+                        <div class="card-header"><div><h5>Payment outcomes</h5><span>Gateway transaction status</span></div></div>
+                        <div class="report-donut"><canvas id="paymentStatusChart"></canvas></div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+
+    <section class="tab-pane fade" id="commercial-report" role="tabpanel" aria-labelledby="commercial-tab" tabindex="0">
+    <div class="report-section-heading"><div><span>Commercial</span><h4>Package performance</h4></div><small>Sales, revenue, and credit consumption</small></div>
+    <section class="card admin-card report-table-card mb-4">
+        <div class="table-responsive">
+            <table class="table admin-table report-table">
+                <thead><tr><th>Package</th><th>Subscriptions</th><th>Revenue</th><th>Credits allocated</th><th>Credits used</th><th>Utilization</th></tr></thead>
+                <tbody>
+                @if (Model.PackageReport.Any())
+                {
+                    @foreach (var item in Model.PackageReport)
+                    {
+                        <tr><td class="fw-semibold">@item.Name</td><td>@item.Subscriptions</td><td>USD @item.RevenueUsd.ToString("N2")<br /><small>ZWG @item.RevenueZwg.ToString("N2")</small></td><td>@item.SessionsAllocated</td><td>@(item.SessionsAllocated - item.SessionsRemaining)</td><td><div class="report-progress"><span style="width:@Math.Min(100, item.Utilization)%"></span></div><small>@item.Utilization.ToString("N1")%</small></td></tr>
+                    }
+                }
+                else { <tr><td colspan="6" class="admin-empty-state">No paid package activity in this period.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </section>
+
+    <section class="tab-pane fade" id="operations-report" role="tabpanel" aria-labelledby="operations-tab" tabindex="0">
+    <div class="row g-4 mb-4">
+        <div class="col-12 report-operation-block">
+            <div class="report-section-heading compact"><div><span>Delivery</span><h4>Service performance</h4></div></div>
+            <section class="card admin-card report-table-card">
+                <div class="table-responsive">
+                    <table class="table admin-table report-table">
+                        <thead><tr><th>Service</th><th>Bookings</th><th>Completed</th><th>Cancelled</th><th>Completion</th></tr></thead>
+                        <tbody>
+                        @if (Model.ServiceReport.Any())
+                        {
+                            @foreach (var item in Model.ServiceReport)
+                            { <tr><td class="fw-semibold">@item.Name<br /><small>@item.GroupBookings group</small></td><td>@item.Bookings</td><td>@item.Completed</td><td>@item.Cancelled</td><td>@item.CompletionRate.ToString("N1")%</td></tr> }
+                        }
+                        else { <tr><td colspan="5" class="admin-empty-state">No service activity in this period.</td></tr> }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div class="col-12 report-operation-block">
+            <div class="report-section-heading compact"><div><span>Clinical operations</span><h4>Counsellor performance</h4></div></div>
+            <section class="card admin-card report-table-card">
+                <div class="table-responsive">
+                    <table class="table admin-table report-table">
+                        <thead><tr><th>Counsellor</th><th>Bookings</th><th>Completed</th><th>Completion</th><th>Rating</th><th>Earnings</th></tr></thead>
+                        <tbody>
+                        @if (Model.CounselorReport.Any())
+                        {
+                            @foreach (var item in Model.CounselorReport)
+                            { <tr><td class="fw-semibold">@item.Name</td><td>@item.Bookings</td><td>@item.Completed</td><td>@item.CompletionRate.ToString("N1")%</td><td>@(item.FeedbackCount == 0 ? "—" : $"{item.AverageRating:N1} ({item.FeedbackCount})")</td><td>USD @item.Earnings.ToString("N2")</td></tr> }
+                        }
+                        else { <tr><td colspan="6" class="admin-empty-state">No counsellor activity in this period.</td></tr> }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+    </section>
+
+    <section class="tab-pane fade" id="payments-report" role="tabpanel" aria-labelledby="payments-tab" tabindex="0">
+    <div class="report-section-heading"><div><span>Reconciliation</span><h4>Recent payment activity</h4></div><small>Latest 12 transactions in the selected period</small></div>
+    <section class="card admin-card report-table-card">
+        <div class="table-responsive">
+            <table class="table admin-table report-table payment-report-table">
+                <thead><tr><th>Created</th><th>Client</th><th>Package</th><th>Reference</th><th>Amount</th><th>Status</th><th>Gateway message</th></tr></thead>
+                <tbody>
+                @if (Model.RecentPayments.Any())
+                {
+                    @foreach (var item in Model.RecentPayments)
+                    {
+                        <tr><td><time>@item.CreatedAt.ToString("dd MMM yyyy HH:mm")</time></td><td class="fw-semibold">@item.Client</td><td>@item.Package</td><td><code>@item.OrderReference</code></td><td>@IndexModel.DisplayCurrency(item.CurrencyCode, item.Amount)</td><td><span class="report-status @StatusClass(item.Status)">@item.Status</span></td><td class="report-message">@(item.Message ?? "—")</td></tr>
+                    }
+                }
+                else { <tr><td colspan="7" class="admin-empty-state">No payment activity in this period.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </section>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    (() => {
+        const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#64748b', '#0ea5e9'];
+        const commonLegend = { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 14 } };
+
+        new Chart(document.getElementById('trendChart'), {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Model.TimelineLabelsJson),
+                datasets: [
+                    { label: 'Paid revenue (USD)', data: @Html.Raw(Model.UsdRevenueTimelineJson), backgroundColor: '#4f46e5', borderRadius: 5, yAxisID: 'revenue' },
+                    { label: 'Paid revenue (ZWG)', data: @Html.Raw(Model.ZwgRevenueTimelineJson), backgroundColor: '#0ea5e9', borderRadius: 5, yAxisID: 'revenue' },
+                    { label: 'Bookings', data: @Html.Raw(Model.BookingTimelineJson), type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', tension: .3, pointRadius: 2, yAxisID: 'bookings' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: commonLegend }, scales: { revenue: { position: 'left', beginAtZero: true, grid: { color: '#eef0f4' } }, bookings: { position: 'right', beginAtZero: true, grid: { display: false }, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
+        });
+
+        const donut = (id, labels, data) => new Chart(document.getElementById(id), {
+            type: 'doughnut', data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: commonLegend } }
+        });
+        donut('bookingStatusChart', @Html.Raw(Model.BookingStatusLabelsJson), @Html.Raw(Model.BookingStatusValuesJson));
+        donut('paymentStatusChart', @Html.Raw(Model.PaymentStatusLabelsJson), @Html.Raw(Model.PaymentStatusValuesJson));
+    })();
+</script>
+}

@@ -3,6 +3,7 @@ using CouplesConnect.Data.Models;
 using CouplesConnect.Models;
 using CouplesConnect.Services;
 using CouplesConnect.Services.Interfaces;
+using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,16 +17,14 @@ namespace CouplesConnect.Pages.User.Bookings
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SubscriptionService _subscriptionService;
         private readonly INotificationService _notification;
 
         public CreateModel(ApplicationDbContext context,
                            UserManager<ApplicationUser> userManager,
-                           SubscriptionService subscriptionService, INotificationService notification)
+                           INotificationService notification)
         {
             _context = context;
             _userManager = userManager;
-            _subscriptionService = subscriptionService;
             _notification = notification;
         }
 
@@ -174,14 +173,20 @@ namespace CouplesConnect.Pages.User.Bookings
     List<string> ParticipantPhones)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user is null)
+                return Challenge();
 
-            if (!await _subscriptionService.HasSessions(user.Id))
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            var now = DateTime.UtcNow;
+            var sub = await _context.UserSubscriptions.FirstOrDefaultAsync(x =>
+                x.UserId == user.Id && x.IsActive && x.SessionsRemaining > 0 &&
+                (!x.EndDate.HasValue || x.EndDate > now));
+            if (sub is null)
             {
-                TempData["Error"] = "No sessions remaining. Please purchase a package";
+                await transaction.RollbackAsync();
+                TempData["Error"] = "No active session credits remain. Please purchase a package.";
                 return Redirect("/User/Packages");
             }
-
-
 
             var session = new Session
             {
@@ -190,10 +195,6 @@ namespace CouplesConnect.Pages.User.Bookings
 
             _context.Sessions.Add(session);
             await _context.SaveChangesAsync();
-
-            var sub = await _context.UserSubscriptions
-                        .FirstOrDefaultAsync(x => x.UserId == user.Id && x.IsActive);
-
 
             var booking = new Booking
             {
@@ -207,20 +208,11 @@ namespace CouplesConnect.Pages.User.Bookings
             };
 
             _context.Bookings.Add(booking);
-
-            await _subscriptionService.ConsumeSession(user.Id);
-
+            sub.SessionsRemaining--;
             await _context.SaveChangesAsync();
 
-            //Notify the client about the booking.
-
-            await _notification.NotifyBookingCreatedAsync(booking.BookingId);
-
-            //Notify therapist about the booking.
-
-            await _notification.NotifyCounselorBookingCreatedAsync(booking.BookingId);
-
             // GROUP PARTICIPANTS
+            var participants = new List<BookingParticipant>();
             if (isGroup && ParticipantPhones != null)
             {
                 foreach (var phone in ParticipantPhones.Where(x => !string.IsNullOrEmpty(x)))
@@ -235,21 +227,17 @@ namespace CouplesConnect.Pages.User.Bookings
                     };
 
                     _context.BookingParticipants.Add(participant);
-
-                    await _context.SaveChangesAsync();
-
-                    var link = $"{Request.Scheme}://{Request.Host}/User/Bookings/Accept?token={token}";
-
-                    // TODO: integrate WhatsApp send here
-
-                    await _notification.NotifyInvitationAsync(participant.Id);
-
-
+                    participants.Add(participant);
                 }
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
+            await _notification.NotifyBookingCreatedAsync(booking.BookingId);
+            await _notification.NotifyCounselorBookingCreatedAsync(booking.BookingId);
+            foreach (var participant in participants)
+                await _notification.NotifyInvitationAsync(participant.Id);
 
             TempData["Success"] = "Session booked successfully";
             return Redirect("/User/Bookings");

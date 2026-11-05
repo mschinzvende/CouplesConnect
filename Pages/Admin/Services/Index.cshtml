@@ -101,13 +101,13 @@
                                         <input type="hidden" name="ServiceId" value="@s.ServiceId" />
 
                                         <div class="mb-2">
-                                            <label>Name</label>
-                                            <input name="Name" value="@s.Name" class="form-control" />
+                                            <label class="form-label" for="editServiceName-@s.ServiceId">Name</label>
+                                            <input id="editServiceName-@s.ServiceId" name="Name" value="@s.Name" class="form-control" />
                                         </div>
 
                                         <div class="mb-2">
-                                            <label>Service Type</label>
-                                            <select name="ServiceTypeId" class="form-control">
+                                            <label class="form-label" for="editServiceType-@s.ServiceId">Service Type</label>
+                                            <select id="editServiceType-@s.ServiceId" name="ServiceTypeId" class="form-control">
 
                                                 @foreach (var st in Model.ServiceTypes)
                                                 {
@@ -121,8 +121,8 @@
                                         </div>
 
                                         <div>
-                                            <label>Description</label>
-                                            <textarea name="Description" class="form-control">@s.Description</textarea>
+                                            <label class="form-label" for="editServiceDescription-@s.ServiceId">Description</label>
+                                            <textarea id="editServiceDescription-@s.ServiceId" name="Description" class="form-control">@s.Description</textarea>
                                         </div>
 
                                     </div>
@@ -166,13 +166,13 @@
                 <div class="modal-body">
 
                     <div class="mb-2">
-                        <label>Name</label>
-                        <input name="Name" class="form-control" />
+                        <label class="form-label" for="createServiceName">Name</label>
+                        <input id="createServiceName" name="Name" class="form-control" />
                     </div>
 
                     <div class="mb-2">
-                        <label>Service Type</label>
-                        <select name="ServiceTypeId" class="form-control">
+                        <label class="form-label" for="createServiceType">Service Type</label>
+                        <select id="createServiceType" name="ServiceTypeId" class="form-control">
 
                             @foreach (var st in Model.ServiceTypes)
                             {
@@ -183,8 +183,8 @@
                     </div>
 
                     <div>
-                        <label>Description</label>
-                        <textarea name="Description" class="form-control"></textarea>
+                        <label class="form-label" for="createServiceDescription">Description</label>
+                        <textarea id="createServiceDescription" name="Description" class="form-control"></textarea>
                     </div>
 
                 </div>

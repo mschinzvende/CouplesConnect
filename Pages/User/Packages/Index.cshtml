@@ -17,6 +17,22 @@
     <div class="alert alert-danger mb-3">@TempData["Error"]</div>
 }
 
+@if (TempData["Info"] != null)
+{
+    <div class="alert alert-info mb-3">@TempData["Info"]</div>
+}
+
+@if (Model.PendingPayment != null)
+{
+    <div class="alert alert-info mb-4">
+        <strong>Payment in progress:</strong>
+        Complete payment for @Model.PendingPayment!.Package.Name before selecting another package.
+        <a asp-page="/User/Packages/PaymentReturn"
+           asp-route-orderReference="@Model.PendingPayment.OrderReference"
+           class="alert-link ms-2">Check payment status</a>
+    </div>
+}
+
 <div class="row g-4">
 
     @foreach (var p in Model.Packages)
@@ -25,7 +41,7 @@
         && Model.CurrentSubscription.PackageId == p.PackageId;
 
         var totalSessions = p.SessionsPerMonth;
-        var remaining = isCurrent ? Model.CurrentSubscription.SessionsRemaining : 0;
+        var remaining = isCurrent ? Model.CurrentSubscription!.SessionsRemaining : 0;
         var used = totalSessions - remaining;
         var percentUsed = totalSessions == 0 ? 0 : (used * 100 / totalSessions);
 
@@ -87,23 +103,30 @@
                     }
                     else if (Model.CurrentSubscription != null)
                     {
-                        <!-- UPGRADE -->
-                        <form method="post" asp-page-handler="Purchase">
-                            <input type="hidden" name="PackageId" value="@p.PackageId" />
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                Upgrade Plan
-                            </button>
-                        </form>
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            Active subscription in use
+                        </button>
+                    }
+                    else if (Model.PendingPayment?.PackageId == p.PackageId &&
+                             !string.IsNullOrWhiteSpace(Model.PendingPayment.PaymentUrl))
+                    {
+                        <a href="@Model.PendingPayment.PaymentUrl" class="btn btn-primary w-100">
+                            Continue Payment
+                        </a>
+                    }
+                    else if (Model.PendingPayment != null)
+                    {
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            Another payment is in progress
+                        </button>
                     }
                     else
                     {
-                        <!-- SELECT -->
                         <form method="post" asp-page-handler="Purchase">
-                            <input type="hidden" name="PackageId" value="@p.PackageId" />
+                            <input type="hidden" name="packageId" value="@p.PackageId" />
 
                             <button type="submit" class="btn btn-primary w-100">
-                                Select Plan
+                                Subscribe &amp; Pay
                             </button>
                         </form>
                     }

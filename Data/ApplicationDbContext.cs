@@ -46,6 +46,7 @@ namespace CouplesConnect.Data
         public DbSet<ContactRequest> ContactRequests { get; set; }
 
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
+        public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
         public DbSet<PlatformSetting> PlatformSettings { get; set; }
 
         public DbSet<ServiceType> ServiceTypes { get; set; }
@@ -130,6 +131,29 @@ namespace CouplesConnect.Data
             {
                 entity.HasIndex(x => new { x.Status, x.CreatedAt });
                 entity.HasIndex(x => new { x.Email, x.CreatedAt });
+            });
+
+            builder.Entity<SubscriptionPayment>(entity =>
+            {
+                entity.HasIndex(x => x.OrderReference).IsUnique();
+                entity.HasIndex(x => x.UserId)
+                    .IsUnique()
+                    .HasFilter("[Status] = 'Pending'");
+
+                entity.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Package)
+                    .WithMany()
+                    .HasForeignKey(x => x.PackageId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(x => x.Subscription)
+                    .WithMany()
+                    .HasForeignKey(x => x.SubscriptionId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             builder.Entity<ForumCategory>(entity =>

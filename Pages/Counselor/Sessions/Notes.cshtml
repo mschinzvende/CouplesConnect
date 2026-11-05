@@ -12,7 +12,8 @@
 
 <form method="post">
 
-    <textarea name="Notes" class="form-control mb-3"
+    <label class="form-label fw-semibold" for="sessionNotes">Session notes</label>
+    <textarea id="sessionNotes" name="Notes" class="form-control mb-3"
               rows="6"
               placeholder="Write session notes...">@Model.ExistingNotes</textarea>
 

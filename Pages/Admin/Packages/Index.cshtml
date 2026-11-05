@@ -102,13 +102,26 @@
 
                                         <input type="hidden" name="PackageId" value="@p.PackageId" />
 
-                                        <input name="Name" value="@p.Name" class="form-control mb-2" />
+                                        <div class="mb-3">
+                                            <label class="form-label" for="editPackageName-@p.PackageId">Package name</label>
+                                            <input id="editPackageName-@p.PackageId" name="Name" value="@p.Name" class="form-control" required />
+                                        </div>
 
-                                        <input name="SessionsPerMonth" value="@p.SessionsPerMonth" class="form-control mb-2" />
+                                        <div class="mb-3">
+                                            <label class="form-label" for="editPackageSessions-@p.PackageId">Sessions per month</label>
+                                            <input id="editPackageSessions-@p.PackageId" name="SessionsPerMonth" value="@p.SessionsPerMonth" type="number" min="1" class="form-control" required />
+                                        </div>
 
-                                        <input name="Price" value="@p.Price" class="form-control mb-2" />
+                                        <div class="mb-3">
+                                            <label class="form-label" for="editPackagePrice-@p.PackageId">Price</label>
+                                            <input id="editPackagePrice-@p.PackageId" name="Price" value="@p.Price" type="number" min="0" step="0.01" class="form-control" required />
+                                            <div class="form-text">Enter the package price in the configured payment currency.</div>
+                                        </div>
 
-                                        <textarea name="Description" class="form-control">@p.Description</textarea>
+                                        <div class="mb-3">
+                                            <label class="form-label" for="editPackageDescription-@p.PackageId">Description</label>
+                                            <textarea id="editPackageDescription-@p.PackageId" name="Description" rows="4" class="form-control">@p.Description</textarea>
+                                        </div>
 
                                     </div>
 
@@ -150,13 +163,26 @@
 
                 <div class="modal-body">
 
-                    <input name="Name" placeholder="Name" class="form-control mb-2" />
+                    <div class="mb-3">
+                        <label class="form-label" for="createPackageName">Package name</label>
+                        <input id="createPackageName" name="Name" class="form-control" required />
+                    </div>
 
-                    <input name="SessionsPerMonth" placeholder="Sessions per month" class="form-control mb-2" />
+                    <div class="mb-3">
+                        <label class="form-label" for="createPackageSessions">Sessions per month</label>
+                        <input id="createPackageSessions" name="SessionsPerMonth" type="number" min="1" class="form-control" required />
+                    </div>
 
-                    <input name="Price" placeholder="Price" class="form-control mb-2" />
+                    <div class="mb-3">
+                        <label class="form-label" for="createPackagePrice">Price</label>
+                        <input id="createPackagePrice" name="Price" type="number" min="0" step="0.01" class="form-control" required />
+                        <div class="form-text">Enter the package price in the configured payment currency.</div>
+                    </div>
 
-                    <textarea name="Description" class="form-control" placeholder="Description"></textarea>
+                    <div class="mb-3">
+                        <label class="form-label" for="createPackageDescription">Description</label>
+                        <textarea id="createPackageDescription" name="Description" rows="4" class="form-control"></textarea>
+                    </div>
 
                 </div>
 

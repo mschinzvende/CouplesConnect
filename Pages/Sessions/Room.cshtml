@@ -162,7 +162,7 @@
             <div class="card notes-card">
 
                 <div class="notes-header">
-                    <div><strong>Session Notes</strong><small>Private to the counselor</small></div>
+                    <div><strong id="sessionNotesLabel">Session Notes</strong><small>Private to the counselor</small></div>
 
                     <button class="btn btn-sm btn-outline-secondary"
                             data-bs-toggle="modal"
@@ -178,6 +178,7 @@
                     <textarea id="notesBox"
                               name="Notes"
                               class="notes-textarea"
+                              aria-labelledby="sessionNotesLabel"
                               placeholder="Write session notes...">@Model.ExistingNotes</textarea>
 
                     <input type="hidden" name="SessionId" value="@Model.SessionId" />

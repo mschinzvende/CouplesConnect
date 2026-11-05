@@ -137,6 +137,7 @@ else
                 <div class="modal-body">
                     @Html.AntiForgeryToken()
                     <p id="notesLoadState" class="notes-load-state d-none" role="status" aria-live="polite"></p>
+                    <label class="form-label fw-semibold" for="notesBox">Session notes</label>
                     <textarea id="notesBox" class="form-control" rows="9" placeholder="Add session notes, observations, or follow-up actions..."></textarea>
                     <input type="hidden" id="notesSessionId" />
                 </div>

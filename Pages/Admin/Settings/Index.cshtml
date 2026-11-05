@@ -133,7 +133,7 @@
 
                                 <div class="col-md-3 mb-3">
 
-                                    <label>Currency</label>
+                                    <label asp-for="Settings.Currency"></label>
 
                                     <input asp-for="Settings.Currency"
                                            class="form-control" />
@@ -142,7 +142,7 @@
 
                                 <div class="col-md-3 mb-3">
 
-                                    <label>Time Zone</label>
+                                    <label asp-for="Settings.TimeZone"></label>
 
                                     <input asp-for="Settings.TimeZone"
                                            class="form-control" />
@@ -178,7 +178,7 @@
 
                             <div class="mb-3">
 
-                                <label>BASE URL</label>
+                                <label asp-for="Settings.BaseUrl">Base URL</label>
 
                                 <input asp-for="Settings.BaseUrl"
                                        class="form-control" />
@@ -187,7 +187,7 @@
 
                             <div class="mb-3">
 
-                                <label>API URL</label>
+                                <label asp-for="Settings.WhatsAppApiUrl">API URL</label>
 
                                 <input asp-for="Settings.WhatsAppApiUrl"
                                        class="form-control" />
@@ -196,7 +196,7 @@
 
                             <div class="mb-3">
 
-                                <label>Access Token</label>
+                                <label asp-for="Settings.WhatsAppAccessToken">Access Token</label>
 
                                 <div class="input-group">
 
@@ -223,7 +223,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label>Phone Number ID</label>
+                                    <label asp-for="Settings.WhatsAppPhoneNumberId">Phone Number ID</label>
 
                                     <input asp-for="Settings.WhatsAppPhoneNumberId"
                                            class="form-control" />
@@ -232,7 +232,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label>Business Account ID</label>
+                                    <label asp-for="Settings.WhatsAppBusinessAccountId">Business Account ID</label>
 
                                     <input asp-for="Settings.WhatsAppBusinessAccountId"
                                            class="form-control" />
@@ -243,7 +243,7 @@
 
                             <div class="mt-3">
 
-                                <label>Webhook Verify Token</label>
+                                <label asp-for="Settings.WhatsAppVerifyToken">Webhook Verify Token</label>
 
                                 <input asp-for="Settings.WhatsAppVerifyToken"
                                        class="form-control" />
@@ -282,7 +282,7 @@
 
                                 <div class="col-md-6 mb-3">
 
-                                    <label>SMTP Server</label>
+                                    <label asp-for="Settings.SmtpServer">SMTP Server</label>
 
                                     <input asp-for="Settings.SmtpServer"
                                            class="form-control" />
@@ -291,7 +291,7 @@
 
                                 <div class="col-md-2 mb-3">
 
-                                    <label>Port</label>
+                                    <label asp-for="Settings.SmtpPort">Port</label>
 
                                     <input asp-for="Settings.SmtpPort"
                                            class="form-control" />
@@ -300,7 +300,7 @@
 
                                 <div class="col-md-4 mb-3">
 
-                                    <label>Username</label>
+                                    <label asp-for="Settings.SmtpUsername">Username</label>
 
                                     <input asp-for="Settings.SmtpUsername"
                                            class="form-control" />
@@ -309,7 +309,7 @@
 
                                 <div class="col-md-6 mb-3">
 
-                                    <label>Password</label>
+                                    <label asp-for="Settings.SmtpPassword">Password</label>
 
                                     <div class="input-group">
 
@@ -377,7 +377,7 @@
 
                                 <div class="col-md-4">
 
-                                    <label>Trial Sessions</label>
+                                    <label asp-for="Settings.TrialSessions">Trial Sessions</label>
 
                                     <input asp-for="Settings.TrialSessions"
                                            class="form-control" />
@@ -386,7 +386,7 @@
 
                                 <div class="col-md-4">
 
-                                    <label>Trial Days</label>
+                                    <label asp-for="Settings.TrialDurationDays">Trial Days</label>
 
                                     <input asp-for="Settings.TrialDurationDays"
                                            class="form-control" />
@@ -395,7 +395,7 @@
 
                                 <div class="col-md-4">
 
-                                    <label>Counsellor Commission %</label>
+                                    <label asp-for="Settings.CounselorCommissionPercent">Counsellor Commission %</label>
 
                                     <input asp-for="Settings.CounselorCommissionPercent"
                                            class="form-control" />
@@ -419,34 +419,57 @@
 
                         <div class="card-header">
 
-                            <h4>Payment Gateway</h4>
+                            <h4>Smile &amp; Pay Gateway</h4>
 
                         </div>
 
                         <div class="card-body">
 
+                            <div class="alert alert-light border mb-4">
+                                <strong>Quick setup:</strong>
+                                Enter the merchant API credentials supplied by ZB, use Sandbox while testing,
+                                and register the callback URL below. Change to the Live URL only after approval.
+                            </div>
+
                             <div class="row">
-
-                                <div class="col-md-6">
-
-                                    <label>Paynow Integration ID</label>
-
-                                    <input asp-for="Settings.PaynowIntegrationId"
-                                           class="form-control" />
-
+                                <div class="col-md-8 mb-3">
+                                    <label asp-for="Settings.SmileAndPayBaseUrl">Gateway Base URL</label>
+                                    <input asp-for="Settings.SmileAndPayBaseUrl" class="form-control" />
+                                    <div class="form-text">
+                                        Sandbox: https://zbnet.zb.co.zw/wallet_sandbox_api/payments-gateway<br />
+                                        Live: https://zbnet.zb.co.zw/wallet_gateway/payments-gateway
+                                    </div>
                                 </div>
-
-                                <div class="col-md-6">
-
-                                    <label>Integration Key</label>
-
-                                    <input asp-for="Settings.PaynowIntegrationKey"
-                                           type="password"
-                                           class="form-control" />
-                                    <div class="form-text">Leave blank to keep the current integration key.</div>
-
+                                <div class="col-md-4 mb-3">
+                                    <label asp-for="Settings.SmileAndPayCurrencyCode">Currency</label>
+                                    <select asp-for="Settings.SmileAndPayCurrencyCode" class="form-select">
+                                        <option value="840">USD (840)</option>
+                                        <option value="924">ZWG (924)</option>
+                                    </select>
                                 </div>
-
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Settings.SmileAndPayApiKey">API Key</label>
+                                    <input asp-for="Settings.SmileAndPayApiKey" type="password"
+                                           class="form-control" autocomplete="new-password" />
+                                    <div class="form-text">Leave blank to keep the current key.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Settings.SmileAndPayApiSecret">API Secret</label>
+                                    <input asp-for="Settings.SmileAndPayApiSecret" type="password"
+                                           class="form-control" autocomplete="new-password" />
+                                    <div class="form-text">Encrypted at rest. Leave blank to keep the current secret.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Settings.SmileAndPayCheckoutHost">Allowed Checkout Host</label>
+                                    <input asp-for="Settings.SmileAndPayCheckoutHost" class="form-control" />
+                                    <div class="form-text">Normally zbnet.zb.co.zw.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="smileAndPayCallbackUrl">Payment Callback URL</label>
+                                    <input id="smileAndPayCallbackUrl" value="@($"{Request.Scheme}://{Request.Host}{Request.PathBase}/Payments/SmileAndPayWebhook")"
+                                           class="form-control" readonly />
+                                    <div class="form-text">This must be a publicly reachable HTTPS URL.</div>
+                                </div>
                             </div>
 
                         </div>

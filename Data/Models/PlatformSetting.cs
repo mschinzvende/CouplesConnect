@@ -64,9 +64,16 @@ namespace CouplesConnect.Models
 
         #region Payments
 
-        public string? PaynowIntegrationId { get; set; }
+        public string? SmileAndPayBaseUrl { get; set; } =
+            "https://zbnet.zb.co.zw/wallet_sandbox_api/payments-gateway";
 
-        public string? PaynowIntegrationKey { get; set; }
+        public string? SmileAndPayApiKey { get; set; }
+
+        public string? SmileAndPayApiSecret { get; set; }
+
+        public string SmileAndPayCurrencyCode { get; set; } = "840";
+
+        public string SmileAndPayCheckoutHost { get; set; } = "zbnet.zb.co.zw";
 
         #endregion
 

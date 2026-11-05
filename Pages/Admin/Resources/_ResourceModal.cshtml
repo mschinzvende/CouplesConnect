@@ -33,7 +33,7 @@
 
                             <div class="mb-3">
 
-                                <label class="form-label fw-semibold">
+                                <label asp-for="Title" class="form-label fw-semibold">
                                     Title
                                 </label>
 
@@ -44,7 +44,7 @@
 
                             <div class="mb-3">
 
-                                <label class="form-label fw-semibold">
+                                <label asp-for="Description" class="form-label fw-semibold">
                                     Description
                                 </label>
 
@@ -58,7 +58,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label class="form-label fw-semibold">
+                                    <label asp-for="CategoryId" class="form-label fw-semibold">
                                         Category
                                     </label>
 
@@ -76,7 +76,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label class="form-label fw-semibold">
+                                    <label asp-for="HtmlPage" class="form-label fw-semibold">
                                         HTML Page
                                     </label>
 
@@ -92,7 +92,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label class="form-label fw-semibold">
+                                    <label asp-for="EstimatedDuration" class="form-label fw-semibold">
                                         Estimated Duration
                                     </label>
 
@@ -104,7 +104,7 @@
 
                                 <div class="col-md-6">
 
-                                    <label class="form-label fw-semibold">
+                                    <label asp-for="DisplayOrder" class="form-label fw-semibold">
                                         Display Order
                                     </label>
 
@@ -122,7 +122,7 @@
 
                         <div class="col-lg-4">
 
-                            <label class="form-label fw-semibold">
+                            <label for="thumbnailFile" class="form-label fw-semibold">
 
                                 Thumbnail
 
@@ -149,7 +149,7 @@
                                 <input asp-for="IsFeatured"
                                        class="form-check-input" />
 
-                                <label class="form-check-label">
+                                <label asp-for="IsFeatured" class="form-check-label">
 
                                     Featured Resource
 
@@ -162,7 +162,7 @@
                                 <input asp-for="IsActive"
                                        class="form-check-input" />
 
-                                <label class="form-check-label">
+                                <label asp-for="IsActive" class="form-check-label">
 
                                     Active
 

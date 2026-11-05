@@ -410,6 +410,7 @@
 
                             <input class="form-control"
                                    id="txtSearch"
+                                   aria-label="Search memories"
                                    placeholder="Search memories..." />
 
                         </div>
@@ -419,7 +420,7 @@
                     <div class="col-lg-2">
 
                         <select class="form-select"
-                                id="ddlCategory">
+                                id="ddlCategory" aria-label="Filter memories by category">
 
                             <option value="">All Categories</option>
                             <option>Date Night</option>
@@ -436,7 +437,7 @@
                     <div class="col-lg-2">
 
                         <select class="form-select"
-                                id="ddlMood">
+                                id="ddlMood" aria-label="Filter memories by mood">
 
                             <option value="">All Moods</option>
 
@@ -453,7 +454,7 @@
                     <div class="col-lg-2">
 
                         <select class="form-select"
-                                id="ddlSort">
+                                id="ddlSort" aria-label="Sort memories">
 
                             <option value="new">Newest</option>
                             <option value="old">Oldest</option>
@@ -604,7 +605,7 @@
 
                     <div class="col-md-6 mb-3">
 
-                        <label class="form-label">
+                        <label class="form-label" for="EntryDate">
 
                             Date
 
@@ -618,7 +619,7 @@
 
                     <div class="col-md-6 mb-3">
 
-                        <label class="form-label">
+                        <label class="form-label" for="EntryCategory">
 
                             Category
 
@@ -642,7 +643,7 @@
 
                 <div class="mb-3">
 
-                    <label class="form-label">
+                    <label class="form-label" for="EntryTitle">
 
                         Title
 
@@ -655,13 +656,13 @@
 
                 <div class="mb-4">
 
-                    <label class="form-label">
+                    <label class="form-label" id="entryMoodLabel">
 
                         Mood
 
                     </label>
 
-                    <div class="mood-selector">
+                    <div class="mood-selector" role="group" aria-labelledby="entryMoodLabel">
 
                         <button type="button"
                                 class="mood-btn active"
@@ -703,7 +704,7 @@
 
                 <div class="mb-3">
 
-                    <label class="form-label">
+                    <label class="form-label" for="EntryMemory">
 
                         Memory
 
@@ -717,7 +718,7 @@
 
                 <div class="mb-3">
 
-                    <label class="form-label">
+                    <label class="form-label" for="EntryGratitude">
 
                         Gratitude
 
@@ -733,7 +734,7 @@
 
                     <div class="col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label" for="EntryTags">
 
                             Tags
 
@@ -747,7 +748,7 @@
 
                     <div class="col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label" for="EntryPhotos">
 
                             Photos
 
@@ -769,7 +770,7 @@
                            id="EntryFavourite"
                            type="checkbox" />
 
-                    <label class="form-check-label">
+                    <label class="form-check-label" for="EntryFavourite">
 
                         Favourite Memory
 

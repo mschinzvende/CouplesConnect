@@ -354,6 +354,76 @@ namespace CouplesConnect.Migrations
                     b.ToTable("ReflectionNotes");
                 });
 
+            modelBuilder.Entity("CouplesConnect.Data.Models.SubscriptionPayment", b =>
+                {
+                    b.Property<Guid>("SubscriptionPaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("GatewayTransactionReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("OrderReference")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("StatusMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("SubscriptionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SubscriptionPaymentId");
+
+                    b.HasIndex("OrderReference")
+                        .IsUnique();
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[Status] = 'Pending'");
+
+                    b.ToTable("SubscriptionPayments");
+                });
+
             modelBuilder.Entity("CouplesConnect.Data.Models.SupportTicket", b =>
                 {
                     b.Property<Guid>("TicketId")
@@ -939,10 +1009,21 @@ namespace CouplesConnect.Migrations
                     b.Property<bool>("NotifyCounsellorOnSessionStart")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PaynowIntegrationId")
+                    b.Property<string>("SmileAndPayApiKey")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PaynowIntegrationKey")
+                    b.Property<string>("SmileAndPayApiSecret")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmileAndPayBaseUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmileAndPayCheckoutHost")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SmileAndPayCurrencyCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SmtpPassword")
@@ -1458,6 +1539,32 @@ namespace CouplesConnect.Migrations
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CouplesConnect.Data.Models.SubscriptionPayment", b =>
+                {
+                    b.HasOne("CouplesConnect.Models.Package", "Package")
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CouplesConnect.Models.UserSubscription", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CouplesConnect.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Package");
+
+                    b.Navigation("Subscription");
 
                     b.Navigation("User");
                 });

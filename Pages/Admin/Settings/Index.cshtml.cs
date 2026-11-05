@@ -35,7 +35,8 @@ namespace CouplesConnect.Pages.Admin.Settings
                 // Secrets are never rendered back into the form. Leaving a secret field blank keeps its stored value.
                 Settings.WhatsAppAccessToken = null;
                 Settings.SmtpPassword = null;
-                Settings.PaynowIntegrationKey = null;
+                Settings.SmileAndPayApiKey = null;
+                Settings.SmileAndPayApiSecret = null;
             }
 
             if (Settings == null)
@@ -60,13 +61,15 @@ namespace CouplesConnect.Pages.Admin.Settings
 
             var storedWhatsAppAccessToken = settings.WhatsAppAccessToken;
             var storedSmtpPassword = settings.SmtpPassword;
-            var storedPaynowIntegrationKey = settings.PaynowIntegrationKey;
+            var storedSmileAndPayApiKey = settings.SmileAndPayApiKey;
+            var storedSmileAndPayApiSecret = settings.SmileAndPayApiSecret;
 
             _context.Entry(settings).CurrentValues.SetValues(Settings);
 
             settings.WhatsAppAccessToken = PreserveOrEncrypt(Settings.WhatsAppAccessToken, storedWhatsAppAccessToken);
             settings.SmtpPassword = PreserveOrEncrypt(Settings.SmtpPassword, storedSmtpPassword);
-            settings.PaynowIntegrationKey = PreserveOrEncrypt(Settings.PaynowIntegrationKey, storedPaynowIntegrationKey);
+            settings.SmileAndPayApiKey = PreserveOrEncrypt(Settings.SmileAndPayApiKey, storedSmileAndPayApiKey);
+            settings.SmileAndPayApiSecret = PreserveOrEncrypt(Settings.SmileAndPayApiSecret, storedSmileAndPayApiSecret);
 
             await _context.SaveChangesAsync();
 

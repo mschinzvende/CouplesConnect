@@ -14,8 +14,10 @@ namespace CouplesConnect.Services
 
         public async Task<bool> HasSessions(Guid userId)
         {
+            var now = DateTime.UtcNow;
             var sub = await _context.UserSubscriptions
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive);
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive &&
+                                          (!x.EndDate.HasValue || x.EndDate > now));
 
             if (sub == null) return false;
 
@@ -26,8 +28,10 @@ namespace CouplesConnect.Services
         {
             try
             {
+                var now = DateTime.UtcNow;
                 var sub = await _context.UserSubscriptions
-                        .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive);
+                        .FirstOrDefaultAsync(x => x.UserId == userId && x.IsActive &&
+                                                  (!x.EndDate.HasValue || x.EndDate > now));
 
                 if (sub == null || sub.SessionsRemaining <= 0)
                     return false;

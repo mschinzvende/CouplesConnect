@@ -38,12 +38,12 @@
                     <h6 class="section-title">Personal Information</h6>
                     <div class="row">
                     <div class="col-sm-6 mb-3">
-                        <label class="form-label">Full Name</label>
+                        <label asp-for="Input.FullName" class="form-label">Full Name</label>
                         <input asp-for="Input.FullName" class="form-control cc-input" />
                     </div>
 
                         <div class="col-sm-6 mb-3">
-                        <label class="form-label">Date of Birth</label>
+                        <label asp-for="Input.DateOfBirth" class="form-label">Date of Birth</label>
                             <input asp-for="Input.DateOfBirth"
                                    type="date"
                                    id="dob"
@@ -52,12 +52,12 @@
                     </div>
 
                         <div class="col-sm-6 mb-3">
-                        <label class="form-label">Age</label>
+                        <label class="form-label" for="age">Age</label>
                         <input type="text" id="age" class="form-control cc-input" readonly />
                     </div>
 
                         <div class="col-sm-6 mb-3">
-                        <label class="form-label">Gender</label>
+                        <label asp-for="Input.Gender" class="form-label">Gender</label>
                         <select asp-for="Input.Gender" class="form-control cc-input">
                             <option value="">-- Select Gender --</option>
                             <option>Male</option>
@@ -67,7 +67,7 @@
                     </div>
 
                         <div class="col-sm-12">
-                        <label class="form-label">Bio</label>
+                        <label asp-for="Input.Bio" class="form-label">Bio</label>
                         <textarea asp-for="Input.Bio" rows="5" class="form-control cc-input"></textarea>
                     </div>
 
@@ -80,12 +80,12 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Qualifications</label>
+                            <label asp-for="Input.Qualifications" class="form-label">Qualifications</label>
                             <input asp-for="Input.Qualifications" class="form-control cc-input" />
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">Years of Experience</label>
+                            <label asp-for="Input.YearsOfExperience" class="form-label">Years of Experience</label>
                             <input asp-for="Input.YearsOfExperience" type="number" class="form-control cc-input" />
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                     <h6 class="section-title">Credentials</h6>
 
                     <div class="upload-box">
-                        <p>Upload certificates (PDF, JPG, PNG)</p>
+                        <label class="form-label" for="fileInput">Upload certificates (PDF, JPG, PNG)</label>
 
                         <input type="file"
                                id="fileInput"

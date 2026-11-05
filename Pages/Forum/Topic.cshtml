@@ -154,6 +154,7 @@
             <span class="forum-kicker">Join in</span>
             <h2 id="reply-composer-heading">Add a thoughtful reply</h2>
             <form method="post" asp-page-handler="Reply" asp-route-id="@Model.Topic.ForumTopicId" class="forum-form" novalidate>
+                <label asp-for="Input.Body" class="form-label">Your reply</label>
                 <span asp-validation-for="Input.Body" class="text-danger small d-block mb-2"></span>
                 <textarea asp-for="Input.Body" class="form-control forum-textarea" rows="6" maxlength="5000" placeholder="Write your reply with care…"></textarea>
                 <div class="forum-reply-form-footer">
