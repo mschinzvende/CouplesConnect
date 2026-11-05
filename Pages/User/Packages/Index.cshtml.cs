@@ -133,7 +133,7 @@ public class IndexModel : PageModel
         }
 
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        var returnUrl = $"{baseUrl}/User/Packages/PaymentReturn?orderReference={Uri.EscapeDataString(orderReference)}";
+        var returnUrl = $"{baseUrl}/payments/return?orderReference={Uri.EscapeDataString(orderReference)}";
         var resultUrl = $"{baseUrl}/Payments/SmileAndPayWebhook";
         var (firstName, lastName) = SplitName(user.FullName);
 

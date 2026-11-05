@@ -24,7 +24,12 @@ builder.WebHost.ConfigureKestrel(options =>
 var connectionString = Environment.GetEnvironmentVariable("LV_CH_BTE");
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    // Keep the conventional URL for existing Smile & Pay transactions and expose
+    // a stable gateway-facing route that is independent of the feature folder name.
+    options.Conventions.AddPageRoute("/User/Packages/PaymentReturn", "/payments/return");
+});
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
