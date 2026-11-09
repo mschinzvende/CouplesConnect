@@ -44,7 +44,7 @@ namespace CouplesConnect.Pages.Counselor.Sessions
         {
             try
             {
-                PageNumber = pageNumber;
+                PageNumber = Math.Max(1, pageNumber);
 
                 var user = await _userManager.GetUserAsync(User);
                 var now = DateTime.UtcNow;
@@ -93,13 +93,22 @@ namespace CouplesConnect.Pages.Counselor.Sessions
                     query = query.Where(s => s.IsEnded);
                 }
 
-                query = query
-                    .OrderBy(s => s.IsEnded)
-                    .ThenBy(s => s.Bookings.Min(b => b.ScheduledStart));
+                query = StatusFilter == "Completed"
+                    ? query
+                        .OrderByDescending(s => s.EndedAt)
+                        .ThenByDescending(s => s.Bookings.Max(b => b.ScheduledStart))
+                    : query
+                        .OrderBy(s => s.IsEnded)
+                        .ThenBy(s => s.IsEnded
+                            ? DateTime.MaxValue
+                            : s.Bookings.Min(b => b.ScheduledStart))
+                        .ThenByDescending(s => s.EndedAt);
 
                 var totalCount = await query.CountAsync();
 
                 TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+                if (TotalPages > 0 && PageNumber > TotalPages)
+                    PageNumber = TotalPages;
 
                 Sessions = await query
                     .Skip((PageNumber - 1) * PageSize)
