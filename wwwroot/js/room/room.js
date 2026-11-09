@@ -14,6 +14,7 @@ let audioContext = null;
 let isExiting = false;
 let isEndingSession = false;
 let transcriptionActive = false;
+let callConnected = false;
 const receivedCaptions = new Set();
 
 document.addEventListener("pointerdown", () => {
@@ -55,6 +56,7 @@ const call = new AcsCallManager({
     displayName,
     onStateChanged: state => {
         connectionText.innerText = state === "Connected" ? "In call" : `Call ${state}`;
+        setTranscriptionAvailability(state === "Connected");
     },
     onRaisedHandsChanged: hands => {
         if (isCounselor && hands.length) showRoomAlert(`${hands.length} participant${hands.length === 1 ? "" : "s"} raised a hand.`);
@@ -164,7 +166,7 @@ async function runControl(id, action) {
         console.error(`[Room] ${id} action failed`, error);
         alert("That control could not be updated. Please check your browser permissions and try again.");
     } finally {
-        button.disabled = false;
+        button.disabled = id === "transcriptionButton" ? !callConnected : false;
     }
 }
 
@@ -222,6 +224,22 @@ function setTranscriptionState(active) {
         button.classList.toggle("btn-outline-danger", active);
     }
     setTranscriptionStatus(active ? "Listening and appending finalized speech" : "Not started", active ? "active" : "");
+    if (!callConnected) setTranscriptionAvailability(false);
+}
+
+function setTranscriptionAvailability(connected) {
+    callConnected = connected;
+    const button = document.getElementById("transcriptionButton");
+    if (!button) return;
+
+    button.disabled = !connected;
+    if (!connected && !transcriptionActive) {
+        button.innerHTML = '<span aria-hidden="true">🎙</span> Connecting call…';
+        setTranscriptionStatus("Available when the call connects");
+    } else if (connected && !transcriptionActive) {
+        button.innerHTML = '<span aria-hidden="true">🎙</span> Start transcription';
+        setTranscriptionStatus("Not started");
+    }
 }
 
 function setTranscriptionStatus(message, state = "") {

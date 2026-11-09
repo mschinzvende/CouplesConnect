@@ -73,6 +73,7 @@ export default class AcsCallManager {
         this.captionsActiveHandler = () => this.onCaptionsStateChanged?.(this.captions.isCaptionsFeatureActive);
         this.captions.on("CaptionsReceived", this.captionHandler);
         this.captions.on("CaptionsActiveChanged", this.captionsActiveHandler);
+        this.onStateChanged?.(this.call.state);
 
         if (this.localVideoStream) await this.renderLocalVideo();
         this.call.remoteParticipants.forEach(participant => this.addRemoteParticipant(participant));
