@@ -274,10 +274,12 @@ export default class AcsCallManager {
 
     async startTranscription(spokenLanguage = "en-US") {
         if (!this.captions) throw new Error("Join the call before starting transcription.");
-        if (!this.captions.supportedSpokenLanguages.some(language => language.toLowerCase() === spokenLanguage.toLowerCase())) {
+        const supportedLanguage = this.captions.supportedSpokenLanguages
+            .find(language => language.toLowerCase() === spokenLanguage.toLowerCase());
+        if (!supportedLanguage) {
             throw new Error(`${spokenLanguage} is not supported for live transcription.`);
         }
-        await this.captions.startCaptions({ spokenLanguage });
+        await this.captions.startCaptions({ spokenLanguage: supportedLanguage });
     }
 
     async stopTranscription() {

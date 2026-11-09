@@ -193,7 +193,10 @@ window.toggleTranscription = () => runControl("transcriptionButton", async () =>
         try {
             await call.startTranscription("en-US");
         } catch (error) {
-            setTranscriptionStatus("Could not start transcription", "error");
+            const message = error?.message?.includes("Spoken language requested is not supported")
+                ? "English transcription is unavailable for this call"
+                : "Could not start transcription";
+            setTranscriptionStatus(message, "error");
             throw error;
         }
     } else {
