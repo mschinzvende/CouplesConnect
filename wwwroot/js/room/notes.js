@@ -66,6 +66,26 @@ export default class NotesManager {
 
     }
 
+    appendTranscript({ text, speaker, timestamp }) {
+
+        if (!this.notesBox || !text?.trim())
+            return;
+
+        const spokenAt = timestamp instanceof Date ? timestamp : new Date(timestamp);
+        const time = Number.isNaN(spokenAt.getTime())
+            ? new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+            : spokenAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const line = `[${time}] ${speaker || "Participant"}: ${text.trim()}`;
+        const current = this.notesBox.value.trimEnd();
+
+        this.notesBox.value = current ? `${current}\n${line}` : line;
+        this.notesBox.scrollTop = this.notesBox.scrollHeight;
+        this.setStatus("Transcription added — saving…", "saving");
+        clearTimeout(this.debounce);
+        this.debounce = setTimeout(() => this.autoSave(), 600);
+
+    }
+
     // ==========================================
     // Save
     // ==========================================
@@ -75,6 +95,8 @@ export default class NotesManager {
         if (!this.notesBox)
             return;
 
+        const notesBeingSaved = this.notesBox.value;
+        let saveSucceeded = false;
         this.saving = true;
         this.saveButton?.setAttribute("disabled", "disabled");
         this.setStatus("Saving…", "saving");
@@ -108,7 +130,7 @@ export default class NotesManager {
                                 this.sessionId,
 
                             notes:
-                                this.notesBox.value
+                                notesBeingSaved
 
                         })
 
@@ -121,7 +143,8 @@ export default class NotesManager {
             if (result.success) {
 
                 this.lastSaved =
-                    this.notesBox.value;
+                    notesBeingSaved;
+                saveSucceeded = true;
 
                 this.setStatus(`Saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`, "saved");
 
@@ -140,6 +163,11 @@ export default class NotesManager {
 
         this.saving = false;
         this.saveButton?.removeAttribute("disabled");
+
+        if (saveSucceeded && this.notesBox.value !== this.lastSaved) {
+            clearTimeout(this.debounce);
+            this.debounce = setTimeout(() => this.autoSave(), 0);
+        }
 
     }
 

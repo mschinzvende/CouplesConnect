@@ -181,6 +181,21 @@
                               aria-labelledby="sessionNotesLabel"
                               placeholder="Write session notes...">@Model.ExistingNotes</textarea>
 
+                    <div class="transcription-panel">
+                        <div>
+                            <strong>Live transcription</strong>
+                            <small id="transcriptionState" class="transcription-state" aria-live="polite">Not started</small>
+                        </div>
+                        <button id="transcriptionButton"
+                                type="button"
+                                class="btn btn-sm btn-outline-primary"
+                                onclick="toggleTranscription()"
+                                aria-pressed="false">
+                            <span aria-hidden="true">🎙</span> Start transcription
+                        </button>
+                    </div>
+                    <p class="transcription-consent">Start only after every participant has agreed to transcription. Finalized speech is appended to these private notes and autosaved.</p>
+
                     <input type="hidden" name="SessionId" value="@Model.SessionId" />
 
                     <div class="notes-footer">
@@ -266,7 +281,8 @@
         feedbackUrl: @Html.Raw(System.Text.Json.JsonSerializer.Serialize($"/User/Sessions/Feedback/{Model.SessionId}")),
         azureCallToken: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallToken)),
         azureCallTokenExpiresOn: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallTokenExpiresOn)),
-        azureCallGroupId: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallGroupId))
+        azureCallGroupId: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AzureCallGroupId)),
+        displayName: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CurrentUserDisplayName))
     };
 </script>
 

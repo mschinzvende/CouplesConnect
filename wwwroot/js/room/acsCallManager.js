@@ -7,14 +7,17 @@ import { Features } from "@azure/communication-calling";
 import { AzureCommunicationTokenCredential } from "@azure/communication-common";
 
 export default class AcsCallManager {
-    constructor({ token, groupId, onStateChanged, onRaisedHandsChanged, onVideoStateChanged, onMuteStateChanged, onScreenSharingChanged }) {
+    constructor({ token, groupId, displayName, onStateChanged, onRaisedHandsChanged, onVideoStateChanged, onMuteStateChanged, onScreenSharingChanged, onCaptionReceived, onCaptionsStateChanged }) {
         this.token = token;
         this.groupId = groupId;
+        this.displayName = displayName;
         this.onStateChanged = onStateChanged;
         this.onRaisedHandsChanged = onRaisedHandsChanged;
         this.onVideoStateChanged = onVideoStateChanged;
         this.onMuteStateChanged = onMuteStateChanged;
         this.onScreenSharingChanged = onScreenSharingChanged;
+        this.onCaptionReceived = onCaptionReceived;
+        this.onCaptionsStateChanged = onCaptionsStateChanged;
         this.call = null;
         this.callAgent = null;
         this.callClient = null;
@@ -27,6 +30,9 @@ export default class AcsCallManager {
         this.participants = new Map();
         this.featuredKey = null;
         this.handRaised = false;
+        this.captions = null;
+        this.captionHandler = null;
+        this.captionsActiveHandler = null;
     }
 
     async join() {
@@ -34,7 +40,7 @@ export default class AcsCallManager {
 
         this.callClient = new CallClient();
         const credential = new AzureCommunicationTokenCredential(this.token);
-        this.callAgent = await this.callClient.createCallAgent(credential);
+        this.callAgent = await this.callClient.createCallAgent(credential, { displayName: this.displayName });
 
         this.deviceManager = await this.callClient.getDeviceManager();
         await this.deviceManager.askDevicePermission({ audio: true, video: true });
@@ -60,6 +66,13 @@ export default class AcsCallManager {
         this.raiseHandFeature = this.call.feature(Features.RaiseHand);
         this.raiseHandFeature.on("raisedHandEvent", () => this.notifyRaisedHandsChanged());
         this.raiseHandFeature.on("loweredHandEvent", () => this.notifyRaisedHandsChanged());
+
+        const captionsFeature = this.call.feature(Features.Captions);
+        this.captions = captionsFeature.captions;
+        this.captionHandler = caption => this.onCaptionReceived?.(caption);
+        this.captionsActiveHandler = () => this.onCaptionsStateChanged?.(this.captions.isCaptionsFeatureActive);
+        this.captions.on("CaptionsReceived", this.captionHandler);
+        this.captions.on("CaptionsActiveChanged", this.captionsActiveHandler);
 
         if (this.localVideoStream) await this.renderLocalVideo();
         this.call.remoteParticipants.forEach(participant => this.addRemoteParticipant(participant));
@@ -259,12 +272,29 @@ export default class AcsCallManager {
         this.onRaisedHandsChanged?.(this.raiseHandFeature.getRaisedHands());
     }
 
+    async startTranscription(spokenLanguage = "en-US") {
+        if (!this.captions) throw new Error("Join the call before starting transcription.");
+        if (!this.captions.supportedSpokenLanguages.some(language => language.toLowerCase() === spokenLanguage.toLowerCase())) {
+            throw new Error(`${spokenLanguage} is not supported for live transcription.`);
+        }
+        await this.captions.startCaptions({ spokenLanguage });
+    }
+
+    async stopTranscription() {
+        if (!this.captions?.isCaptionsFeatureActive) return;
+        await this.captions.stopCaptions();
+    }
+
     updateParticipantCount() {
         const counter = document.getElementById("participantCount");
         if (counter) counter.innerText = String(this.participants.size + 1);
     }
 
     async leave() {
+        if (this.captions) {
+            if (this.captionHandler) this.captions.off("CaptionsReceived", this.captionHandler);
+            if (this.captionsActiveHandler) this.captions.off("CaptionsActiveChanged", this.captionsActiveHandler);
+        }
         if (this.call) await this.call.hangUp({ forEveryone: false });
         for (const key of [...this.views.keys()]) this.removeVideoCard(key);
         this.localRenderer?.dispose();

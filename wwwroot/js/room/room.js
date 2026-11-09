@@ -2,7 +2,7 @@ import SignalManager from "./signalManager.js";
 import NotesManager from "./notes.js";
 import AcsCallManager from "./acsCallManager.js";
 
-const { sessionId, isCounselor, returnUrl, feedbackUrl, azureCallToken, azureCallGroupId } = window.roomConfig;
+const { sessionId, isCounselor, returnUrl, feedbackUrl, azureCallToken, azureCallGroupId, displayName } = window.roomConfig;
 const waitingScreen = document.getElementById("waitingScreen");
 const sessionUI = document.getElementById("sessionUI");
 const statusDot = document.getElementById("statusDot");
@@ -13,6 +13,8 @@ let alertTimer = null;
 let audioContext = null;
 let isExiting = false;
 let isEndingSession = false;
+let transcriptionActive = false;
+const receivedCaptions = new Set();
 
 document.addEventListener("pointerdown", () => {
     audioContext ??= new AudioContext();
@@ -50,6 +52,7 @@ document.addEventListener("click", event => {
 const call = new AcsCallManager({
     token: azureCallToken,
     groupId: azureCallGroupId,
+    displayName,
     onStateChanged: state => {
         connectionText.innerText = state === "Connected" ? "In call" : `Call ${state}`;
     },
@@ -58,7 +61,17 @@ const call = new AcsCallManager({
     },
     onVideoStateChanged: enabled => setControlState("btnCam", enabled, "Turn camera off", "Turn camera on"),
     onMuteStateChanged: enabled => setControlState("btnMic", enabled, "Mute microphone", "Unmute microphone"),
-    onScreenSharingChanged: sharing => setControlState("btnShare", sharing, "Stop sharing", "Share screen", "is-active")
+    onScreenSharingChanged: sharing => setControlState("btnShare", sharing, "Stop sharing", "Share screen", "is-active"),
+    onCaptionReceived: caption => {
+        if (!isCounselor || caption.resultType !== "Final" || !caption.spokenText?.trim()) return;
+
+        const speaker = caption.speaker?.displayName?.trim() || "Participant";
+        const key = `${caption.timestamp instanceof Date ? caption.timestamp.toISOString() : caption.timestamp}|${speaker}|${caption.spokenText}`;
+        if (receivedCaptions.has(key)) return;
+        receivedCaptions.add(key);
+        notes.appendTranscript({ text: caption.spokenText, speaker, timestamp: caption.timestamp });
+    },
+    onCaptionsStateChanged: active => setTranscriptionState(active)
 });
 
 const signal = new SignalManager(sessionId, isCounselor);
@@ -172,6 +185,48 @@ window.raiseHand = () => runControl("btnHand", async () => {
     setControlState("btnHand", raised, "Lower hand", "Raise hand", "is-active");
 });
 window.saveNotes = async show => notes.save(show);
+window.toggleTranscription = () => runControl("transcriptionButton", async () => {
+    if (!transcriptionActive) {
+        const consented = confirm("Confirm that every participant has agreed to live transcription. Finalized speech will be appended to the counselor's private session notes.");
+        if (!consented) return;
+        setTranscriptionStatus("Starting…");
+        try {
+            await call.startTranscription("en-US");
+        } catch (error) {
+            setTranscriptionStatus("Could not start transcription", "error");
+            throw error;
+        }
+    } else {
+        setTranscriptionStatus("Stopping…");
+        try {
+            await call.stopTranscription();
+        } catch (error) {
+            setTranscriptionStatus("Could not stop transcription", "error");
+            throw error;
+        }
+    }
+});
+
+function setTranscriptionState(active) {
+    transcriptionActive = active;
+    const button = document.getElementById("transcriptionButton");
+    if (button) {
+        button.innerHTML = active
+            ? '<span aria-hidden="true">■</span> Stop transcription'
+            : '<span aria-hidden="true">🎙</span> Start transcription';
+        button.setAttribute("aria-pressed", String(active));
+        button.classList.toggle("btn-outline-primary", !active);
+        button.classList.toggle("btn-outline-danger", active);
+    }
+    setTranscriptionStatus(active ? "Listening and appending finalized speech" : "Not started", active ? "active" : "");
+}
+
+function setTranscriptionStatus(message, state = "") {
+    const status = document.getElementById("transcriptionState");
+    if (!status) return;
+    status.textContent = message;
+    status.className = `transcription-state ${state}`;
+}
 
 async function exitRoom(destination) {
     if (isExiting) return;

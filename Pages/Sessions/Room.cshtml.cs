@@ -39,6 +39,7 @@ namespace CouplesConnect.Pages.Sessions
         public string? AzureCallToken { get; private set; }
         public string? AzureCallTokenExpiresOn { get; private set; }
         public string AzureCallGroupId { get; private set; } = string.Empty;
+        public string CurrentUserDisplayName { get; private set; } = "Participant";
 
         public async Task<IActionResult> OnGetAsync(int sessionId)
         {
@@ -66,6 +67,7 @@ namespace CouplesConnect.Pages.Sessions
                 return Forbid();
 
             IsCounselor = isCounselor;
+            CurrentUserDisplayName = string.IsNullOrWhiteSpace(user.FullName) ? "Participant" : user.FullName;
 
             if (booking.Session.IsEnded)
             {

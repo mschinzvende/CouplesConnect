@@ -5,7 +5,9 @@ using CouplesConnect.Models;
 using CouplesConnect.Services;
 using CouplesConnect.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +31,24 @@ builder.Services.AddRazorPages(options =>
     // Keep the conventional URL for existing Smile & Pay transactions and expose
     // a stable gateway-facing route that is independent of the feature folder name.
     options.Conventions.AddPageRoute("/User/Packages/PaymentReturn", "/payments/return");
+});
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("public-contact", httpContext =>
+    {
+        if (!HttpMethods.IsPost(httpContext.Request.Method))
+            return RateLimitPartition.GetNoLimiter("public-contact-read");
+
+        var clientKey = httpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(clientKey, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 4,
+            Window = TimeSpan.FromMinutes(10),
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
 });
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -110,6 +130,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
