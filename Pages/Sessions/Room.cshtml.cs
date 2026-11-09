@@ -137,23 +137,23 @@ namespace CouplesConnect.Pages.Sessions
             return new Guid(bytes);
         }
 
-        public async Task<IActionResult> OnPostSaveNotesAsync(SaveNotesDto dto)
+        public async Task<IActionResult> OnPostSaveNotesAsync([FromBody] SaveNotesDto? dto)
         {
             try
             {
-                if (dto == null || dto.SessionId == 0)
+                if (dto == null || dto.SessionId <= 0)
                 {
-                    return new JsonResult(new { success = false });
+                    return BadRequest(new { success = false, message = "A valid session is required." });
                 }
 
                 var user = await _userManager.GetUserAsync(User);
                 if (user is null)
                     return new UnauthorizedResult();
 
-                var booking = await _context.Bookings
-                    .FirstOrDefaultAsync(booking => booking.SessionId == dto.SessionId);
+                var ownsSession = await _context.Bookings.AnyAsync(booking =>
+                    booking.SessionId == dto.SessionId && booking.CounselorId == user.Id);
 
-                if (booking is null || booking.CounselorId != user.Id)
+                if (!ownsSession)
                     return new ForbidResult();
 
                 var userId = user.Id;
@@ -191,7 +191,7 @@ namespace CouplesConnect.Pages.Sessions
         public class SaveNotesDto
         {
             public int SessionId { get; set; }
-            public string Notes { get; set; }
+            public string? Notes { get; set; }
         }
     }
 }

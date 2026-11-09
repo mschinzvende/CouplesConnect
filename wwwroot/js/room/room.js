@@ -236,6 +236,7 @@ async function exitRoom(destination) {
     isExiting = true;
 
     try {
+        await notes.flush();
         await Promise.allSettled([call.leave(), signal.dispose()]);
         notes.dispose();
     } finally {

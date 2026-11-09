@@ -186,6 +186,21 @@ export default class NotesManager {
 
     }
 
+    async flush() {
+
+        if (!this.notesBox)
+            return;
+
+        clearTimeout(this.debounce);
+
+        while (this.saving)
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+        if (this.notesBox.value !== this.lastSaved)
+            await this.save(false);
+
+    }
+
     // ==========================================
     // Dispose
     // ==========================================
