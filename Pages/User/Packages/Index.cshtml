@@ -35,6 +35,8 @@
 
 <div class="row g-4">
 
+    @{ var creditsExhausted = Model.CurrentSubscription is { SessionsRemaining: <= 0 }; }
+
     @foreach (var p in Model.Packages)
     {
         var isCurrent = Model.CurrentSubscription != null
@@ -47,7 +49,7 @@
 
         <div class="col-md-4">
 
-            <div class="card h-100 package-card @(isCurrent ? "active-plan" : "")">
+            <div class="card h-100 package-card @(isCurrent ? (creditsExhausted ? "exhausted-plan" : "active-plan") : "")">
 
                 <div class="card-body text-center">
 
@@ -68,10 +70,9 @@
 
                     @if (isCurrent)
                     {
-                        <!-- ACTIVE BADGE -->
                         <div class="mb-2">
-                            <span class="badge cc-badge-primary">
-                                Active Plan
+                            <span class="badge @(creditsExhausted ? "cc-badge-exhausted" : "cc-badge-primary")">
+                                @(creditsExhausted ? "Credits exhausted" : "Active Plan")
                             </span>
                         </div>
 
@@ -87,8 +88,7 @@
                             </div>
                         </div>
 
-                        <!-- COUNTDOWN -->
-                        @if (Model.CurrentSubscription?.EndDate != null)
+                        @if (!creditsExhausted && Model.CurrentSubscription?.EndDate != null)
                         {
                             <div class="text-muted small mb-3">
                                 <span class="countdown"
@@ -97,11 +97,28 @@
                             </div>
                         }
 
-                        <button class="btn btn-outline-secondary w-100" disabled>
-                            Current Plan
-                        </button>
+                        @if (creditsExhausted && Model.PendingPayment?.PackageId == p.PackageId &&
+                             !string.IsNullOrWhiteSpace(Model.PendingPayment.PaymentUrl))
+                        {
+                            <a href="@Model.PendingPayment.PaymentUrl" class="btn btn-primary w-100">Continue Payment</a>
+                        }
+                        else if (creditsExhausted && Model.PendingPayment != null)
+                        {
+                            <button class="btn btn-outline-secondary w-100" disabled>Another payment is in progress</button>
+                        }
+                        else if (creditsExhausted)
+                        {
+                            <form method="post" asp-page-handler="Purchase">
+                                <input type="hidden" name="packageId" value="@p.PackageId" />
+                                <button type="submit" class="btn btn-primary w-100">Renew this package</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-secondary w-100" disabled>Current Plan</button>
+                        }
                     }
-                    else if (Model.CurrentSubscription != null)
+                    else if (Model.CurrentSubscription != null && !creditsExhausted)
                     {
                         <button class="btn btn-outline-secondary w-100" disabled>
                             Active subscription in use
@@ -126,7 +143,7 @@
                             <input type="hidden" name="packageId" value="@p.PackageId" />
 
                             <button type="submit" class="btn btn-primary w-100">
-                                Subscribe &amp; Pay
+                                @(creditsExhausted ? "Switch to this package" : "Subscribe & Pay")
                             </button>
                         </form>
                     }
@@ -159,10 +176,23 @@
         background: #fafaff;
     }
 
+    .exhausted-plan {
+        border: 2px solid #d97706;
+        background: #fffbeb;
+    }
+
     /* BADGE */
     .cc-badge-primary {
         background: #eef2ff;
         color: #4338ca;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+
+    .cc-badge-exhausted {
+        background: #fef3c7;
+        color: #92400e;
         padding: 5px 10px;
         border-radius: 999px;
         font-size: 12px;

@@ -135,18 +135,20 @@ public class SubscriptionPaymentService
         }
 
         var now = DateTime.UtcNow;
-        var expiredSubscriptions = await _context.UserSubscriptions
+        var unavailableSubscriptions = await _context.UserSubscriptions
             .Where(x => x.UserId == payment.UserId && x.IsActive &&
-                        x.EndDate.HasValue && x.EndDate <= now)
+                        (x.SessionsRemaining <= 0 ||
+                         (x.EndDate.HasValue && x.EndDate <= now)))
             .ToListAsync(cancellationToken);
 
-        foreach (var expired in expiredSubscriptions)
+        foreach (var unavailable in unavailableSubscriptions)
         {
-            expired.IsActive = false;
+            unavailable.IsActive = false;
         }
 
         var activeSubscription = await _context.UserSubscriptions
             .FirstOrDefaultAsync(x => x.UserId == payment.UserId && x.IsActive &&
+                                      x.SessionsRemaining > 0 &&
                                       (!x.EndDate.HasValue || x.EndDate > now), cancellationToken);
 
         if (activeSubscription is not null)

@@ -85,6 +85,7 @@ public class IndexModel : PageModel
             : platformSettings.SmileAndPayCheckoutHost;
 
         await DeactivateExpiredSubscriptionsAsync(user.Id);
+        await DeactivateExhaustedSubscriptionsAsync(user.Id);
         if (await _context.UserSubscriptions.AnyAsync(x => x.UserId == user.Id && x.IsActive))
         {
             TempData["Error"] = "You already have an active subscription. Use its remaining sessions before subscribing again.";
@@ -179,6 +180,17 @@ public class IndexModel : PageModel
         if (expired.Count == 0) return;
 
         foreach (var subscription in expired) subscription.IsActive = false;
+        await _context.SaveChangesAsync();
+    }
+
+    private async Task DeactivateExhaustedSubscriptionsAsync(Guid userId)
+    {
+        var exhausted = await _context.UserSubscriptions
+            .Where(x => x.UserId == userId && x.IsActive && x.SessionsRemaining <= 0)
+            .ToListAsync();
+        if (exhausted.Count == 0) return;
+
+        foreach (var subscription in exhausted) subscription.IsActive = false;
         await _context.SaveChangesAsync();
     }
 
